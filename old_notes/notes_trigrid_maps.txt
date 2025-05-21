@@ -1,0 +1,28 @@
+--------------------------------------------------------------------------------
+use this script to create all the mapping files:
+
+code_init/generate_physgrid_maps.py
+
+--------------------------------------------------------------------------------
+for np4 cases:
+
+atm_grid_file=~/E3SM/data_grid/conusx4v1.g ; ocn_grid_file=/project/projectdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc ; ncremap -P mwf -s $ocn_grid_file -g $atm_grid_file --nm_src=oEC60to30v3 --nm_dst=conusx4v1 --dt_sng=200514
+
+atm_grid_file=~/E3SM/data_grid/conusx4v1.g ; lnd_grid_file=/project/projectdirs/e3sm/inputdata/lnd/clm2/mappingdata/grids/SCRIPgrid_0.5x0.5_nomask_c110308.nc ; ncremap -P mwf -s $lnd_grid_file -g $atm_grid_file --nm_src=r05 --nm_dst=conusx4v1 --dt_sng=200514
+
+
+--------------------------------------------------------------------------------
+After creating mapping files, use this command to copy mapping files to the correct inputdata locations:
+
+NE=30 ; NPG=2 ; SRC_GRID=ne${NE}pg${NPG} ; DATESTAMP=200514 ;  cp ${SCRATCH}/e3sm_scratch/init_files/map_r05_to_${SRC_GRID}_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_r05_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_r05_bilin.${DATESTAMP}.nc inputdata/cpl/gridmaps/${SRC_GRID}/ ; cp ${SCRATCH}/e3sm_scratch/init_files/map_oEC60to30v3_to_${SRC_GRID}_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_oEC60to30v3_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_oEC60to30v3_bilin.${DATESTAMP}.nc inputdata/cpl/gridmaps/oEC60to30v3/
+
+
+CMD=ls ; SRC_GRID=conusx4v1 ; DATESTAMP=200514 ; IDIR=${SCRATCH}/e3sm_scratch/init_files ; ${CMD} ${IDIR}/map_r05_to_${SRC_GRID}_bilin.${DATESTAMP}.nc ${IDIR}/map_r05_to_${SRC_GRID}_monotr.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_r05_mono.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_r05_bilin.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_oEC60to30v3_mono.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_oEC60to30v3_bilin.${DATESTAMP}.nc inputdata/cpl/gridmaps/${SRC_GRID}/ ; ${CMD} ${IDIR}/map_oEC60to30v3_to_${SRC_GRID}_monotr.${DATESTAMP}.nc inputdata/cpl/gridmaps/oEC60to30v3/
+
+SRC_GRID=conusx4v1pg2 ; DATESTAMP=200514 ; IDIR=${SCRATCH}/e3sm_scratch/init_files ; cp ${IDIR}/map_r05_to_${SRC_GRID}_bilin.${DATESTAMP}.nc ${IDIR}/map_r05_to_${SRC_GRID}_mono.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_r05_mono.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_r05_bilin.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_oEC60to30v3_mono.${DATESTAMP}.nc ${IDIR}/map_${SRC_GRID}_to_oEC60to30v3_bilin.${DATESTAMP}.nc inputdata/cpl/gridmaps/${SRC_GRID}/ ; cp ${IDIR}/map_oEC60to30v3_to_${SRC_GRID}_mono.${DATESTAMP}.nc inputdata/cpl/gridmaps/oEC60to30v3/
+
+--------------------------------------------------------------------------------
+commmand to check if files are there
+
+SRC_GRID=conusx4v1pg2 ; DATESTAMP=200514; ls -l ${SCRATCH}/e3sm_scratch/init_files/map_r05_to_${SRC_GRID}_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_r05_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_r05_bilin.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_oEC60to30v3_to_${SRC_GRID}_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_oEC60to30v3_mono.${DATESTAMP}.nc ${SCRATCH}/e3sm_scratch/init_files/map_${SRC_GRID}_to_oEC60to30v3_bilin.${DATESTAMP}.nc
+

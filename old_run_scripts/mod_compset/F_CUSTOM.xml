@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<config_compset>
+
+          
+<compset NAME="F2000_SPCAM4_1MOM" SHORTNAME="F2000_SP_1MOM"
+         DESC="Data ocean, 2000 control, cam4 physics, SAM 1-moment microphysics"                        
+         CAM_NML_USE_CASE="2000_cam4" 
+         CAM_CONFIG_OPTS=" -rad camrt -chem trop_bam -phys cam4 -nlev 72 -use_SPCAM -crm_nx 64 -crm_ny 1 -crm_nz 70 -crm_dx 1000 -crm_dt 10 -SPCAM_microp_scheme sam1mom "
+         CAM_NAMELIST_OPTS="dust_emis_fact=0.50" 
+         CLM_CONFIG_OPTS=" -bgc cn" 
+         CLM_NML_USE_CASE="2000_control"
+         />
+
+<!-- 
+<compset NAME="F_1850_SPCAM4_1mom_CN" SHORTNAME="F1850_SP_1mom_CN"
+         DESC="Data ocean, 1850 control, cam4 physics, with CN (Carbon Nitrogen) in CLM, SPCAM with SAM 1-moment microphysics"                        
+         CAM_NML_USE_CASE="1850_cam4" 
+         CAM_CONFIG_OPTS=" -rad camrt -chem trop_bam -phys cam4 -nlev 26 -use_SPCAM -crm_nx 32 -crm_ny 1 -crm_nz 24 -crm_dx 4000 -crm_dt 20 -SPCAM_microp_scheme sam1mom "
+         CAM_NAMELIST_OPTS="dust_emis_fact=0.50" 
+         CLM_CONFIG_OPTS=" -bgc cn" 
+         CLM_NML_USE_CASE = "1850_control"
+         /> -->
+             
+
+</config_compset>

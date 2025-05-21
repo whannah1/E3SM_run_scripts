@@ -1,0 +1,91 @@
+
+/global/cfs/cdirs/m1517/dyang/E3SM_MMF/ 
+
+Cases:
+  E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04
+  E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04
+  E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04
+  E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04
+
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04;               mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04;               mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04;               mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04;               mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180_prs
+
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180_prs
+
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180_prs
+
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; mkdir ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_remap_90x180_prs
+
+
+
+
+
+### command to copy data from PM to CFS
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04;               cp -u ${SCRATCH}/e3sm_scratch/perlmutter/${CASE}/run/*eam.h[012].000[1-8]* ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native/
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; cp -u ${SCRATCH}/e3sm_scratch/perlmutter/${CASE}/run/*eam.h[012].000[1-8]* ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native/
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; cp -u ${SCRATCH}/e3sm_scratch/perlmutter/${CASE}/run/*eam.h[012].000[1-8]* ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native/
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; cp -u ${SCRATCH}/e3sm_scratch/perlmutter/${CASE}/run/*eam.h[012].000[1-8]* ${CFS}/m1517/dyang/E3SM_MMF/${CASE}/data_native/
+
+
+### remap commands
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04              ; python ~/E3SM/regrid.RCEROT.py --vert ${CASE}
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; python ~/E3SM/regrid.RCEROT.py --vert ${CASE}
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; python ~/E3SM/regrid.RCEROT.py --vert ${CASE}
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; python ~/E3SM/regrid.RCEROT.py --vert ${CASE}
+
+
+--------------------------------------------------------------------------------
+zstash commands
+--------------------------------------------------------------------------------
+ssh whannah@dtn01.nersc.gov
+screen
+bash 
+source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+
+### Create
+
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04              ; cd ~/E3SM/scratch_pm/$CASE/run; zstash create --hpss=E3SM/RCEROT-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.FIX_QRT.04      ; cd ~/E3SM/scratch_pm/$CASE/run; zstash create --hpss=E3SM/RCEROT-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash create --hpss=E3SM/RCEROT-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash create --hpss=E3SM/RCEROT-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash create --hpss=E3SM/RCEROT-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04              ; cd ~/E3SM/scratch_pm/$CASE/run; zstash update --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash update --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash update --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash update --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Extract
+
+-OLD- CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04              ; cd ~/E3SM/scratch_pm/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_update_$CASE.log "*eam.h*" 
+-OLD- CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_update_$CASE.log "*eam.h*" 
+-OLD- CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_update_$CASE.log "*eam.h*" 
+-OLD- CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; cd ~/E3SM/scratch_pm/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_update_$CASE.log "*eam.h*" 
+
+CASE=E3SM.GNUCPU.ne30pg2.F-EAM-RCEROT.04              ; cd /global/cfs/cdirs/m3312/whannah/2022-RCEROT/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE  "*eam.h*" 
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.FIX_QRT.04; cd /global/cfs/cdirs/m3312/whannah/2022-RCEROT/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE  "*eam.h*" 
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.GBL_QRT.04; cd /global/cfs/cdirs/m3312/whannah/2022-RCEROT/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE  "*eam.h*" 
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; cd /global/cfs/cdirs/m3312/whannah/2022-RCEROT/$CASE/run; zstash extract --hpss=E3SM/RCEROT-2022/$CASE  "*eam.h*" 
+
+
+### Examine
+
+CASE=E3SM.GNUGPU.ne30pg2.F-MMFXX-RCEROT.BVT.RADNX_1.04; cd /global/cfs/cdirs/m3312/whannah/2022-RCEROT/$CASE/run; zstash ls --hpss=E3SM/RCEROT-2022/$CASE  "*eam.h0*" 
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+

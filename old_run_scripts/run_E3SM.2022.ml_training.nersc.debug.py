@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+#---------------------------------------------------------------------------------------------------
+class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
+def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
+#---------------------------------------------------------------------------------------------------
+import os, datetime, subprocess as sp, numpy as np
+from shutil import copy2
+newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
+
+acct = 'm3312'    # m3312 / m3305
+
+top_dir  = os.getenv('HOME')+'/E3SM'
+case_dir = top_dir+'/Cases/'
+src_dir  = top_dir+'/E3SM_SRC4/' # branch => whannah/mmf/ml-training
+
+# clean        = True
+newcase      = True
+config       = True
+build        = True
+submit       = True
+# continue_run = True
+
+debug_mode = False
+
+stop_opt,stop_n,resub,walltime = 'nsteps',3, 0,'0:10:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'0:10:00'
+
+ne,npg=30,2; num_nodes=32 ; grid=f'ne{ne}pg{npg}_oECv3' # bi-grid for AMIP or coupled
+
+compset,arch   = 'F2010-MMF1','GNUGPU'
+
+case_list = ['E3SM','MLT',arch,compset,grid]
+
+if debug_mode: case_list.append('debug')
+
+case='.'.join(case_list)
+
+#---------------------------------------------------------------------------------------------------
+print('\n  case : '+case+'\n')
+
+if 'CPU' in arch : max_mpi_per_node,atm_nthrds  = 64,1 ; max_task_per_node = 64
+if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  4,8 ; max_task_per_node = 32
+if arch=='CORI'  : max_mpi_per_node,atm_nthrds  = 64,1
+atm_ntasks = max_mpi_per_node*num_nodes
+#---------------------------------------------------------------------------------------------------
+if newcase :
+   if os.path.isdir(f'{case_dir}/{case}'): exit('\n'+clr.RED+'This case already exists!'+clr.END+'\n')
+   cmd = f'{src_dir}/cime/scripts/create_newcase -case {case_dir}/{case} -compset {compset} -res {grid}  '
+   if arch=='GNUCPU' : cmd += f' -mach pm-cpu -compiler gnu    -pecount {atm_ntasks}x{atm_nthrds} '
+   if arch=='GNUGPU' : cmd += f' -mach pm-gpu -compiler gnugpu -pecount {atm_ntasks}x{atm_nthrds} '
+   if arch=='CORI'   : cmd += f' -mach cori-knl -pecount {atm_ntasks}x{atm_nthrds} '
+   run_cmd(cmd)
+os.chdir(f'{case_dir}/{case}/')
+if newcase :
+   if 'max_mpi_per_node'  in locals(): run_cmd(f'./xmlchange MAX_MPITASKS_PER_NODE={max_mpi_per_node} ')
+   if 'max_task_per_node' in locals(): run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={max_task_per_node} ')
+#---------------------------------------------------------------------------------------------------
+if config :
+   cpp_defs = ''
+   cpp_defs += ' -DMMF_ML_TRAINING '
+   if cpp_defs != '':
+      run_cmd(f'./xmlchange --append --id CAM_CONFIG_OPTS --val \" -cppdefs \' {cpp_defs} \'  \"')
+   run_cmd('./xmlchange PIO_NETCDF_FORMAT=\"64bit_data\" ')
+   if clean : run_cmd('./case.setup --clean')
+   run_cmd('./case.setup --reset')
+#---------------------------------------------------------------------------------------------------
+if build : 
+   if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
+   if clean : run_cmd('./case.build --clean')
+   run_cmd('./case.build')
+#---------------------------------------------------------------------------------------------------
+if submit : 
+   if 'queue' in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
+   run_cmd(f'./xmlchange STOP_OPTION={stop_opt},STOP_N={stop_n},RESUBMIT={resub}')
+   run_cmd(f'./xmlchange JOB_WALLCLOCK_TIME={walltime}')
+   run_cmd(f'./xmlchange CHARGE_ACCOUNT={acct},PROJECT={acct}')
+   continue_flag = 'TRUE' if continue_run else 'False'
+   run_cmd(f'./xmlchange --file env_run.xml CONTINUE_RUN={continue_flag} ')   
+   #-------------------------------------------------------
+   run_cmd('./case.submit')
+#---------------------------------------------------------------------------------------------------
+print(f'\n  case : {case}\n') # Print the case name again
+#---------------------------------------------------------------------------------------------------
+

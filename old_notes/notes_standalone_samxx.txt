@@ -1,0 +1,29 @@
+
+====================================================================================
+Enable core dumps
+====================================================================================
+
+ulimit -c unlimited
+pgdbg   -text   -core ./core   ../bld/acme.exe
+pgdbg   -text   -core ./core   ./crm_standalone
+
+
+
+====================================================================================
+====================================================================================
+
+bld/collect_files.sh -prefix /lustre/atlas1/cli115/scratch/hannah6/CRM/<case>/<case>
+
+bld/collect_files.sh -prefix /lustre/atlas1/cli115/scratch/hannah6/CRM/CRM_SP1_ne16_32x1_01/CRM_SP1_ne16_32x1_01
+
+./collect_files.sh -prefix /lustre/atlas1/cli115/scratch/hannah6/CRM/CRM_SP1_00/CRM_SP1_00
+./collect_files.sh -prefix /lustre/atlas1/cli115/scratch/hannah6/CRM/CRM_SP1_01/CRM_SP1_01
+
+bld/compute_diffs.sh -f1 output/O2.nc -f2 output/new.nc   
+
+./compute_diffs.sh -f1 /lustre/atlas1/cli115/scratch/hannah6/CRM/CRM_SP1_00/CRM_SP1_00.nc -f2 /lustre/atlas1/cli115/scratch/hannah6/CRM/CRM_SP1_01/CRM_SP1_01.nc
+
+====================================================================================
+====================================================================================
+
+

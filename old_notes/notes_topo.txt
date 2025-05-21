@@ -1,0 +1,188 @@
+
+/global/cscratch1/sd/whannah/topo_data
+
+GenerateCSMesh --alt --res 3000  --file ne3000.g
+ConvertExodusToSCRIP --in ne3000.g  --out ne3000pg1.scrip.nc 
+
+NE=30
+GenerateCSMesh --alt --res ${NE} --file ne${NE}.g
+GenerateVolumetricMesh --in ne${NE}.g --out ne${NE}pg2.g --np 2 --uniform
+ConvertMeshToSCRIP --in ne${NE}pg2.g --out ne${NE}pg2_scrip.nc
+
+ConvertExodusToSCRIP --in ne${NE}pg2.g --out ne${NE}pg2_scrip.nc
+
+--------------------------------------------------------------------------------
+# build homme_tool on Perlmuter (https://github.com/E3SM-Project/E3SM/issues/5550)
+
+e3sm_root=/global/homes/w/whannah/E3SM/E3SM_SRC4
+cd ${e3sm_root}/components/homme
+# source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
+${e3sm_root}/cime/CIME/scripts/configure --macros-format Makefile --mpilib mpi-serial
+source .env_mach_specific.sh
+cmake -C ${e3sm_root}/components/homme/cmake/machineFiles/perlmutter-nocuda-gnu.cmake -DBUILD_HOMME_WITHOUT_PIOLIBRARY=OFF -DPREQX_PLEV=26 ${e3sm_root}/components/homme/
+make -j4 homme_tool
+
+--------------------------------------------------------------------------------
+# use TR to map cube3000 to target np4 grid
+
+NE=32; ~/E3SM/E3SM_SRC3/components/eam/tools/topo_tool/cube_to_target/cube_to_target --target-grid ne${NE}pg2_scrip.nc --input-topography ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc --output-topography topo_ne${NE}pg2.nc
+NE=64; ~/E3SM/E3SM_SRC3/components/eam/tools/topo_tool/cube_to_target/cube_to_target --target-grid ne${NE}pg2_scrip.nc --input-topography ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc --output-topography topo_ne${NE}pg2.nc
+NE=128;~/E3SM/E3SM_SRC3/components/eam/tools/topo_tool/cube_to_target/cube_to_target --target-grid ne${NE}pg2_scrip.nc --input-topography ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc --output-topography topo_ne${NE}pg2.nc
+NE=256;~/E3SM/E3SM_SRC3/components/eam/tools/topo_tool/cube_to_target/cube_to_target --target-grid ne${NE}pg2_scrip.nc --input-topography ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc --output-topography topo_ne${NE}pg2.nc
+NE=512;~/E3SM/E3SM_SRC3/components/eam/tools/topo_tool/cube_to_target/cube_to_target --target-grid ne${NE}pg2_scrip.nc --input-topography ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc --output-topography topo_ne${NE}pg2.nc
+
+
+NE=32 ; ncap2 --overwrite -s 'grid_imask=int(grid_imask)' ne${NE}pg2_scrip.nc ne${NE}pg2_scrip.nc
+NE=64 ; ncap2 --overwrite -s 'grid_imask=int(grid_imask)' ne${NE}pg2_scrip.nc ne${NE}pg2_scrip.nc
+NE=128; ncap2 --overwrite -s 'grid_imask=int(grid_imask)' ne${NE}pg2_scrip.nc ne${NE}pg2_scrip.nc
+NE=256; ncap2 --overwrite -s 'grid_imask=int(grid_imask)' ne${NE}pg2_scrip.nc ne${NE}pg2_scrip.nc
+
+
+NE=32 ; ncremap -5 --src_grd=ne3000pg1.scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne3000pg1_to_ne${NE}pg2.nc
+NE=64 ; ncremap -5 --src_grd=ne3000pg1.scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne3000pg1_to_ne${NE}pg2.nc
+NE=128; ncremap -5 --src_grd=ne3000pg1.scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne3000pg1_to_ne${NE}pg2.nc
+NE=256; ncremap -5 --src_grd=ne3000pg1.scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne3000pg1_to_ne${NE}pg2.nc
+
+NE=64 ; nohup ncremap -4 --src_grd=ne3000pg1.scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne3000pg1_to_ne${NE}pg2.nc > map_ne${NE}.out &
+NE=128; nohup ncremap -4 --src_grd=ne3000pg1.scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne3000pg1_to_ne${NE}pg2.nc > map_ne${NE}.out &
+NE=256; nohup ncremap -4 --src_grd=ne3000pg1.scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne3000pg1_to_ne${NE}pg2.nc > map_ne${NE}.out &
+
+NE=32 ; ncremap -m map_ne3000pg1_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc -o topo_ne${NE}pg2.nc
+NE=64 ; ncremap -m map_ne3000pg1_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc -o topo_ne${NE}pg2.nc
+NE=128; ncremap -m map_ne3000pg1_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc -o topo_ne${NE}pg2.nc
+NE=256; ncremap -m map_ne3000pg1_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc -o topo_ne${NE}pg2.nc
+
+
+LAKE DATA
+
+~/E3SM/inputdata/lnd/clm2/surfdata_map/surfdata_ne1024pg2_simyr2010_c211021.nc
+
+NE=32 ; ncremap -5 --src_grd=ne1024pg2_scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne1024pg2_to_ne${NE}pg2.nc
+NE=64 ; ncremap -5 --src_grd=ne1024pg2_scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne1024pg2_to_ne${NE}pg2.nc
+NE=128; ncremap -5 --src_grd=ne1024pg2_scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne1024pg2_to_ne${NE}pg2.nc
+NE=256; ncremap -5 --src_grd=ne1024pg2_scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne1024pg2_to_ne${NE}pg2.nc
+NE=512; ncremap -5 --src_grd=ne1024pg2_scrip.nc --dst_grd=ne${NE}pg2_scrip.nc --map_file=map_ne1024pg2_to_ne${NE}pg2.nc
+
+NE=32 ; ncremap -m map_ne1024pg2_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/lnd/clm2/surfdata_map/surfdata_ne1024pg2_simyr2010_c211021.nc -o surfdata_ne${NE}pg2.nc
+NE=64 ; ncremap -m map_ne1024pg2_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/lnd/clm2/surfdata_map/surfdata_ne1024pg2_simyr2010_c211021.nc -o surfdata_ne${NE}pg2.nc
+NE=128; ncremap -m map_ne1024pg2_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/lnd/clm2/surfdata_map/surfdata_ne1024pg2_simyr2010_c211021.nc -o surfdata_ne${NE}pg2.nc
+NE=256; ncremap -m map_ne1024pg2_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/lnd/clm2/surfdata_map/surfdata_ne1024pg2_simyr2010_c211021.nc -o surfdata_ne${NE}pg2.nc
+NE=512; ncremap -m map_ne1024pg2_to_ne${NE}pg2.nc -i ~/E3SM/inputdata/lnd/clm2/surfdata_map/surfdata_ne1024pg2_simyr2010_c211021.nc -o surfdata_ne${NE}pg2.nc
+
+--------------------------------------------------------------------------------
+# rename dimensions of remapped topo
+
+ncrename -d grid_size,ncol /global/cfs/projectdirs/m3312/whannah/HICCUP/files_topo/USGS-topo_16np4.nc
+
+--------------------------------------------------------------------------------
+# calculate PHIS from terr
+
+NE=24
+TOPO_FILE_1=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_topo/USGS-topo_16np4.nc
+TOPO_FILE_2=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_topo/USGS-topo_16np4_phis.nc
+ncap2 -s 'PHIS=terr*9.80616' ${TOPO_FILE_1} ${TOPO_FILE_2}
+
+
+--------------------------------------------------------------------------------
+# Calculate SHG using NCO
+
+NE=16
+
+DATA_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_topo
+GRID_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid
+
+SRC_GRID=${GRID_FILE_ROOT}/scrip_ne3000pg1.nc
+DST_GRID=${GRID_FILE_ROOT}/exodus_ne${NE}.g
+DST_GRID_PG2=${GRID_FILE_ROOT}/scrip_ne${NE}pg2.nc
+
+MAP_FILE_SRC2DST=${MAP_FILE_ROOT}/map_ne3000pg1_to_ne${NE}np4.nc
+MAP_FILE_DST2SRC=${MAP_FILE_ROOT}/map_ne${NE}np4_to_ne3000pg1.nc
+
+SRC_TOPO_FILE=/global/cfs/cdirs/e3sm/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc
+
+TOPO_FILE_1=${DATA_FILE_ROOT}/USGS-topo_${NE}np4_phis.nc
+TOPO_FILE_2=${DATA_FILE_ROOT}/USGS-topo_${NE}np4_phis_x6t_tmp1.nc
+TOPO_FILE_3=${DATA_FILE_ROOT}/USGS-topo_${NE}np4_smoothed_x6tensor.nc
+
+# remap smoothed topo to ne3000 grid
+
+# calculate anomalies on ne3000 grid
+
+--------------------------------------------------------------------------------
+# smooth the topo using homme_tool
+
+
+--------------------------------------------------------------------------------
+# Build cube_to_target on Perlmutter - instructions from README
+
+e3sm_root=/global/homes/w/whannah/E3SM/E3SM_SRC4
+cd ${e3sm_root}/components/eam/tools/topo_tool/cube_to_target
+${e3sm_root}/cime/CIME/scripts/configure && source .env_mach_specific.sh
+export FC=ifort
+
+export FC=gfortran
+export FFLAGS=" -fallow-argument-mismatch "
+export LIB_NETCDF=${NETCDF_DIR}/lib
+export INC_NETCDF=${NETCDF_DIR}/include
+make clean; make
+
+--------------------------------------------------------------------------------
+# use cube_to_target for GLL data - requires np4 scrip
+
+e3sm_root=/global/homes/w/whannah/E3SM/E3SM_SRC4
+
+eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
+${e3sm_root}/cime/CIME/scripts/configure --macros-format Makefile --mpilib mpi-serial
+source .env_mach_specific.sh
+
+NE=16
+
+DATA_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_topo
+GRID_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid
+MAP_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_map
+
+SRC_TOPO_FILE=/global/cfs/cdirs/e3sm/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc
+DST_TOPO_FILE=${DATA_FILE_ROOT}/USGS-topo_${NE}np4.nc
+
+SRC_GRID=${GRID_FILE_ROOT}/scrip_ne3000pg1.nc
+DST_GRID=${GRID_FILE_ROOT}/exodus_ne${NE}.g
+MAP_FILE=${MAP_FILE_ROOT}/map_ne3000pg1_to_ne${NE}np4.nc
+
+DST_GRID_NP4_SCRIP=${GRID_FILE_ROOT}/scrip_ne${NE}np4.nc
+
+${e3sm_root}/components/cam/tools/topo_tool/cube_to_target \
+  --target-grid ${DST_GRID_NP4_SCRIP} \
+  --input-topography ${SRC_TOPO_FILE} \
+  --output-topography ${DST_TOPO_FILE}
+
+
+--------------------------------------------------------------------------------
+NE=16
+
+cd /global/cfs/projectdirs/m3312/whannah/HICCUP
+
+source .env_mach_specific.sh
+
+e3sm_root=/global/homes/w/whannah/E3SM/E3SM_SRC4
+HICCUP_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP
+DATA_FILE_ROOT=${HICCUP_ROOT}/files_topo
+GRID_FILE_ROOT=${HICCUP_ROOT}/files_grid
+DST_GRID_PG2=${GRID_FILE_ROOT}/scrip_ne${NE}pg2.nc
+SRC_TOPO_FILE=/global/cfs/cdirs/e3sm/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc
+
+TOPO_FILE_1=${DATA_FILE_ROOT}/USGS-topo_${NE}np4_phis.nc
+TOPO_FILE_2=${DATA_FILE_ROOT}/USGS-topo_${NE}np4_phis_x6t_tmp1.nc
+TOPO_FILE_3=${DATA_FILE_ROOT}/USGS-topo_${NE}np4_smoothed_x6tensor.nc
+
+${e3sm_root}/components/eam/tools/topo_tool/cube_to_target/cube_to_target \
+  --target-grid ${DST_GRID_PG2} \
+  --input-topography ${SRC_TOPO_FILE} \
+  --smoothed-topography ${TOPO_FILE_2} \
+  --output-topography ${TOPO_FILE_3}
+
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+

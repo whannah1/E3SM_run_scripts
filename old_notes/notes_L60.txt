@@ -1,0 +1,77 @@
+--------------------------------------------------------------------------------
+Final files to be uploaded!!!
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Original files to be converted for L60 
+--------------------------------------------------------------------------------
+atm/cam/inic/homme/cami_mam3_Linoz_ne4np4_L72_c160909.nc
+atm/cam/inic/homme/cami_mam3_Linoz_ne30np4_L72_c160214.nc
+atm/cam/inic/homme/cami_mam3_Linoz_ne45np4_L72_c20200611.nc
+atm/cam/inic/homme/cami_mam3_Linoz_0000-01-ne120np4_L72_c160318.nc
+
+atm/cam/inic/homme/cami_aquaplanet_ne4np4_L72_c190218.nc atm/cam/inic/homme/cami_aquaplanet_ne30np4_L72_c190215.nc atm/cam/inic/homme/cami_aquaplanet_ne45np4_L72_c20200611.nc
+
+atm/cam/inic/homme/cami_rcemip_ne4np4_L72_c190919.nc
+atm/cam/inic/homme/cami_rcemip_ne30np4_L72_c190919.nc
+atm/cam/inic/homme/cami_rcemip_ne45np4_L72_c190919.nc
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+cp /global/homes/w/whannah/E3SM/scratch/E3SM.L60-spinup.*/run/*.eam.i.0001-01-11-00000.nc init_scratch/L60_initial_conditions/
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+   
+mv E3SM.L60-spinup.ne30pg2_r05_oECv3.F-MMF1.00.eam.i.0001-01-11-00000.nc eam_i_mam3_Linoz_ne30np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne30pg2_r05_oECv3.F-MMF1-AQP1.00.eam.i.0001-01-11-00000.nc eam_i_aquaplanet_ne30np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne30pg2_r05_oECv3.F-MMF1-RCEMIP.00.eam.i.0001-01-11-00000.nc eam_i_rcemip_ne30np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne45pg2_r05_oECv3.F-MMF1-AQP1.00.eam.i.0001-01-11-00000.nc eam_i_aquaplanet_ne45np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne45pg2_r05_oECv3.F-MMF1-RCEMIP.00.eam.i.0001-01-11-00000.nc eam_i_rcemip_ne45np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne45pg2_r05_oECv3.F-MMF1.00.eam.i.0001-01-11-00000.nc eam_i_mam3_Linoz_ne45np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne4pg2_r05_oQU480.F-MMF1-AQP1.00.eam.i.0001-01-11-00000.nc eam_i_aquaplanet_ne4np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne4pg2_r05_oQU480.F-MMF1-RCEMIP.00.eam.i.0001-01-11-00000.nc eam_i_rcemip_ne4np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne4pg2_r05_oQU480.F-MMF1.00.eam.i.0001-01-11-00000.nc eam_i_mam3_Linoz_ne4np4_L60_c20210823.nc
+mv E3SM.L60-spinup.ne120pg2_r05_oECv3.F-MMF1.00.eam.i.0001-01-11-00000.nc eam_i_mam3_Linoz_ne120np4_L60_c20210823.nc
+
+--------------------------------------------------------------------------------
+### regrid after 5-year spinup @ne30pg2
+--------------------------------------------------------------------------------
+
+command to create map files
+
+### pg2 mapping files
+
+DST_GRID=ne4pg2 ;ncremap --src_grd=${HOME}/E3SM/data_grid/ne30pg2_scrip.nc --dst_grd=${HOME}/E3SM/data_grid/${DST_GRID}_scrip.nc --map_file=${HOME}/maps/map_ne30pg2_to_${DST_GRID}_aave_20200611.nc
+DST_GRID=ne45pg2 ;ncremap --src_grd=${HOME}/E3SM/data_grid/ne30pg2_scrip.nc --dst_grd=${HOME}/E3SM/data_grid/${DST_GRID}_scrip.nc --map_file=${HOME}/maps/map_ne30pg2_to_${DST_GRID}_aave_20200611.nc
+DST_GRID=ne120pg2 ;ncremap --src_grd=${HOME}/E3SM/data_grid/ne30pg2_scrip.nc --dst_grd=${HOME}/E3SM/data_grid/${DST_GRID}_scrip.nc --map_file=${HOME}/maps/map_ne30pg2_to_${DST_GRID}_aave_20200611.nc
+
+### np4 mapping files
+
+DST_GRID=ne4  ;ncremap -a tempest --src_grd=${HOME}/E3SM/data_grid/ne30.g --dst_grd=${HOME}/E3SM/data_grid/${DST_GRID}.g --map_file=${HOME}/maps/map_ne30np4_to_${DST_GRID}np4_mono_20210901.nc --wgt_opt='--in_type cgll --in_np 4 --out_type cgll --out_np 4 --out_format Classic --mono'
+DST_GRID=ne45 ;ncremap -a tempest --src_grd=${HOME}/E3SM/data_grid/ne30.g --dst_grd=${HOME}/E3SM/data_grid/${DST_GRID}.g --map_file=${HOME}/maps/map_ne30np4_to_${DST_GRID}np4_mono_20210901.nc --wgt_opt='--in_type cgll --in_np 4 --out_type cgll --out_np 4 --out_format Classic --mono'
+DST_GRID=ne120;ncremap -a tempest --src_grd=${HOME}/E3SM/data_grid/ne30.g --dst_grd=${HOME}/E3SM/data_grid/${DST_GRID}.g --map_file=${HOME}/maps/map_ne30np4_to_${DST_GRID}np4_mono_20210901.nc --wgt_opt='--in_type cgll --in_np 4 --out_type cgll --out_np 4 --out_format Classic --mono'
+
+
+### apply the mapping files
+
+DST_GRID=ne4  ;ncremap -m ${HOME}/maps/map_ne30np4_to_${DST_GRID}np4_mono_20210901.nc -i init_scratch/L60_initial_conditions/eam_i_mam3_Linoz_ne30np4_L60_c20210901.nc -o init_scratch/L60_initial_conditions/eam_i_mam3_Linoz_${DST_GRID}np4_L60_c20210901.nc
+DST_GRID=ne45 ;ncremap -m ${HOME}/maps/map_ne30np4_to_${DST_GRID}np4_mono_20210901.nc -i init_scratch/L60_initial_conditions/eam_i_mam3_Linoz_ne30np4_L60_c20210901.nc -o init_scratch/L60_initial_conditions/eam_i_mam3_Linoz_${DST_GRID}np4_L60_c20210901.nc
+DST_GRID=ne120;ncremap -m ${HOME}/maps/map_ne30np4_to_${DST_GRID}np4_mono_20210901.nc -i init_scratch/L60_initial_conditions/eam_i_mam3_Linoz_ne30np4_L60_c20210901.nc -o init_scratch/L60_initial_conditions/eam_i_mam3_Linoz_${DST_GRID}np4_L60_c20210901.nc
+
+
+
+
+--------------------------------------------------------------------------------
+### land initial conditions
+--------------------------------------------------------------------------------
+
+cp /global/cscratch1/sd/whannah/e3sm_scratch/init_files/ELM_spinup.ICRUELM.ne45pg2_r05_oECv3.20-yr.2010-01-01.elm.r.2010-01-01-00000.nc ~/E3SM/inputdata/lnd/clm2/initdata_map/ELM_spinup.ICRUELM.ne45pg2_r05_oECv3.20-yr.elm.r.c20210823.nc
+
+cp /global/cscratch1/sd/whannah/e3sm_scratch/init_files/ELM_spinup.ICRUELM.ne4pg2_r05_oQU480.20-yr.2010-01-01.elm.r.2010-01-01-00000.nc ~/E3SM/inputdata/lnd/clm2/initdata_map/ELM_spinup.ICRUELM.ne4pg2_r05_oQU480.20-yr.elm.r.c20210823.nc
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

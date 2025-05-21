@@ -1,0 +1,6 @@
+
+
+
+Command for creating single atmos initialization file:
+
+ncl -n atm_to_cam.ncl 'datasource="ERA5"'  numlevels=72 YYYYMMDDHH=2011052000  'data_filename = "/global/cscratch1/sd/whannah/HICCUP/data/ERA5.atm+sfc.2011-05-20.nc"'  'wgt_filename="/global/homes/w/whannah/betacast/map_ERA5_721x1440_to_ne30np4_patch.nc"' 'model_topo_file="/project/projectdirs/e3sm/inputdata/atm/cam/topo/USGS-gtopo30_ne30np4pg2_16xdel2.c20200108.nc"' 'adjust_config="a"' 'se_inic = "BETACAST.atm_era5.2011-05-20.ne30np4.L72.nc"'

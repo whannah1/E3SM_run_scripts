@@ -1,0 +1,641 @@
+################################################################################
+Log into DTN to start
+################################################################################
+
+NERSC:
+  ssh whannah@dtn02.nersc.gov
+  screen -r
+  bash 
+  source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+
+OLCF:
+  ssh hannah6@dtn.ccs.ornl.gov
+  screen -r
+  source /ccs/proj/cli900/sw/rhea/e3sm-unified/load_latest_e3sm_unified.sh
+
+ANL:
+  source /lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysalis.sh
+
+to detach from screen session => ctrl+a,d
+
+--------------------------------------------------------------------------------
+Basic commands------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/$CASE --maxsize 128 . 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_create_$CASE.log
+
+cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/$CASE 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_update_$CASE.log
+
+cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=E3SM/$CASE 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_update_$CASE.log
+
+
+### examine database on HPSS
+
+CASE=E3SM.PI-CPL.v1.ne30.01; zstash ls --hpss=/home/hannah6/INCITE2021/$CASE "*eam.h0.*" 
+
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x1.BVT.MOMFB.01; zstash ls --hpss=/home/hannah6/INCITE2021/$CASE "*eam.h0.*" 
+
+ls *eam.h0* | tail ; echo ;  zstash ls "*eam.h0.*" | tail
+
+CASE=E3SM.RGMA.ne120pg2_r05_oECv3.FC5AV1C-H01A.00 ; zstash ls --hpss=/home/w/whannah/E3SM/RGMA-2020/$CASE "*eam.h0.*" 
+
+--------------------------------------------------------------------------------
+obtain E3SMv3 AMIP data
+--------------------------------------------------------------------------------
+
+zstash ls  --hpss=/home/w/wlin/E3SMv3/AMIP/v3.LR.amip_0101/ "archive/atm/hist/v3.LR.amip_0101.eam.h0.*" 
+
+zstash extract --hpss=/home/w/wlin/E3SMv3/AMIP/v3.LR.amip_0101/ "archive/atm/hist/v3.LR.amip_0101.eam.h0.*" 
+
+--------------------------------------------------------------------------------
+maps to match CMIP6-------------------------------------------------------------
+--------------------------------------------------------------------------------
+GRID=ne30np4 ; ncremap -6 --alg_typ=aave --grd_src=$HOME/E3SM/data_grid/${GRID}_scrip.nc --grd_dst=$HOME/E3SM/data_grid/cmip6_180x360_scrip.20181001.nc --map=$HOME/maps/map_${GRID}_to_cmip6_180x360_aave.20200624.nc
+
+--------------------------------------------------------------------------------
+v1 & v2 PI control--------------------------------------------------------------
+--------------------------------------------------------------------------------
+zstash ls --hpss=/home/g/golaz/2018/E3SM_simulations/repaired/20180129.DECKv1b_piControl.ne30_oEC.edison/ "*0500-01-01-00000*" 
+cd /global/cscratch1/sd/whannah/e3sm_scratch/init_files/PI_control_v1 ; zstash extract --hpss=/home/g/golaz/2018/E3SM_simulations/repaired/20180129.DECKv1b_piControl.ne30_oEC.edison/ "*0500-01-01-00000*" 
+
+zstash ls --hpss=/home/g/golaz/E3SMv2/v2.LR.piControl "*0501-01-01-00000*" 
+cd /global/cscratch1/sd/whannah/e3sm_scratch/init_files/PI_control_v2 ; zstash extract --hpss=/home/g/golaz/E3SMv2/v2.LR.piControl "*0501-01-01-00000*" 
+
+--------------------------------------------------------------------------------
+v1 AMIP
+--------------------------------------------------------------------------------
+cd /pscratch/sd/w/whannah/e3sm_scratch/20180716.DECKv1b_A3.ne30_oEC.edison
+
+zstash ls --hpss=/home/t/tang30/2018/E3SM_simulations/20180716.DECKv1b_A3.ne30_oEC.edison "*cam.h0*"
+
+zstash extract --hpss=/home/t/tang30/2018/E3SM_simulations/20180716.DECKv1b_A3.ne30_oEC.edison "archive/atm/hist/20180716.DECKv1b_A3.ne30_oEC.edison.cam.h0.2*.nc"
+
+
+--------------------------------------------------------------------------------
+v2 coupled historical
+--------------------------------------------------------------------------------
+
+CASE=v2.LR.historical_0101; zstash ls --hpss=/home/projects/e3sm/www/WaterCycle/E3SMv2/LR/${CASE} "*eam.h1.1950-01*" 
+
+CASE=v2.LR.historical_0101; mkdir /global/cfs/cdirs/m3312/whannah/e3smv2_historical/${CASE}
+
+CASE=v2.LR.historical_0101; cd /global/cfs/cdirs/m3312/whannah/e3smv2_historical/${CASE}; zstash extract --hpss=/home/projects/e3sm/www/WaterCycle/E3SMv2/LR/${CASE} "*eam.h1.*" 
+
+
+zstash ls --hpss=/home/projects/e3sm/www/WaterCycle/E3SMv2/LR/${CASE} "*eam.h*.1950-01-11*"
+zstash extract --hpss=/home/projects/e3sm/www/WaterCycle/E3SMv2/LR/${CASE} "*eam.h*.1950-01-11*"
+
+--------------------------------------------------------------------------------
+v1 & v2 CPL experiments---------------------------------------------------------
+--------------------------------------------------------------------------------
+
+ | tee ${HOME}/E3SM/zstash_logs/zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### create
+
+CASE=E3SM.PI-CPL.v1.ne30.01 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=E3SM/2021-PI-CPL/${CASE} --maxsize 128 . 2>&1
+CASE=E3SM.PI-CPL.v2.ne30.01 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=E3SM/2021-PI-CPL/${CASE} --maxsize 128 . 2>&1
+
+CASE=E3SM.PI-CPL.v1.ne30.01 ; cd ~/E3SM/scratch/$CASE/run; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*cam.h[012].*"
+CASE=E3SM.PI-CPL.v2.ne30.01 ; cd ~/E3SM/scratch/$CASE/run; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*eam.h[012].*"
+
+### extract
+CASE=E3SM.PI-CPL.v1.ne30.01; cd ~/E3SM/scratch/${CASE}/run ; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE}
+CASE=E3SM.PI-CPL.v2.ne30.01; cd ~/E3SM/scratch/${CASE}/run ; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE}
+
+CASE=E3SM.PI-CPL.v1.ne30.01; cd /project/projectdirs/e3sm/benedict/mjo_isv/v1-vs-v2/${CASE}/data_native; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*cam.h2.00[01][67890]*"
+CASE=E3SM.PI-CPL.v2.ne30.01; cd /project/projectdirs/e3sm/benedict/mjo_isv/v1-vs-v2/${CASE}/data_native; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*eam.h2.00[01][67890]*"
+
+CASE=E3SM.PI-CPL.v2.ne30.01; cd /project/projectdirs/e3sm/benedict/mjo_isv/v1-vs-v2/${CASE}/data_native; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*eam.h2.0001-01-27*"
+CASE=E3SM.PI-CPL.v2.ne30.01; cd /project/projectdirs/e3sm/benedict/mjo_isv/v1-vs-v2/${CASE}/data_native; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*eam.h2.0001-03-28*"
+
+
+CASE=E3SM.PI-CPL.v1.ne30.01; mkdir ~/E3SM/scratch_pm/${CASE}
+CASE=E3SM.PI-CPL.v2.ne30.01; mkdir ~/E3SM/scratch_pm/${CASE}
+
+CASE=E3SM.PI-CPL.v1.ne30.01; cd ~/E3SM/scratch_pm/${CASE}; zstash ls --hpss=E3SM/2021-PI-CPL/${CASE} "*atm_in*"
+CASE=E3SM.PI-CPL.v2.ne30.01; cd ~/E3SM/scratch_pm/${CASE}; zstash ls --hpss=E3SM/2021-PI-CPL/${CASE} "*atm_in*"
+
+CASE=E3SM.PI-CPL.v1.ne30.01; cd ~/E3SM/scratch_pm/${CASE}; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*atm_in*"
+CASE=E3SM.PI-CPL.v2.ne30.01; cd ~/E3SM/scratch_pm/${CASE}; zstash extract --hpss=E3SM/2021-PI-CPL/${CASE} "*atm_in*"
+
+--------------------------------------------------------------------------------
+physgrid validation-------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+### create
+
+CASE=E3SM.PGVAL-TIMING.ne30pg4_ne30pg4.F-EAM-AQP1.master-efa06a.ntask_5400.nthrds_2 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/physgrid_validation/${CASE}   --maxsize 128 . 2>&1 | tee ${HOME}/E3SM/zstash_logs/zstash_create_${CASE}_20210511.log
+
+
+### update
+
+CASE=E3SM.PGVAL.conusx4v1pg2_r05_oECv3.F2010SC5-CMIP6.master-cbe53b ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/physgrid_validation/$CASE   2>&1 | tee zstash_update_$CASE_20201124.log
+
+### extract
+
+CASE=E3SM.PGVAL.ne30pg4_r05_oECv3.F2010SC5-CMIP6.master-cbe53b; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=E3SM/physgrid_validation/$CASE "*cam.h0.*"
+
+--------------------------------------------------------------------------------
+RGMA 2020/2021------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.FC5AV1C-L.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/RGMA-2020/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_20201015.log
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.F-MMF1.CRMNX_64.CRMDX_2000.RADNX_4.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/RGMA-2020/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_20201015.log
+CASE=E3SM.RGMA.ne120pg2_r05_oECv3.FC5AV1C-H01A.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/RGMA-2020/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_20201015.log
+
+### update
+
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.FC5AV1C-L.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/RGMA-2020/$CASE   2>&1 | tee zstash_update_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.F-MMF1.CRMNX_64.CRMDX_2000.RADNX_4.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/RGMA-2020/$CASE   2>&1 | tee zstash_update_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.RGMA.ne120pg2_r05_oECv3.FC5AV1C-H01A.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/RGMA-2020/$CASE   2>&1 | tee zstash_update_$CASE_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.FC5AV1C-L.00; cd ~/E3SM/scratch/$CASE/run; zstash extract --hpss=E3SM/RGMA-2020/$CASE   2>&1 | tee zstash_extract_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.F-MMF1.CRMNX_64.CRMDX_2000.RADNX_4.00 ; cd ~/E3SM/scratch/$CASE/run; zstash extract --hpss=E3SM/RGMA-2020/$CASE   2>&1 | tee zstash_extract_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.RGMA.ne120pg2_r05_oECv3.FC5AV1C-H01A.00; cd ~/E3SM/scratch/$CASE/run; zstash extract --hpss=E3SM/RGMA-2020/$CASE   2>&1 | tee zstash_extract_$CASE_$(date +%Y%m%d).log
+
+### extract to proj directory
+
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.FC5AV1C-L.00; cd /global/project/projectdirs/m3305/RGMA-2020/$CASE/data_native; zstash extract --hpss=E3SM/RGMA-2020/$CASE "*cam.h*"  2>&1 | tee zstash_extract_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.RGMA.ne30pg2_r05_oECv3.F-MMF1.CRMNX_64.CRMDX_2000.RADNX_4.00 ; cd /global/project/projectdirs/m3305/RGMA-2020/$CASE/data_native; zstash extract --hpss=E3SM/RGMA-2020/$CASE "*cam.h*"  2>&1 | tee zstash_extract_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.RGMA.ne120pg2_r05_oECv3.FC5AV1C-H01A.00; cd /global/project/projectdirs/m3305/RGMA-2020/$CASE/data_native; zstash extract --hpss=E3SM/RGMA-2020/$CASE "*cam.h*"  2>&1 | tee zstash_extract_$CASE_$(date +%Y%m%d).log
+
+--------------------------------------------------------------------------------
+Checkerboard analysis-----------------------------------------------------------
+--------------------------------------------------------------------------------
+
+### run that Mikhail requested
+CASE=E3SM.ne30pg2_ne30pg2.F-MMF1.CRMNX_64.CRMDX_2000.CRMDT_5.RADNX_1 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/checkerboard_analysis/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_20201015.log
+
+### main runs for paper
+
+### create
+
+CASE=E3SM.CHX.ne30pg2_ne30pg2.F-MMF1.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/checkerboard_analysis/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_20210630.log
+CASE=E3SM.CHX.ne30pg2_ne30pg2.FC5AV1C-L.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/checkerboard_analysis/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_20210630.log
+CASE=E3SM.CHX.ne30pg2_ne30pg2.FC5AV1C-L.no_dcape.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/checkerboard_analysis/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_20210715.log
+
+### update
+
+CASE=E3SM.CHX.ne30pg2_ne30pg2.F-MMF1.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/checkerboard_analysis/$CASE   2>&1 | tee zstash_update_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.CHX.ne30pg2_ne30pg2.FC5AV1C-L.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/checkerboard_analysis/$CASE   2>&1 | tee zstash_update_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.CHX.ne30pg2_ne30pg2.FC5AV1C-L.no_dcape.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=E3SM/checkerboard_analysis/$CASE   2>&1 | tee zstash_update_$CASE_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.CHX.ne30pg2_ne30pg2.F-MMF1.00; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=E3SM/checkerboard_analysis/$CASE "*eam.h[01].*"
+CASE=E3SM.CHX.ne30pg2_ne30pg2.FC5AV1C-L.00; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=E3SM/checkerboard_analysis/$CASE "*eam.h0.*"
+CASE=E3SM.CHX.ne30pg2_ne30pg2.FC5AV1C-L.no_dcape.00; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=E3SM/checkerboard_analysis/$CASE "*eam.h0.*"
+
+--------------------------------------------------------------------------------
+CRM orientation tests-----------------------------------------------------------
+--------------------------------------------------------------------------------
+
+### original cases (no ESMT)
+
+CASE=E3SM.crm_angle_test.ne30pg2_ne30pg2.F-MMF1.BVT.CRMNX_64.CRMDX_2000.CRMDT_10.NLEV_50.CRMNZ_48.orientation_EW  ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/CRM_orientation_2021/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.crm_angle_test.ne30pg2_ne30pg2.F-MMF1.BVT.CRMNX_64.CRMDX_2000.CRMDT_10.NLEV_50.CRMNZ_48.orientation_NS  ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/CRM_orientation_2021/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.crm_angle_test.ne30pg2_ne30pg2.F-MMF1.BVT.CRMNX_64.CRMDX_2000.CRMDT_10.NLEV_50.CRMNZ_48.orientation_rand; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/CRM_orientation_2021/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_$(date +%Y%m%d).log
+
+### ESMT cases
+
+CASE=E3SM.crm_angle_test.ne30pg2_ne30pg2.F-MMF1.BVT.CRMNX_64.CRMDX_2000.CRMDT_10.NLEV_50.CRMNZ_48.ESMT.orientation_EW  ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/CRM_orientation_2021/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.crm_angle_test.ne30pg2_ne30pg2.F-MMF1.BVT.CRMNX_64.CRMDX_2000.CRMDT_10.NLEV_50.CRMNZ_48.ESMT.orientation_NS  ; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/CRM_orientation_2021/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_$(date +%Y%m%d).log
+CASE=E3SM.crm_angle_test.ne30pg2_ne30pg2.F-MMF1.BVT.CRMNX_64.CRMDX_2000.CRMDT_10.NLEV_50.CRMNZ_48.ESMT.orientation_rand; cd ~/E3SM/scratch/$CASE/run ; zstash create --hpss=E3SM/CRM_orientation_2021/$CASE   --maxsize 128 . 2>&1 | tee zstash_create_$CASE_$(date +%Y%m%d).log
+
+### update
+
+### extract
+
+--------------------------------------------------------------------------------
+INCITE 2021 - CMT---------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x1.BVT.02       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CMT/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x1.BVT.MOMFB.02 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CMT/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x32.BVT.02      ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CMT/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x32.BVT.MOMFB.02; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CMT/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+CASE=E3SM.INCITE2021-CMT.GNUCPU.ne45pg2_r05_oECv3.F2010-CICE.02; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=INCITE2021/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x1.BVT.02       ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2021-INCITE-CMT/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x1.BVT.MOMFB.02 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2021-INCITE-CMT/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x32.BVT.02      ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2021-INCITE-CMT/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x32.BVT.MOMFB.02; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2021-INCITE-CMT/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x1.BVT.02       ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CMT/$CASE "*eam.h*"
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x1.BVT.MOMFB.02 ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CMT/$CASE "*eam.h*"
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x32.BVT.02      ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CMT/$CASE "*eam.h*"
+CASE=E3SM.INCITE2021-CMT.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.NXY_32x32.BVT.MOMFB.02; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CMT/$CASE "*eam.h*"
+
+2023-11-06
+dtn36.ccs.ornl.gov => 32x1
+dtn37.ccs.ornl.gov => 32x32
+
+ssh hannah6@dtn37.ccs.ornl.gov
+screen -r
+source /ccs/proj/cli900/sw/rhea/e3sm-unified/load_latest_e3sm_unified.sh
+
+--------------------------------------------------------------------------------
+INCITE 2021 - HR
+--------------------------------------------------------------------------------
+
+### Create
+CASE=E3SM.INCITE2021-HR.GNUGPU.ne120pg2_r0125_oRRS18to6v3.F-MMFXX.BVT.00 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=INCITE2021/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+CASE=E3SM.INCITE2021-HR.GNUGPU.ne120pg2_r0125_oRRS18to6v3.F-MMFXX.BVT.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=INCITE2021/$CASE 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+--------------------------------------------------------------------------------
+INCITE 2021 - CRMHV
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L125.NXY_512x1.CRMDX_100.BVT.00      ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CRMHV/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L125.NXY_512x1.CRMDX_100.BVT.CRMHV.00; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CRMHV/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L60.NXY_512x1.CRMDX_100.BVT.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CRMHV/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L60.NXY_512x1.CRMDX_100.BVT.CRMHV.00 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CRMHV/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L60.NXY_64x1.CRMDX_2000.BVT.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2021-INCITE-CRMHV/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L125.NXY_512x1.CRMDX_100.BVT.00      ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CRMHV/$CASE "*eam.h1*"
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L125.NXY_512x1.CRMDX_100.BVT.CRMHV.00; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CRMHV/$CASE "*eam.h1*"
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L60.NXY_512x1.CRMDX_100.BVT.00       ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CRMHV/$CASE "*eam.h1*"
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L60.NXY_512x1.CRMDX_100.BVT.CRMHV.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CRMHV/$CASE "*eam.h1*"
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L60.NXY_64x1.CRMDX_2000.BVT.00       ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2021-INCITE-CRMHV/$CASE "*eam.h1*"
+
+
+CASE=E3SM.INCITE2021-CRMHV.GNUGPU.ne45pg2_r05_oECv3.F-MMFXX.L125.NXY_512x1.CRMDX_100.BVT.00  ; cd ~/E3SM/scratch/$CASE/run ; zstash ls --hpss=2021-INCITE-CRMHV/$CASE "*eam.h1*"
+
+--------------------------------------------------------------------------------
+Coupled compset tests-----------------------------------------------------------
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.CPL-TEST.GNUCPU.ne30pg2_EC30to60E2r2.WCYCL1850.01                           ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=CPL-TEST-2021/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.CPL-TEST.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850_MMFXX.RADNX_4.NLEV_60.BVT.01 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=CPL-TEST-2021/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+
+CASE=E3SM.CPL-TEST.GNUCPU.ne30pg2_EC30to60E2r2.WCYCL1850.01                           ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=CPL-TEST-2021/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.CPL-TEST.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850_MMFXX.RADNX_4.NLEV_60.BVT.01 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=CPL-TEST-2021/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+--------------------------------------------------------------------------------
+Variance transport validation
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.VTVAL.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.VT_0.00  ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.VT_1.00  ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+CASE=E3SM.VTVAL.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.MOMVT.VT_0.00   ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.MOMVT.VT_1.00   ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+CASE=E3SM.VTVAL.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.MOMVT.VT_0.01   ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.MOMVT.VT_0.02   ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.00            ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.VT_0.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.VT_1.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.VT_2.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.VT_4.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.VT_8.00       ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.MOMVT.VT_0.00 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.VTVAL-HC.GNUGPU.ne30pg2_r05_oECv3.F-MMFXX.MOMFB.MOMVT.VT_1.00 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-VT-validation/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+
+--------------------------------------------------------------------------------
+AQUA RRM tests
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.AQUA-RRM-TEST.F-MMFXX-AQP1.ne30x3pg2.NXY_32x1.CRMDX_200.00  ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=AQUA-RRM-TEST/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.AQUA-RRM-TEST.F-MMFXX-AQP1.ne30x3pg2.NXY_32x1.CRMDX_2000.00 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=AQUA-RRM-TEST/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.AQUA-RRM-TEST.F-MMFXX-AQP1.ne30x3pg2.NXY_32x1.DXSCL_12e-3.00; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=AQUA-RRM-TEST/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.AQUA-RRM-TEST.F-MMFXX-AQP1.ne30x3pg2.NXY_32x1.CRMDX_200.00  ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=AQUA-RRM-TEST/$CASE "*eam.h*"
+CASE=E3SM.AQUA-RRM-TEST.F-MMFXX-AQP1.ne30x3pg2.NXY_32x1.CRMDX_2000.00 ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=AQUA-RRM-TEST/$CASE "*eam.h*"
+CASE=E3SM.AQUA-RRM-TEST.F-MMFXX-AQP1.ne30x3pg2.NXY_32x1.DXSCL_12e-3.00; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=AQUA-RRM-TEST/$CASE "*eam.h*"
+
+--------------------------------------------------------------------------------
+vertical grid sensitivity runs for QBO paper------------------------------------
+--------------------------------------------------------------------------------
+### Create
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72.01      ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=QBO-TEST-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72-nsu40.01; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=QBO-TEST-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L80-rsu40.01; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=QBO-TEST-2022/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### transfer to cfs
+
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72.01      ; cp /global/cscratch1/sd/whannah/e3sm_scratch/cori-knl/${CASE}/run/*eam.h1* /global/cfs/cdirs/m3312/whannah/2022-QBO-TEST/${CASE}/run/
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72-nsu40.01; cp /global/cscratch1/sd/whannah/e3sm_scratch/cori-knl/${CASE}/run/*eam.h1* /global/cfs/cdirs/m3312/whannah/2022-QBO-TEST/${CASE}/run/
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L80-rsu40.01; cp /global/cscratch1/sd/whannah/e3sm_scratch/cori-knl/${CASE}/run/*eam.h1* /global/cfs/cdirs/m3312/whannah/2022-QBO-TEST/${CASE}/run/
+
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72.01      ; ls /global/cfs/cdirs/m3312/whannah/2022-QBO-TEST/${CASE}/run/*eam.h1* | head
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72-nsu40.01; ls /global/cfs/cdirs/m3312/whannah/2022-QBO-TEST/${CASE}/run/*eam.h1* | head
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L80-rsu40.01; ls /global/cfs/cdirs/m3312/whannah/2022-QBO-TEST/${CASE}/run/*eam.h1* | head
+
+### extract
+
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72.01      ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=QBO-TEST-2022/$CASE "*eam.h1*"
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72-nsu40.01; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=QBO-TEST-2022/$CASE "*eam.h1*"
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L80-rsu40.01; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=QBO-TEST-2022/$CASE "*eam.h1*"
+
+--------------------------------------------------------------------------------
+2023 - new runs for QBO paper - done on pm-cpu - much longer (60 vs 20 years)
+--------------------------------------------------------------------------------
+### Create
+CASE=E3SM.QBO-TEST-03.F2010.ne30pg2.L72      ; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/run; zstash create --hpss=QBO-TEST-2023/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.QBO-TEST-03.F2010.ne30pg2.L72-nsu40; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/run; zstash create --hpss=QBO-TEST-2023/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.QBO-TEST-03.F2010.ne30pg2.L72-rlim ; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/run; zstash create --hpss=QBO-TEST-2023/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.QBO-TEST-03.F2010.ne30pg2.L72-rscl ; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/run; zstash create --hpss=QBO-TEST-2023/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### for these runs see => run_post.2023.scidac.v2-AMIP-L80-paper.py (hpss_root=E3SM/2023-SciDAC-v2-AMIP)
+E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L72
+E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L80
+E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L128
+
+2023-5-8 => login27
+
+### extract 
+
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L72; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash extract --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h1.*" 
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L80; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash extract --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h1.*" 
+
+### examine
+
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L80; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash ls --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h2.200[0-9][0-9]-03-22*" 
+
+--------------------------------------------------------------------------------
+INCITE 2022 - LOW-CLD Tuning
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1                          ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED                   ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_1E-04          ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04          ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04_QI_5E-05 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04_QI_8E-05 ; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+
+### Update
+
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1                          ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2022-INCITE-LOW-CLD/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED                   ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2022-INCITE-LOW-CLD/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_1E-04          ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2022-INCITE-LOW-CLD/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04          ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2022-INCITE-LOW-CLD/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04_QI_5E-05 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2022-INCITE-LOW-CLD/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04_QI_8E-05 ; cd ~/E3SM/scratch/$CASE/run ; zstash update --hpss=2022-INCITE-LOW-CLD/$CASE   2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1                          ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2022-INCITE-LOW-CLD/$CASE "*eam.h*"
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED                   ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2022-INCITE-LOW-CLD/$CASE "*eam.h*"
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_1E-04          ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2022-INCITE-LOW-CLD/$CASE "*eam.h*"
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04          ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2022-INCITE-LOW-CLD/$CASE "*eam.h*"
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04_QI_5E-05 ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2022-INCITE-LOW-CLD/$CASE "*eam.h*"
+CASE=E3SM.INCITE2022-LOW-CLD-00.ne30pg2.F2010-MMF1.L125_115.NXY_256x1.HV.SED.QW_5E-04_QI_8E-05 ; cd ~/E3SM/scratch/$CASE/run ; zstash extract --hpss=2022-INCITE-LOW-CLD/$CASE "*eam.h*"
+
+--------------------------------------------------------------------------------
+INCITE 2022 - LOW-CLD Cess
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.INCITE2022-LOW-CLD-CESS.ne30pg2.F2010-MMF1.SSTP_0K; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD-CESS/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-CESS.ne30pg2.F2010-MMF1.SSTP_4K; cd ~/E3SM/scratch/$CASE/run; zstash create --hpss=2022-INCITE-LOW-CLD-CESS/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+
+CASE=E3SM.INCITE2022-LOW-CLD-CESS.ne30pg2.F2010-MMF1.SSTP_0K; cd ~/E3SM/scratch/$CASE/run; zstash update --hpss=2022-INCITE-LOW-CLD-CESS/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-LOW-CLD-CESS.ne30pg2.F2010-MMF1.SSTP_4K; cd ~/E3SM/scratch/$CASE/run; zstash update --hpss=2022-INCITE-LOW-CLD-CESS/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.INCITE2022-LOW-CLD-CESS.ne30pg2.F2010-MMF1.SSTP_0K; cd ~/E3SM/scratch/$CASE/run; zstash extract --hpss=2022-INCITE-LOW-CLD-CESS/$CASE "*eam.h*"
+CASE=E3SM.INCITE2022-LOW-CLD-CESS.ne30pg2.F2010-MMF1.SSTP_4K; cd ~/E3SM/scratch/$CASE/run; zstash extract --hpss=2022-INCITE-LOW-CLD-CESS/$CASE "*eam.h*"
+
+### examine
+
+CASE=E3SM.INCITE2022-LOW-CLD-CESS.ne30pg2.F2010-MMF1.SSTP_0K; cd ~/E3SM/scratch*/$CASE/run; zstash ls "*eam.i*" --hpss=2022-INCITE-LOW-CLD-CESS/$CASE 
+
+--------------------------------------------------------------------------------
+2022 - MMF coupled historical runs
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR     ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-CPL/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-CPL/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### new creation because previous version kept stopping...
+
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR     ; cd ~/E3SM/scratch*/$CASE/run; nohup zstash create --hpss=E3SM/2022-CPL/$CASE --maxsize 128 . > zstash_create_${CASE}_$(date +%Y%m%d).log &
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd ~/E3SM/scratch*/$CASE/run; nohup zstash create --hpss=E3SM/2022-CPL/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log &
+
+2022-01-13 - MMF     => PM login34 
+2022-01-13 - non-MMF => PM login26
+2022-02-03 - non-MMF => PM login29 => zstash_create_E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR_20230203.log
+
+### Update
+
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR     ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-CPL/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-CPL/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR     ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-CPL/$CASE "*eam.h0*"
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-CPL/$CASE "*eam.h0*"
+
+### examine
+
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd ~/E3SM/scratch*/$CASE/run; zstash ls "*eam.h0.1950*" --hpss=E3SM/2022-CPL/$CASE 
+
+
+
+--------------------------------------------------------------------------------
+2022 - reduced rad sensitivity runs
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_1.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_2.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_4.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_8.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_16.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_32.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_64.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_128.00; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2022-RAD/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_1.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_2.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_4.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_8.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_16.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_32.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_64.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_128.00; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2022-RAD/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_1.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_2.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_4.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_8.00  ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_16.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_32.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_64.00 ; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+CASE=E3SM.RAD-SENS.GNUGPU.ne30pg2_oECv3.F2010-MMF1.NXY_128x1.RNX_128.00; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2022-RAD/$CASE "*eam.h*"
+
+
+--------------------------------------------------------------------------------
+long-term elevated CO2 runs on Summit
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.1xCO2 ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2023-4xCO2/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.4xCO2 ; cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2023-4xCO2/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.1xCO2 ; cd ~/E3SM/scratch*/$CASE/; zstash create --hpss=2023-4xCO2/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.2xCO2 ; cd ~/E3SM/scratch*/$CASE/; zstash create --hpss=2023-4xCO2/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.4xCO2 ; cd ~/E3SM/scratch*/$CASE/; zstash create --hpss=2023-4xCO2/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.1xCO2 ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2023-4xCO2/$CASE 2>&1 | tee zstash_update_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.4xCO2 ; cd ~/E3SM/scratch*/$CASE/run; zstash update --hpss=2023-4xCO2/$CASE 2>&1 | tee zstash_update_${CASE}_$(date +%Y%m%d).log
+
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.1xCO2 ; cd ~/E3SM/scratch*/$CASE; zstash update --hpss=2023-4xCO2/$CASE 2>&1 | tee zstash_update_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.2xCO2 ; cd ~/E3SM/scratch*/$CASE; zstash update --hpss=2023-4xCO2/$CASE 2>&1 | tee zstash_update_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.4xCO2 ; cd ~/E3SM/scratch*/$CASE; zstash update --hpss=2023-4xCO2/$CASE 2>&1 | tee zstash_update_${CASE}_$(date +%Y%m%d).log
+
+2023-11-03 - 1xCO2 - dtn35.ccs.ornl.gov
+2023-11-03 - 2xCO2 - dtn36.ccs.ornl.gov
+2023-11-15 - 4xCO2 - dtn36.ccs.ornl.gov (create)
+
+ssh hannah6@dtn36.ccs.ornl.gov
+screen -r
+source /ccs/proj/cli900/sw/rhea/e3sm-unified/load_latest_e3sm_unified.sh
+
+### extract
+
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.1xCO2; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2023-4xCO2/$CASE "*eam.h0*"
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.4xCO2; cd ~/E3SM/scratch*/$CASE/run; zstash extract --hpss=2023-4xCO2/$CASE "*eam.h0*"
+
+### examine
+
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.1xCO2; cd ~/E3SM/scratch*/$CASE/run; zstash ls --hpss=2023-4xCO2/$CASE "*eam.h1.0001-12*" 
+CASE=E3SM.2023-CO2-TEST-00.GNUGPU.ne30pg2_oECv3.WCYCL1850-MMF1.4xCO2; cd ~/E3SM/scratch*/$CASE/run; zstash ls --hpss=2023-4xCO2/$CASE "*eam.h1.0001-12*" 
+
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.1xCO2 ; cd ~/E3SM/scratch*/$CASE; zstash ls --hpss=2023-4xCO2/$CASE "archive/atm/hist/*eam.h0.0001-*"
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.2xCO2 ; cd ~/E3SM/scratch*/$CASE; zstash ls --hpss=2023-4xCO2/$CASE "archive/atm/hist/*eam.h0.0001-*"
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.4xCO2 ; cd ~/E3SM/scratch*/$CASE; zstash ls --hpss=2023-4xCO2/$CASE "archive/atm/hist/*eam.h0.0001-*"
+
+CASE=E3SM.2023-CO2-TEST-01.GNUGPU.ne30pg2_EC30to60E2r2.WCYCL1850-MMF1.1xCO2 ; cd ~/E3SM/scratch*/$CASE; zstash ls --hpss=2023-4xCO2/$CASE "run/*"
+
+--------------------------------------------------------------------------------
+low-res Cess test for exploring land adjustment
+--------------------------------------------------------------------------------
+
+CASE=E3SM.SCREAM-CESS-LR.ne30pg2_oECv3.F2010.SSTP_0K.NN_64          ;  cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2023-SCREAM-CESS-LR/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.SCREAM-CESS-LR.ne30pg2_oECv3.F2010-SCREAM-LR.SSTP_0K.NN_64;  cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2023-SCREAM-CESS-LR/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.SCREAM-CESS-LR.ne30pg2_oECv3.F2010.SSTP_4K.NN_64          ;  cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2023-SCREAM-CESS-LR/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.SCREAM-CESS-LR.ne30pg2_oECv3.F2010-SCREAM-LR.SSTP_4K.NN_64;  cd ~/E3SM/scratch*/$CASE/run; zstash create --hpss=2023-SCREAM-CESS-LR/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+2023-5-8 dtn35.ccs.ornl.gov
+
+--------------------------------------------------------------------------------
+ECP KPP MMF runs on Summit
+--------------------------------------------------------------------------------
+
+CASE=WCYCL1950-MMF1.frontier.CRAYCLANGGPU.ne120pg2.16384_2048.2023_22;cd /gpfs/alpine/cli115/proj-shared/yuanx/ACME_SIMULATIONS/$CASE; zstash create --hpss=2023-ECP-KPP/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=WCYCL1950-MMF1.frontier.CRAYCLANGGPU.ne120pg2.8192_1024.2023_01 ;cd /gpfs/alpine/cli115/proj-shared/yuanx/ACME_SIMULATIONS/$CASE; zstash create --hpss=2023-ECP-KPP/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=WCYCL1950-MMF1.frontier.CRAYCLANGGPU.ne120pg2.8192_1024.2023_02 ;cd /gpfs/alpine/cli115/proj-shared/yuanx/ACME_SIMULATIONS/$CASE; zstash create --hpss=2023-ECP-KPP/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+--------------------------------------------------------------------------------
+2023 - MMF coupled historical runs - OLCF
+--------------------------------------------------------------------------------
+
+### Create
+
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd /gpfs/alpine/cli115/proj-shared/hannah6/e3sm_scratch/$CASE; zstash create --hpss=2023-CPL/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR     ; cd /gpfs/alpine/cli115/proj-shared/hannah6/e3sm_scratch/$CASE; zstash create --hpss=2023-CPL/$CASE --maxsize 128 . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### Update
+
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd /gpfs/alpine/cli115/proj-shared/hannah6/e3sm_scratch/$CASE; zstash update --hpss=2023-CPL/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR     ; cd /gpfs/alpine/cli115/proj-shared/hannah6/e3sm_scratch/$CASE; zstash update --hpss=2023-CPL/$CASE  2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+### extract
+
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR     ; cd /gpfs/alpine/cli115/proj-shared/hannah6/e3sm_scratch/$CASE; zstash extract --hpss=2023-CPL/$CASE "*eam.h0*"
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd /gpfs/alpine/cli115/proj-shared/hannah6/e3sm_scratch/$CASE; zstash extract --hpss=2023-CPL/$CASE "*eam.h0*"
+
+### extract - after alpine decommision
+
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; mkdir /gpfs/alpine2/atm146/proj-shared/hannah6/e3sm_scratch/${CASE}
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd /gpfs/alpine2/atm146/proj-shared/hannah6/e3sm_scratch/$CASE; zstash extract --hpss=2023-CPL/$CASE 
+
+### examine
+
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd /gpfs/alpine2/atm146/proj-shared/hannah6/e3sm_scratch/$CASE; zstash ls "*eam.h0.1950*" --hpss=E3SM/2023-CPL/$CASE 
+CASE=E3SM.INCITE2023-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; cd /gpfs/alpine2/atm146/proj-shared/hannah6/e3sm_scratch/$CASE; zstash ls --hpss=E3SM/2023-CPL/$CASE 
+
+--------------------------------------------------------------------------------
+2023 v3 test with L80
+--------------------------------------------------------------------------------
+
+CASE=20230629.v3alpha02.amip.chrysalis.L72; cd /lcrc/group/e3sm/ac.whannah/E3SMv3_dev/${CASE}; zstash create --hpss=globus://nersc/~/2023-v3/${CASE} . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=20230629.v3alpha02.amip.chrysalis.L80; cd /lcrc/group/e3sm/ac.whannah/E3SMv3_dev/${CASE}; zstash create --hpss=globus://nersc/~/2023-v3/${CASE} . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+--------------------------------------------------------------------------------
+2023 SciDAC L80 ensemble
+--------------------------------------------------------------------------------
+
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.01.CF_01.HD_0.70; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.05.CF_25.HD_0.50; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.09.CF_20.HD_0.25; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.10.CF_10.HD_1.50; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.10.CF_25.HD_0.25; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.10.CF_30.HD_0.63; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.20.CF_10.HD_1.00; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.20.CF_15.HD_0.50; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.20.CF_20.HD_1.25; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.20.CF_20.HD_1.50; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.20.CF_25.HD_0.50; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.35.CF_10.HD_0.25; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.35.CF_10.HD_0.50; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.35.CF_10.HD_1.00; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.35.CF_20.HD_1.00; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.40.CF_10.HD_1.00; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.59.CF_41.HD_0.55; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.60.CF_07.HD_1.35; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.70.CF_25.HD_0.90; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.80.CF_01.HD_1.15; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+CASE=E3SM.2023-SCIDAC.ne30pg2_EC30to60E2r2.AMIP.EF_0.90.CF_20.HD_0.25; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}; zstash create --hpss=E3SM/2023-SciDAC-L80/$CASE . 2>&1 | tee zstash_create_${CASE}_$(date +%Y%m%d).log
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

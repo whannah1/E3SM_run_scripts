@@ -1,0 +1,233 @@
+#!/usr/bin/env python3
+#---------------------------------------------------------------------------------------------------
+# script for creating initial condition:
+# ~/HICCUP/custom_scripts/2022-RCE-RRM.create_initial_condition.model_to_model.horizontal_only.py
+#---------------------------------------------------------------------------------------------------
+class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
+def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
+#---------------------------------------------------------------------------------------------------
+import os, subprocess as sp, datetime
+newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
+
+acct = 'm3312' # m3312 / m3305 / m1517 / e3sm_g
+
+case_dir = os.getenv('HOME')+'/E3SM/Cases/'
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC3/' # whannah/mmf/rce-rrm => updated 2023-02-22
+# src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC3/' # whannah/mmf/test-scaled-dx
+
+# clean        = True
+newcase      = True
+config       = True
+build        = True
+submit       = True
+# continue_run = True
+
+debug_mode = False
+ 
+# stop_opt,stop_n,resub,walltime,queue = 'nstep',60,0,'0:30:00','debug' 
+# stop_opt,stop_n,resub,walltime,queue = 'nday',1,0,'4:00:00','regular' 
+
+compset = 'FRCE-MMF1' ; arch = 'GNUGPU'
+# compset = 'FRCE'      ; arch = 'CORI-INTEL'
+# compset = 'FAQP-MMF1' ; arch = 'CORI-INTEL'
+# compset = 'FAQP'      ; arch = 'CORI-INTEL'
+
+# ne,npg =   8,2 ; num_nodes =  2
+# ne,npg =  16,2 ; num_nodes =  4
+# ne,npg =  32,2 ; num_nodes =  8
+# ne,npg =  64,2 ; num_nodes = 16
+ne,npg = 128,2 ; num_nodes = 32
+# ne,npg = 256,2 ; num_nodes = 64
+
+grid = f'ne{ne}pg{npg}_ne{ne}pg{npg}' 
+
+
+
+### specify atmos initial condition file
+hiccup_scratch = '/global/cfs/projectdirs/m3312/whannah/HICCUP'
+run_scratch = '/global/cscratch1/sd/whannah/e3sm_scratch/cori-knl/'
+if 'MMF' in compset:
+   if ne==   8: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne8_L60_c20221212.nc'
+   if ne==  16: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne16_L60_c20221212.nc'
+   if ne==  32: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne32_L60_c20221212.nc'
+   if ne==  64: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne64_L60_c20221212.nc'
+   if ne== 128: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne128_L60_c20221212.nc'
+   if ne== 256: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne256_L60_c20221212.nc'
+else:
+   if ne==   8: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne8_L72_c20221212.nc'
+   if ne==  16: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne16_L72_c20221212.nc'
+   if ne==  32: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne32_L72_c20221212.nc'
+   if ne==  64: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne64_L72_c20221212.nc'
+   if ne== 128: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne128_L72_c20221212.nc'
+   if ne== 256: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne256_L72_c20221212.nc'
+
+case_list = ['E3SM','RCE-GRID-SENS-SPINUP-00',compset,f'ne{ne}pg{npg}']
+# case_list = ['E3SM','RCE-GRID-SENS-SPINUP-01',compset,f'ne{ne}pg{npg}']
+# case_list = ['E3SM','RCE-GRID-SENS-SPINUP-02',compset,f'ne{ne}pg{npg}']
+# case_list = ['E3SM','RCE-GRID-SENS-SPINUP-03',compset,f'ne{ne}pg{npg}']
+case='.'.join(case_list)
+# if 'SPINUP-00' in case: dtime =  1
+# if 'SPINUP-01' in case: dtime = 10
+# if 'SPINUP-02' in case: dtime = 30
+# if 'SPINUP-03' in case: dtime = 60
+# stop_opt,stop_n,resub,walltime,queue = 'nstep',30*60/dtime,6-1,'0:30:00','debug' 
+# # stop_opt,stop_n,resub,walltime,queue = 'nstep',60*60*2/dtime,6-1,'0:30:00','debug' 
+# if 'SPINUP-00' in case: init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne128_L72_c20221212.nc'
+# # if 'SPINUP-01' in case: init_file_atm = f'{run_scratch}/E3SM.RCE-GRID-SENS-SPINUP-00.FRCE.ne128pg2/run/E3SM.RCE-GRID-SENS-SPINUP-00.FRCE.ne128pg2.eam.i.0001-01-01-00120.nc'
+# if 'SPINUP-01' in case: init_file_atm = f'{run_scratch}/E3SM.RCE-GRID-SENS-SPINUP-02.FRCE.ne128pg2/run/E3SM.RCE-GRID-SENS-SPINUP-02.FRCE.ne128pg2.eam.i.0001-01-01-10800.nc'
+# if 'SPINUP-02' in case: init_file_atm = f'{run_scratch}/E3SM.RCE-GRID-SENS-SPINUP-01.FRCE.ne128pg2/run/E3SM.RCE-GRID-SENS-SPINUP-01.FRCE.ne128pg2.eam.i.0001-01-01-03600.nc'
+# if 'SPINUP-03' in case: init_file_atm = f'{run_scratch}/E3SM.RCE-GRID-SENS-SPINUP-02.FRCE.ne128pg2/run/E3SM.RCE-GRID-SENS-SPINUP-02.FRCE.ne128pg2.eam.i.0001-01-01-10800.nc'
+# if 'SPINUP-04' in case: init_file_atm = f'{run_scratch}/'
+# if 'SPINUP-05' in case: init_file_atm = f'{run_scratch}/'
+
+if 'MMF' in compset:
+   if 'SPINUP-00' in case: dtime =  30; init_file_atm = f'{hiccup_scratch}/eam_i_aquaplanet_ne{ne}_L60_c20221212.nc'
+
+stop_opt,stop_n,resub,walltime,queue = 'nstep',10*60/dtime,6-1,'0:30:00','debug' 
+
+#---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
+print('\n  case : '+case+'\n')
+
+# dtime = gcm_dt*60
+# dtime = 5*60
+
+# if ne==   8: dtime = 64*60
+# if ne==  16: dtime = 32*60
+# if ne==  32: dtime = 16*60
+# if ne==  64: dtime =  8*60
+# if ne== 128: dtime =  4*60
+# if ne== 256: dtime =  2*60
+
+
+max_mpi_per_node,atm_nthrds  = 64,1
+if 'CPU' in arch : max_mpi_per_node,atm_nthrds  = 64,1
+if 'GPU' in arch : max_mpi_per_node,atm_nthrds  =  4,8
+task_per_node = max_mpi_per_node
+atm_ntasks = max_mpi_per_node*num_nodes
+
+#---------------------------------------------------------------------------------------------------
+if newcase :
+   if os.path.isdir(f'{case_dir}/{case}'): exit('\n'+clr.RED+'This case already exists!'+clr.END+'\n')
+   cmd = f'{src_dir}/cime/scripts/create_newcase -case {case_dir}/{case} -compset {compset} -res {grid}  '
+   if arch=='GNUCPU': cmd += f' -mach pm-cpu -compiler gnu    -pecount {atm_ntasks}x{atm_nthrds} '
+   if arch=='GNUGPU': cmd += f' -mach pm-gpu -compiler gnugpu -pecount {atm_ntasks}x{atm_nthrds} '
+   if 'CORI' in arch: cmd += f' -pecount {atm_ntasks}x{atm_nthrds} '
+   run_cmd(cmd)
+   # # Copy this run script into the case directory
+   # timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d.%H%M%S')
+   # run_cmd(f'cp {os.path.realpath(__file__)} {case_dir}/{case}/run_script.{timestamp}.py')
+os.chdir(f'{case_dir}/{case}/')
+if newcase :
+   if 'max_mpi_per_node'  in locals(): run_cmd(f'./xmlchange MAX_MPITASKS_PER_NODE={max_mpi_per_node} ')
+   if 'max_task_per_node' in locals(): run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={max_task_per_node} ')
+#---------------------------------------------------------------------------------------------------
+if config :
+   #-------------------------------------------------------
+   if 'init_file_atm' in locals():
+      file = open('user_nl_eam','w')
+      file.write(f' ncdata = \'{init_file_atm}\'\n')
+      file.close()
+   #-------------------------------------------------------
+   # Set some non-default stuff for all MMF experiments here
+   # if 'MMF' in compset:
+      # run_cmd(f'./xmlchange --append --id CAM_CONFIG_OPTS --val \" -crm_dt {crm_dt} -crm_dx {crm_dx}  \" ')
+      # run_cmd(f'./xmlchange --append --id CAM_CONFIG_OPTS --val \" -crm_nx {crm_nx} -crm_ny {crm_ny} \" ')
+      # if 'rad_nx' in locals():
+      #    rad_ny = rad_nx if crm_ny>1 else 1
+      #    run_cmd(f'./xmlchange --append --id CAM_CONFIG_OPTS --val \" -crm_nx_rad {rad_nx} -crm_ny_rad {rad_ny} \" ')
+      # if use_dx_scaling: 
+      #    run_cmd(f'./xmlchange --append --id CAM_CONFIG_OPTS --val \" -crm_dx_scale {dx_scale} \" ')
+   #-------------------------------------------------------
+   # 64_data format is needed for large numbers of columns (GCM or CRM)
+   run_cmd('./xmlchange PIO_NETCDF_FORMAT=\"64bit_data\" ')
+   #-------------------------------------------------------
+   if clean : run_cmd('./case.setup --clean')
+   run_cmd('./case.setup --reset')
+#---------------------------------------------------------------------------------------------------
+if build : 
+   if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
+   if clean : run_cmd('./case.build --clean')
+   run_cmd('./case.build')
+#---------------------------------------------------------------------------------------------------
+if submit : 
+   #-------------------------------------------------------
+   # Namelist options
+   nfile = 'user_nl_eam'
+   file = open(nfile,'w') 
+   #------------------------------
+   # Specify history output frequency and variables
+   file.write(' nhtfrq = 0,-1,-24 \n')
+   file.write(' mfilt  = 1,24,1 \n')
+   file.write(" fincl2 = 'PS','TS'")
+   file.write(          ",'PRECT','TMQ'")
+   file.write(          ",'LHFLX','SHFLX'")             # surface fluxes
+   file.write(          ",'FSNT','FLNT'")               # Net TOM heating rates
+   file.write(          ",'FLNS','FSNS'")               # Surface rad for total column heating
+   file.write(          ",'FSNTC','FLNTC'")             # clear sky heating rates for CRE
+   file.write(          ",'TGCLDLWP','TGCLDIWP'")
+   file.write(          ",'TAUX','TAUY'")               # surface stress
+
+   file.write(          ",'UBOT','VBOT'")
+   file.write(          ",'TBOT','QBOT'")
+   file.write(          ",'U200','U850'")
+   file.write(          ",'V200','V850'")
+
+   # file.write(          ",'T','Q','Z3' ")               # 3D thermodynamic budget components
+   # file.write(          ",'U','V','OMEGA'")             # 3D velocity components
+   # file.write(          ",'CLOUD','CLDLIQ','CLDICE'")   # 3D cloud fields
+   # file.write(          ",'QRL','QRS'")                 # 3D radiative heating profiles
+
+   file.write('\n')
+
+   # file.write(" fincl3 =  'T','Q','Z3' ")               # 3D thermodynamic budget components
+   # file.write(          ",'U','V','OMEGA'")             # 3D velocity components
+   # file.write(          ",'CLOUD','CLDLIQ','CLDICE'")   # 3D cloud fields
+   # file.write(          ",'QRL','QRS'")                 # 3D radiative heating profiles
+   # file.write(          ",'TOT_DU','TOT_DV'")          # total momentum tendencies
+   # file.write(          ",'DYN_DU','DYN_DV'")          # Dynamics momentum tendencies
+   # file.write(          ",'GWD_DU','GWD_DV'")          # 3D gravity wave tendencies
+   # file.write(          ",'DUV','DVV'")                # 3D PBL tendencies
+   # file.write('\n')
+
+   #------------------------------
+   # Other namelist stuff
+   #------------------------------
+
+   # dtime_minute = dtime/60
+   file.write(f'se_tstep            = {dtime/4} \n')
+   file.write(f'dt_remap_factor     = 1 \n')
+   file.write(f'hypervis_subcycle   = 1 \n')
+   file.write(f'dt_tracer_factor    = 4 \n')
+   file.write(f'hypervis_subcycle_q = 4 \n')
+
+   if 'init_file_atm' in locals():
+      file.write(f' ncdata = \'{init_file_atm}\'\n')
+
+   file.write(" inithist = \'ENDOFRUN\' \n") # ENDOFRUN / NONE / YEARLY
+
+   file.close()
+
+   #-------------------------------------------------------
+   # increase tolerance for domain grid check
+   run_cmd('./xmlchange --file env_run.xml  EPS_AGRID=1e-11' )
+   #-------------------------------------------------------
+   # Set some run-time stuff
+   if 'dtime' in locals(): ncpl  = 86400 / dtime  # comment to disable setting time step
+   if 'ncpl' in locals(): run_cmd(f'./xmlchange ATM_NCPL={str(ncpl)}')
+   if 'queue' in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
+   run_cmd(f'./xmlchange STOP_OPTION={stop_opt},STOP_N={stop_n},RESUBMIT={resub}')
+   run_cmd(f'./xmlchange JOB_WALLCLOCK_TIME={walltime}')
+
+   run_cmd(f'./xmlchange CHARGE_ACCOUNT={acct},PROJECT={acct}')
+   # if 'GPU' in arch: run_cmd(f'./xmlchange CHARGE_ACCOUNT={acct}_g,PROJECT={acct}_g')
+   # if 'CPU' in arch: run_cmd(f'./xmlchange CHARGE_ACCOUNT={acct},PROJECT={acct}')
+
+   continue_flag = 'TRUE' if continue_run else 'False'
+   run_cmd(f'./xmlchange --file env_run.xml CONTINUE_RUN={continue_flag} ')   
+   #-------------------------------------------------------
+   # Submit the run
+   run_cmd('./case.submit')
+#---------------------------------------------------------------------------------------------------
+print(f'\n  case : {case}\n')
+#---------------------------------------------------------------------------------------------------

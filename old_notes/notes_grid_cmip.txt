@@ -1,0 +1,24 @@
+ncks --dmm_in_mk -O --no_tmp_fl --dfl_lvl=0 --gaa remap_script=ncremap --gaa remap_command=\'/Users/zender/bin/ncremap -G ttl=Equi-Angular grid 1x1 degree, dimensions 180x360, cell edges on Poles/Equator and Prime Meridian/Date Line#latlon=180,360#lat_typ=uni#lon_typ=grn_wst -g /Users/zender/data/grids/cmip6_180x360_scrip.20181001.nc\' --gaa remap_hostname=firn.ess.uci.edu --gaa remap_version=4.7.7-alpha03 --hdr_pad=10000 --rgr scrip=/Users/zender/data/grids/cmip6_180x360_scrip.20181001.nc --rgr ttl=Equi-Angular grid 1x1 degree, dimensions 180x360, cell edges on Poles/Equator and Prime Meridian/Date Line#latlon=180,360#lat_typ=uni#lon_typ=grn_wst /var/folders/pv/rgtp33s947l1p4nh4wxz96x00000gn/T/ncremap_tmp_dmm.nc.pid16888 /var/folders/pv/rgtp33s947l1p4nh4wxz96x00000gn/T/ncremap_tmp_out.nc.pid16888" 
+
+
+#-------------------------------------------------------------------------------
+1-deg cmip6 grid generation
+
+ncremap -G ttl=Equi-Angular grid 1x1 degree, dimensions 180x360, cell edges on Poles/Equator and Prime Meridian/Date Line#latlon=180,360#lat_typ=uni#lon_typ=grn_wst -g /Users/zender/data/grids/cmip6_180x360_scrip.20181001.nc
+
+#-------------------------------------------------------------------------------
+2-deg cmip6 grid generation
+
+ncremap -g data_grid/cmip6_90x180_scrip.20181001.nc -G ttl="Equi-Angular grid 2x2 degree, dimensions 90x180, cell edges on Poles/Equator and Prime Meridian/Date Line"#latlon=90,180#lat_typ=uni#lon_typ=grn_wst 
+
+#-------------------------------------------------------------------------------
+1-deg Maps
+
+ncremap -6 --alg_typ=aave --grd_src=$HOME/E3SM/data_grid/ne30pg2_scrip.nc --grd_dst=$HOME/E3SM/data_grid/cmip6_180x360_scrip.20181001.nc --map=$HOME/maps/map_ne30pg2_to_cmip6_180x360_aave.20200624.nc
+
+#-------------------------------------------------------------------------------
+2-deg Maps
+
+ncremap -6 --alg_typ=aave --grd_src=$HOME/E3SM/data_grid/ne30pg2_scrip.nc --grd_dst=$HOME/E3SM/data_grid/cmip6_90x180_scrip.20181001.nc --map=$HOME/maps/map_ne30pg2_to_cmip6_90x180_aave.20200624.nc
+
+ncremap -6 --alg_typ=aave --grd_src=$HOME/E3SM/data_grid/ne120pg2_scrip.nc --grd_dst=$HOME/E3SM/data_grid/cmip6_90x180_scrip.20181001.nc --map=$HOME/maps/map_ne120pg2_to_cmip6_90x180_aave.20200624.nc

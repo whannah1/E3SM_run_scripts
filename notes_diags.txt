@@ -1,0 +1,86 @@
+E3SM Diags on Rhea
+
+Rhea : source /ccs/proj/cli900/sw/rhea/e3sm-unified/load_latest_e3sm_unified.sh
+Andes: ???
+Cori : source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_cori-knl.sh
+PM   : source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+
+
+chmod -R 755 /global/cfs/cdirs/e3sm/www/whannah/
+
+### edit these files
+run_e3sm_diags.py batch_run_diags.sh 
+
+### submit the batch script
+sbatch batch_run_diags.sh 
+
+
+copy to web server:
+cp -R /pscratch/sd/w/whannah/e3sm_scratch/pm-gpu/E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1/diags/* /global/cfs/cdirs/e3sm/www/whannah/2022-CPL/
+
+http://portal.nersc.gov/cfs/e3sm/whannah
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# ncclimo commands
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+
+Notes: 
+- For processing E3SM v2 output add '-P eam' or '-m eam' when calling ncclimo
+- Add "-a sdd" for seasonally discontinuous December
+
+MAKE SURE TO MOVE NATIVE GRID DATA TO SUBFOLDER BEFORE RUNNING E3SM DIAGS!!!
+
+mkdir ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+mv ~/E3SM/scratch/${CASE}/clim/*climo.nc ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+
+
+#-------------------------------------------------------------------------------
+coupled historical
+#-------------------------------------------------------------------------------
+
+MAP_FILE_TMP=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc
+
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR;      DATA_ROOT=$SCRATCH/e3sm_scratch/pm-cpu; ncclimo -m eam -s 1950 -e 2014 -c $CASE --drc_in=${DATA_ROOT}/$CASE/run/ --map=${MAP_FILE_TMP} -O ${DATA_ROOT}/$CASE/clim-128x256 -o ${DATA_ROOT}/$CASE/clim-native 
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1; DATA_ROOT=$SCRATCH/e3sm_scratch/pm-gpu; ncclimo -m eam -s 1950 -e 2014 -c $CASE --drc_in=${DATA_ROOT}/$CASE/run/ --map=${MAP_FILE_TMP} -O ${DATA_ROOT}/$CASE/clim-128x256 -o ${DATA_ROOT}/$CASE/clim-native 
+
+(no need to move files when using both -O and -o flags)
+
+#-------------------------------------------------------------------------------
+QBO experiments
+#-------------------------------------------------------------------------------
+
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72.00;       ncclimo -m eam -s 2 -e 19 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+CASE=E3SM.QBO-TEST.F2010.ne30pg2.L72-nsu40.00; ncclimo -m eam -s 2 -e 19 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+
+#-------------------------------------------------------------------------------
+L72 tests for v3
+#-------------------------------------------------------------------------------
+
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v0.00; ncclimo -m eam -s 1 -e 10 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v1.00; ncclimo -m eam -s 1 -e 10 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v2.00; ncclimo -m eam -s 1 -e 10 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v3.00; ncclimo -m eam -s 1 -e 10 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v0.00; mkdir ~/E3SM/scratch/${CASE}/clim/native_grid_climo; mv ~/E3SM/scratch/${CASE}/clim/*climo.nc ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v1.00; mkdir ~/E3SM/scratch/${CASE}/clim/native_grid_climo; mv ~/E3SM/scratch/${CASE}/clim/*climo.nc ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v2.00; mkdir ~/E3SM/scratch/${CASE}/clim/native_grid_climo; mv ~/E3SM/scratch/${CASE}/clim/*climo.nc ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+CASE=E3SM.L72-NEW-TEST.F2010.ne30pg2_EC30to60E2r2.L72-v3.00; mkdir ~/E3SM/scratch/${CASE}/clim/native_grid_climo; mv ~/E3SM/scratch/${CASE}/clim/*climo.nc ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+
+#-------------------------------------------------------------------------------
+TMS validation
+#-------------------------------------------------------------------------------
+
+CASE=v2.LR.amip_0101; ncclimo -m eam -s 1870 -e 1879 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+
+CASE=E3SM.TMS.F20TR.ne30pg2_EC30to60E2r2.00; ncclimo -m eam -s 1870 -e 1879 -c $CASE --drc_in=$SCRATCH/e3sm_scratch/cori-knl/$CASE/run/ --map=$HOME/maps/map_ne30pg2_to_fv128x256_aave.20160301.nc --drc_out=$SCRATCH/e3sm_scratch/cori-knl/$CASE/clim/ 
+
+CASE=v2.LR.amip_0101; mkdir ~/E3SM/scratch/${CASE}/clim/native_grid_climo; mv ~/E3SM/scratch/${CASE}/clim/*climo.nc ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+CASE=E3SM.TMS.F20TR.ne30pg2_EC30to60E2r2.00; mkdir ~/E3SM/scratch/${CASE}/clim/native_grid_climo; mv ~/E3SM/scratch/${CASE}/clim/*climo.nc ~/E3SM/scratch/${CASE}/clim/native_grid_climo
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+

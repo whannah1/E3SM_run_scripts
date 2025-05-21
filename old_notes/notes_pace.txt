@@ -1,0 +1,19 @@
+--------------------------------------------------------------------------------
+performance archive path
+
+/gpfs/alpine/cli115/proj-shared/performance_archive/
+
+
+--------------------------------------------------------------------------------
+Github token
+
+> cat ~/.pacecc
+[GITHUB]
+username = your_github
+token = your_token
+
+--------------------------------------------------------------------------------
+Manual uplaod command from performance archive path
+
+cd /gpfs/alpine/cli115/proj-shared/performance_archive/ ; ./pace-upload --exp-dir ./hannah6
+

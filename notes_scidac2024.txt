@@ -1,0 +1,10 @@
+
+--------------------------------------------------------------------------------
+commands to restore CFS data
+
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L72; cp /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}/data_remap_90x180_prs/*eam.h2* /global/cfs/cdirs/m4310/whannah/E3SM/${CASE}/data_remap_90x180_prs/
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L80; cp /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/${CASE}/data_remap_90x180_prs/*eam.h2* /global/cfs/cdirs/m4310/whannah/E3SM/${CASE}/data_remap_90x180_prs/
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

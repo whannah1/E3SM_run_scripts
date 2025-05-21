@@ -1,0 +1,196 @@
+--------------------------------------------------------------------------------
+scaling data for testing and final GB configurations
+
+  ne: 16  ncol:    6144  nnode:   512  dx: 2.81  <<<
+  ne: 18  ncol:    7776  nnode:   648  dx: 2.50
+  ne: 20  ncol:    9600  nnode:   800  dx: 2.25
+  ne: 22  ncol:   11616  nnode:   968  dx: 2.05  <<<
+  ne: 24  ncol:   13824  nnode:  1152  dx: 1.88  <<<
+  ne: 26  ncol:   16224  nnode:  1352  dx: 1.73
+  ne: 28  ncol:   18816  nnode:  1568  dx: 1.61
+  ne: 30  ncol:   21600  nnode:  1800  dx: 1.50  <<<
+
+  ne: 60  ncol:    86400  nnode:     7200  dx: 0.75
+  ne: 62  ncol:    92256  nnode:     7688  dx: 0.73
+  ne: 64  ncol:    98304  nnode:     8192  dx: 0.70
+  ne: 65  ncol:   101400  nnode:     8450  dx: 0.69
+  ne: 66  ncol:   104544  nnode:     8712  dx: 0.68
+  ne: 68  ncol:   110976  nnode:     9248  dx: 0.66
+  ne: 70  ncol:   117600  nnode:     9800  dx: 0.64  <<<
+  ne: 72  ncol:   124416  nnode:    10368  dx: 0.62
+  ne: 74  ncol:   131424  nnode:    10952  dx: 0.61
+
+
+--------------------------------------------------------------------------------
+# python snippet to print information on grid scaling for Aurora:
+
+for ne in range(16,30+1): 
+  ncol=ne*ne*6*4; 
+  nnode=int(ncol/12); 
+  dx=360/(ne*4*2); 
+  print(f'  ne: {ne}  ncol: {ncol:7}  nnode: {nnode:5}  dx: {dx:4.2f}')
+
+--------------------------------------------------------------------------------
+# grid files for topo
+
+
+NE=70
+GRID_FILE_PATH=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid
+GenerateCSMesh --alt --res ${NE} --file ${GRID_FILE_PATH}/exodus_ne${NE}.g
+GenerateVolumetricMesh --in ${GRID_FILE_PATH}/exodus_ne${NE}.g --out ${GRID_FILE_PATH}/exodus_ne${NE}pg2.g --np 2 --uniform
+ConvertMeshToSCRIP --in ${GRID_FILE_PATH}/exodus_ne${NE}pg2.g --out ${GRID_FILE_PATH}/scrip_ne${NE}pg2.nc
+echo; ls -l  ${GRID_FILE_PATH}/scrip_ne${NE}pg2.nc; echo
+
+--------------------------------------------------------------------------------
+# create a TR monotone conservative map from ne3000pg1.scrip.nc to target np4 grid
+
+# create ne3000 grid file
+GRID_FILE_PATH=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid
+GenerateCSMesh --alt --res 3000  --file ${GRID_FILE_PATH}/exodus_ne3000.g
+ConvertMeshToSCRIP --in ${GRID_FILE_PATH}/exodus_ne3000.g  --out ${GRID_FILE_PATH}/scrip_ne3000pg1.nc 
+
+# create map file from ne3000 to target GLL grid
+NE=24
+GRID_FILE_PATH=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid
+MAP_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_map
+ncremap -a fv2se_flx -5 --src_grd=${GRID_FILE_PATH}/scrip_ne3000pg1.nc  --dst_grd=${GRID_FILE_PATH}/exodus_ne${NE}.g --map_file=${MAP_FILE_ROOT}/map_ne3000pg1_to_ne${NE}np4.nc
+
+# Apply the map
+NE=16
+MAP_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_map
+TOPO_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_map
+TOPO_DATA_FILE=/global/cfs/cdirs/e3sm/inputdata/atm/cam/hrtopo/USGS-topo-cube3000.nc
+ncremap -m ${MAP_FILE_ROOT}/map_ne3000pg1_to_ne${NE}np4.nc -i ${TOPO_DATA_FILE} -o ${TOPO_FILE_ROOT}/topo_ne${NE}np4.nc
+
+--------------------------------------------------------------------------------
+# Test for mbtempest
+
+NE_SRC=16
+NE_DST=24
+GRID_FILE_PATH=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid
+MAP_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_map
+ncremap --mpi_nbr=4 -a fv2se_flx -5 --src_grd=${GRID_FILE_PATH}/scrip_ne${NE_SRC}pg2.nc  --dst_grd=${GRID_FILE_PATH}/exodus_ne${NE_DST}.g --map_file=${MAP_FILE_ROOT}/map_ne${NE_SRC}pg2_to_ne${NE_DST}np4_fv2seflx.nc
+
+--------------------------------------------------------------------------------
+# build homme_tool on Perlmuter (https://github.com/E3SM-Project/E3SM/issues/5550)
+
+e3sm_root=/global/homes/w/whannah/E3SM/E3SM_SRC4
+cd ${e3sm_root}/components/homme
+source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
+cmake -C ${e3sm_root}/components/homme/cmake/machineFiles/perlmutter-nocuda-gnu.cmake -DBUILD_HOMME_WITHOUT_PIOLIBRARY=OFF -DPREQX_PLEV=26 ${e3sm_root}/components/homme/
+make -j4 homme_tool
+
+--------------------------------------------------------------------------------
+# run homme_tool
+
+GRID_FILE_PATH=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid
+TOPO_FILE_ROOT=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_topo
+DST_TOPO_FILE=
+
+
+NE=16
+
+cat <<EOF > input.nl
+&ctl_nl
+ne = ${NE}
+mesh_file = "${GRID_FILE_PATH}/exodus_ne${NE}.g"
+smooth_phis_p2filt = 0
+smooth_phis_numcycle = 12  # v3 uses 6 for less smoothing
+smooth_phis_nudt = 4e-16
+hypervis_scaling = 2
+se_ftype = 2 ! actually output NPHYS; overloaded use of ftype
+/
+&vert_nl
+/
+&analysis_nl
+tool = 'topo_pgn_to_smoothed'
+infilenames = '${DATA_FILE_ROOT}/USGS-topo_${NE}np4.nc', '${DATA_FILE_ROOT}/USGS-topo_${NE}np4_smoothed'
+/
+EOF
+
+mpirun -np 8 ~/E3SM/E3SM_SRC4/components/homme/src/tool/homme_tool < input.nl
+
+--------------------------------------------------------------------------------
+# copy topo files
+
+NE=70
+F1=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_topo/USGS-topo_ne${NE}np4_smoothed_x6tensor.nc
+F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc
+cp ${F1} ${F2}
+
+NE=16; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; ncks --overwrite -5 ${F2} ${F2}
+NE=24; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; ncks --overwrite -5 ${F2} ${F2}
+NE=60; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; ncks --overwrite -5 ${F2} ${F2}
+NE=70; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; ncks --overwrite -5 ${F2} ${F2}
+
+NE=16; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; chmod go+r ${F2}
+NE=24; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; chmod go+r ${F2}
+NE=60; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; chmod go+r ${F2}
+NE=70; F2=/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-topo_${NE}np4_smoothed_x6tensor_20240315.nc; chmod go+r ${F2}
+
+ls -l /global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/*20240315.nc
+
+--------------------------------------------------------------------------------
+# Commands for transferring from NERSC to LCRC
+
+mkdir /lcrc/group/e3sm/data/inputdata/atm/cam/inic/homme/GB-2024
+
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/atm/cam/inic/homme/GB-2024/*                       /lcrc/group/e3sm/data/inputdata/atm/cam/inic/homme/GB-2024/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/share/domains/domain*.240313.nc                    /lcrc/group/e3sm/data/inputdata/share/domains/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne16pg2/map*240403.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne16pg2/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne24pg2/map*240403.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne24pg2/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne60pg2/map*240403.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne60pg2/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne70pg2/map*240403.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne70pg2/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/oEC60to30v3/map_oEC60to30v3*240403.nc /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/oEC60to30v3/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/atm/cam/chem/trop_mam/atmsrf_*_20240313.nc         /lcrc/group/e3sm/data/inputdata/atm/cam/chem/trop_mam/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata_map/surfdata_*c240401.nc         /lcrc/group/e3sm/data/inputdata/lnd/clm2/surfdata_map/
+
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/atm/cam/topo/*20240315.nc                          /lcrc/group/e3sm/data/inputdata/atm/cam/topo/
+
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne16pg2/map*240409.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne16pg2/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne24pg2/map*240409.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne24pg2/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne60pg2/map*240409.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne60pg2/
+scp whannah@dtn02.nersc.gov:/global/cfs/cdirs/e3sm/inputdata/cpl/gridmaps/ne70pg2/map*240409.nc                 /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne70pg2/
+
+chmod go+r /lcrc/group/e3sm/data/inputdata/atm/cam/inic/homme/GB-2024/*
+chmod go+r /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne16pg2/*
+chmod go+r /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne24pg2/*
+chmod go+r /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne60pg2/*
+chmod go+r /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/ne70pg2/*
+chmod go+r /lcrc/group/e3sm/data/inputdata/cpl/gridmaps/oEC60to30v3/*
+chmod go+r /lcrc/group/e3sm/data/inputdata/atm/cam/chem/trop_mam/*
+chmod go+r /lcrc/group/e3sm/data/inputdata/lnd/clm2/surfdata_map/*
+
+--------------------------------------------------------------------------------
+
+import os,glob,subprocess as sp
+inputdata_root = '/global/cfs/cdirs/e3sm/inputdata'
+# inputdata_root = '/lcrc/group/e3sm/data/inputdata'
+file_list_list = []
+file_list_list.append(glob.glob(f'{inputdata_root}/atm/cam/inic/homme/GB-2024/*nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/share/domains/domain*.240313.nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/cpl/gridmaps/ne16pg2/map*240403.nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/cpl/gridmaps/ne24pg2/map*240403.nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/cpl/gridmaps/ne60pg2/map*240403.nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/cpl/gridmaps/ne70pg2/map*240403.nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/cpl/gridmaps/oEC60to30v3/map_oEC60to30v3*240403.nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/atm/cam/chem/trop_mam/atmsrf_*_20240313.nc'))
+file_list_list.append(glob.glob(f'{inputdata_root}/lnd/clm2/surfdata_map/surfdata_*c240401.nc'))
+print()
+print(file_list_list)
+print()
+
+for file_list in file_list_list:
+  for f in file_list:
+    print(f)
+    os.system(f'ncdump -k {f} ')
+    
+    result = sp.check_output(f'ncdump -k {f} ',shell=True,universal_newlines=True)
+    if result!='cdf5':
+      cmd = f'ncks --overwrite -5 {f} {f}'
+      print(cmd)
+      os.system(cmd)
+      # exit()
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

@@ -1,0 +1,47 @@
+--------------------------------------------------------------------------------
+fsurdat commands
+--------------------------------------------------------------------------------
+
+source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+
+/pscratch/sd/w/whannah/e3sm_scratch/E3SM_SRC_TMP/components/elm/tools/mkmapdata
+
+GRIDFILE=/global/homes/w/whannah/E3SM/data_grid/ne16pg2_scrip.nc
+
+./mkmapdata.sh --gridfile ${GRIDFILE} --inputdata-path ${INPUTDATA_ROOT} --res ne16pg2 --gridtype global --output-filetype 64bit_offset -v --debug --list
+
+./mkmapdata.sh --gridfile ${GRIDFILE} --inputdata-path ${INPUTDATA_ROOT} --res ne16pg2 --gridtype global --output-filetype 64bit_offset -v 
+
+/pscratch/sd/w/whannah/e3sm_scratch/E3SM_SRC_TMP/components/elm/tools/mksurfdata_map
+
+MAP_DIR=/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/mappingdata/maps/ne16pg2
+
+MAP_DIR=/pscratch/sd/w/whannah/e3sm_scratch/E3SM_SRC_TMP/components/elm/tools/mkmapdata/ne16pg2_maps/
+
+./mksurfdata.pl -res usrspec -usr_gname ne16pg2 -usr_gdate 230120 -y 2010 -d -dinlc /global/cfs/cdirs/e3sm/inputdata -usr_mapdir $MAP_DIR
+
+./mksurfdata_map < namelist
+
+cp /pscratch/sd/w/whannah/e3sm_scratch/E3SM_SRC_TMP/components/elm/tools/mksurfdata_map/surfdata_ne16pg2_simyr2010_c230130.nc /global/cfs/cdirs/m3312/whannah/init_files/
+
+cp /pscratch/sd/w/whannah/e3sm_scratch/E3SM_SRC_TMP/components/elm/tools/mksurfdata_map/surfdata_ne16pg2_simyr2010_c230130.nc /pscratch/sd/w/whannah/e3sm_scratch/init_scratch/
+
+CASE=E3SM.INCITE2022-CPL.ne30pg2_EC30to60E2r2.WCYCL20TR-MMF1 ; cp /global/homes/w/whannah/E3SM/scratch_pm-gpu/${CASE}/run/*eam.h0*  /global/cfs/cdirs/m3312/whannah/2022-CPL/${CASE}/data
+
+--------------------------------------------------------------------------------
+gen_domain commands
+--------------------------------------------------------------------------------
+
+E3SM_SRC0/cime/tools/mapping/gen_domain_files/
+
+/global/homes/w/whannah/E3SM/data_grid/ne16pg2_scrip.nc
+/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc
+
+ncremap -a bilinear --src_grd=/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc --dst_grd=/global/homes/w/whannah/E3SM/data_grid/ne16pg2_scrip.nc --map_file=map_oEC60to30v3_to_ne16pg2.nc
+
+ncremap --src_grd=/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc --dst_grd=/global/homes/w/whannah/E3SM/data_grid/ne16pg2_scrip.nc --map_file=map_oEC60to30v3_to_ne16pg2.nc
+
+./gen_domain -m map_oEC60to30v3_to_ne16pg2.nc -o oEC60to30v3 -l ne16pg2
+
+cp  *230203* /global/cfs/cdirs/m3312/whannah/init_files/domain_files/
+

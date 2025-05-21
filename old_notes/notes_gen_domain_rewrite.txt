@@ -1,0 +1,149 @@
+
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+
+
+> ${gen_domain} -m ${MAP_FILE} -o oEC60to30v3 -l ne${NE}pg2
+ fmap   = /global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc
+ fn1_out_ocn= domain.ocn.oEC60to30v3.240411.nc
+ fn2_out_lnd= domain.lnd.ne16pg2_oEC60to30v3.240411.nc
+ fn2_out_ocn= domain.ocn.ne16pg2_oEC60to30v3.240411.nc
+ usercomment= null
+ eps    =    9.9999999600419720E-013
+ fminval=    1.0000000000000000E-003
+ fmaxval=    1.0000000000000000
+ set_fv_pole_yc =            0
+
+ input SCRIP data...
+ pole_fix =  F
+
+ input file  = /global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc
+ open /global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc
+ domain_a     = /global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc
+ domain_b     = /global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc
+ grid_file_ocn= /global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc
+ grid_file_atm= /global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc
+ n,nv,ni,nj,na,ns=       235160           7      235160           1      235160      312169
+
+ output domain data...
+ nf =            1
+ create domain.ocn.oEC60to30v3.240411.nc
+ write domain.ocn.oEC60to30v3.240411.nc
+ successfully created domain file domain.ocn.oEC60to30v3.240411.nc
+ pole_fix =  F
+
+ input file  = /global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc
+ open /global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc
+ domain_a     = /global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc
+ domain_b     = /global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc
+ grid_file_ocn= /global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc
+ grid_file_atm= /global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc
+ n,nv,ni,nj,na,ns=         6144           4        6144           1      235160      312169
+ compute frac
+ ----------------------------------------------------------------------
+ IMPORTANT: note original min/max frac and decide if that's acceptable
+ original lfrac clipped above by       :    1.0000000000000000
+ original reset to zero when less than :    1.0000000000000000E-003
+ original min, max lfrac :   -1.3322676295501878E-015   1.0000000000000000
+ final min, max llfrac   :    0.0000000000000000        1.0000000000000000
+ ----------------------------------------------------------------------
+
+ output domain data...
+ nf =            2
+ write domain.lnd.ne16pg2_oEC60to30v3.240411.nc
+ successfully created domain file domain.lnd.ne16pg2_oEC60to30v3.240411.nc
+ write domain.ocn.ne16pg2_oEC60to30v3.240411.nc
+ successfully created domain file domain.ocn.ne16pg2_oEC60to30v3.240411.nc
+
+
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+
+
+> ncdump -h /global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc
+netcdf map_oEC60to30v3_to_ne16pg2_traave.20240313 {
+dimensions:
+  src_grid_rank = 1 ;
+  dst_grid_rank = 1 ;
+  n_a = 235160 ;
+  n_b = 6144 ;
+  nv_a = 7 ;
+  nv_b = 4 ;
+  n_s = 312169 ;
+variables:
+  int src_grid_dims(src_grid_rank) ;
+    src_grid_dims:name0 = "num_elem" ;
+  int dst_grid_dims(dst_grid_rank) ;
+    dst_grid_dims:name0 = "num_elem" ;
+  double yc_a(n_a) ;
+    yc_a:units = "degrees" ;
+  double yc_b(n_b) ;
+    yc_b:units = "degrees" ;
+  double xc_a(n_a) ;
+    xc_a:units = "degrees" ;
+  double xc_b(n_b) ;
+    xc_b:units = "degrees" ;
+  double yv_a(n_a, nv_a) ;
+    yv_a:units = "degrees" ;
+  double yv_b(n_b, nv_b) ;
+    yv_b:units = "degrees" ;
+  double xv_a(n_a, nv_a) ;
+    xv_a:units = "degrees" ;
+  double xv_b(n_b, nv_b) ;
+    xv_b:units = "degrees" ;
+  double area_a(n_a) ;
+    area_a:units = "steradians" ;
+  double area_b(n_b) ;
+    area_b:units = "steradians" ;
+  int mask_a(n_a) ;
+    mask_a:units = "unitless" ;
+  int mask_b(n_b) ;
+    mask_b:units = "unitless" ;
+  double frac_a(n_a) ;
+    frac_a:name = "fraction of target coverage of source dof" ;
+    frac_a:units = "unitless" ;
+  double frac_b(n_b) ;
+    frac_b:name = "fraction of source coverage of target dof" ;
+    frac_b:units = "unitless" ;
+  int row(n_s) ;
+    row:name = "sparse matrix target dof index" ;
+    row:first_index = "1" ;
+  int col(n_s) ;
+    col:name = "sparse matrix source dof index" ;
+    col:first_index = "1" ;
+  double S(n_s) ;
+    S:name = "sparse matrix coefficient" ;
+
+// global attributes:
+    :Title = "TempestRemap Offline Regridding Weight Generator" ;
+    :concave_dst = "false" ;
+    :concave_src = "false" ;
+    :domain_a = "/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc" ;
+    :domain_b = "/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc" ;
+    :grid_file_dst = "/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc" ;
+    :grid_file_ovr = "/tmp/ncremap_tmp_msh_ovr_tempest.g.pid1146918" ;
+    :grid_file_src = "/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc" ;
+    :method = "" ;
+    :mono = "false" ;
+    :nobubble = "false" ;
+    :noconserve = "false" ;
+    :nocorrectareas = "false" ;
+    :np_dst = "1" ;
+    :np_src = "1" ;
+    :sparse_constraints = "false" ;
+    :type_dst = "fv" ;
+    :type_src = "fv" ;
+    :version = "GenerateOfflineMap 2.6 : 2022-10-11" ;
+    :history = "Mon 18 Mar 2024 12:21:23 PM PDT: /global/homes/w/whannah/.conda/envs/hiccup_env/bin/ncremap -5 -a fv2fv_flx --src_grd=/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc --dst_grd=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc --map_file=/global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc; /global/homes/w/whannah/.conda/envs/hiccup_env/bin/GenerateOverlapMesh --allow_no_overlap --out_format Netcdf4 --a \"/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc\" --b \"/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc\" --out \"/tmp/ncremap_tmp_msh_ovr_tempest.g.pid1146918\" > /dev/null; GenerateOfflineMap --in_mesh \"/global/cfs/cdirs/e3sm/inputdata/ocn/mpas-o/oEC60to30v3/ocean.oEC60to30v3.scrip.181106.nc\" --out_mesh \"/global/cfs/projectdirs/m3312/whannah/HICCUP/files_grid/scrip_ne16pg2.nc\" --ov_mesh \"/tmp/ncremap_tmp_msh_ovr_tempest.g.pid1146918\" --out_map \"/global/cfs/projectdirs/m3312/whannah/HICCUP/files_map/map_oEC60to30v3_to_ne16pg2_traave.20240313.nc\" --in_type fv --in_np 1 --out_type fv --out_np 1 --out_format Netcdf4 > /dev/null" ;
+    :remap_script = "ncremap" ;
+    :remap_hostname = "login37" ;
+    :remap_version = "5.2.1" ;
+    :NCO = "netCDF Operators version 5.2.1 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco, Citation = 10.1016/j.envsoft.2008.03.004)" ;
+}
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+
+

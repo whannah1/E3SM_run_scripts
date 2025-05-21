@@ -1,0 +1,18 @@
+
+
+inputdata/atm/cam/chem/trop_mam/atmsrf_ne120pg2_200511.nc
+inputdata/atm/cam/topo/USGS-gtopo30_ne120np4pg2_16xdel2.nc
+inputdata/share/domains/domain.*.ne120pg2_oEC60to30v3.200511.nc
+inputdata/cpl/gridmaps/oEC60to30v3/map_*ne120pg2*
+inputdata/cpl/gridmaps/ne120pg2/*
+
+
+cpl/gridmaps/ne30pg[3,4]/*
+cpl/gridmaps/oEC60to30v3/map_*ne30pg*.200331.nc
+share/domains/domain.*.ne30pg*_oEC60to30v3.200330.nc
+atm/cam/topo/USGS-gtopo30_ne30np4pg*_16xdel2.c20200504.nc
+atm/cam/chem/trop_mam/atmsrf_ne30pg*_200501.nc
+
+
+
+ inputdata/atm/cam/chem/trop_mam/atmsrf_ne120pg2_200511.nc inputdata/atm/cam/topo/USGS-gtopo30_ne120np4pg2_16xdel2.nc inputdata/share/domains/domain.*.ne120pg2_oEC60to30v3.200511.nc inputdata/cpl/gridmaps/oEC60to30v3/map_*ne120pg2* inputdata/cpl/gridmaps/ne120pg2/* inputdata/share/domains/domain.*.ne30pg*_oEC60to30v3.200330.nc inputdata/cpl/gridmaps/ne30pg[3,4]/* inputdata/cpl/gridmaps/oEC60to30v3/map_*ne30pg*.200331.nc inputdata/atm/cam/topo/USGS-gtopo30_ne30np4pg*_16xdel2.c20200504.nc inputdata/atm/cam/chem/trop_mam/atmsrf_ne30pg*_200501.nc

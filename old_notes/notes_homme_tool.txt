@@ -1,0 +1,22 @@
+
+
+homme_tool is an executable in ${homme_build}/src/tool/homme_tool produced in a standard configuration and build of standalone homme.
+
+Andrew's suggestion for compy:
+
+rm -rf CMake*
+cmake -C ~/e3sm/components/homme/cmake/machineFiles/compy-intel.cmake ~/e3sm/components/homme
+
+
+--------------------------------------------------------------------------------
+Build on Perlmuter
+
+cd ~/E3SM/E3SM_SRC4/components/homme
+source /global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh
+eval $(../../cime/CIME/Tools/get_case_env)
+cmake -C ../../components/homme/cmake/machineFiles/perlmutter-nocuda-gnu.cmake -DBUILD_HOMME_WITHOUT_PIOLIBRARY=OFF -DPREQX_PLEV=26 /pscratch/sd/h/hyma/RRM/E3SM/components/homme/
+make -j4 homme_tool
+
+
+
+--------------------------------------------------------------------------------

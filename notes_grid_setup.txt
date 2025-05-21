@@ -1,0 +1,19 @@
+
+When setting up a new grid you need to edit these files:
+
+cime_config/config_grids.xml
+components/eam/bld/config_files/horiz_grid.xml
+components/eam/bld/namelist_files/namelist_defaults_eam.xml
+components/elm/bld/namelist_files/namelist_definition.xml
+
+and maybe these:
+
+components/eam/bld/namelist_files/namelist_definition.xml
+
+
+Andrew Bradley has some useful notes on 
+- bnd_topo  
+- drydep_srf_file 
+for tri-grid setups with physgrid here:
+https://acme-climate.atlassian.net/wiki/spaces/COM/pages/1112047753/theta-SL-pg2+v2+integration+ne30pg2+r05+oECv3
+
