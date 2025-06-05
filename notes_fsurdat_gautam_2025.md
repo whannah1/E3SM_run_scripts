@@ -1,18 +1,17 @@
 
+# Summary
 
 One first needs the new user-defined grid in SCRIP format.
 Then, the process of creating ELM surface dataset involves the
 following steps:
 
-1. Creating 17 mapping files to remap ELM's raw datasets onto the 
-   new user-defined.
+1. Creating 17 mapping files to remap ELM's raw datasets onto the new user-defined.
 2. Creating surface dataset using `mksurfdata_map`
-  2.1 Creating a namelist file that uses the 17 maps created in
-      step-1.
+  2.1 Creating a namelist file that uses the 17 maps created in step-1.
   2.2 Compile `mksurfdata_map`
   2.3 Run `mksurfdata_map`
 
-## Step-1: Creating maps
+# Step-1: Creating maps
 
 I have created a script that generates 17 batch scripts
 to generate the maps. The script only works on NERSC
@@ -47,7 +46,7 @@ map_360x720_cruncep_to_<HGRID_NAME>_nomask_aave_da_c<YYMMDD>.nc
 USR_MAPDIR=$PWD
 ```
 
-## Step-2.1: Creating the namelist file
+# Step-2.1: Creating the namelist file
 
 ```shell
 cd <your-e3sm>
@@ -60,7 +59,7 @@ and do a find/replace for following
 - HGRID_NAME
 - YYMMDD
 
-## Step-2.2: Compile the code
+# Step-2.2: Compile the code
 
 ```shell
 cd src
@@ -70,7 +69,7 @@ cd src
 # Don't do the srun command.
 ```
 
-## Step-2.3 Run the code
+# Step-2.3 Run the code
 
 ```shell
 # Get on an interactive queue
@@ -89,7 +88,7 @@ srun -n 1 ./mksurfdata_map < namelist
 
 
 
-## create_mapping_scripts.sh
+# create_mapping_scripts.sh
 
 ```shell
 #!/bin/sh

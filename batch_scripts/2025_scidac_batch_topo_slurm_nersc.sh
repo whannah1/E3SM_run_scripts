@@ -1,11 +1,13 @@
 #!/bin/bash
 #SBATCH --account=m4310
 #SBATCH --constraint=cpu
-#SBATCH --qos=regular
+###SBATCH --qos=regular
+#SBATCH --qos=debug
 ####SBATCH --job-name=generate_topo
 #SBATCH --job-name=generate_topo_ne22
 #SBATCH --output=slurm-%x-%j.out
-#SBATCH --time=1:00:00
+###SBATCH --time=1:00:00
+#SBATCH --time=0:10:00
 #SBATCH --nodes=1
 #SBATCH --mail-type=END,FAIL
 #-------------------------------------------------------------------------------
@@ -17,7 +19,7 @@ unified_bin=/global/common/software/e3sm/anaconda_envs/base/envs/e3sm_unified_1.
 
 # Specify source and target/destination resolutions
 NE_SRC=3000
-NE_DST=22 # don't set here - just supply from command line arg
+# NE_DST=22 # don't set here - just supply from command line arg
 
 # Specify time stamp for creation date
 timestamp=20250513 # or timestamp=$(date +%Y%m%d)
@@ -84,7 +86,7 @@ if [ ! -d ${map_root}     ]; then echo -e ${RED}ERROR directory does not exist:$
 if [ ! -d ${topo_root}    ]; then echo -e ${RED}ERROR directory does not exist:${NC} ${topo_root} ; fi
 #-------------------------------------------------------------------------------
 # set to echo commands
-# set -x
+set -x
 #-------------------------------------------------------------------------------
 # # Create grid for source high res topo
 # if [ ! -d ${grid_root}/ne${NE_SRC}_exodus.g    ]; then
@@ -115,30 +117,31 @@ if [ ! -d ${topo_root}    ]; then echo -e ${RED}ERROR directory does not exist:$
 #-------------------------------------------------------------------------------
 # Generate GLL SCRIP grid file for target topo grid
 
-cd ${homme_tool_root}
-rm -f ${homme_tool_root}/input.nl
-cat > ${homme_tool_root}/input.nl <<EOF
-&ctl_nl
-ne = ${NE_DST}
-mesh_file = "none"
-/
-&vert_nl    
-/
-&analysis_nl
-tool = 'grid_template_tool'
-output_dir = "./"
-output_timeunits=1
-output_frequency=1
-output_varnames1='area','corners','cv_lat','cv_lon'
-output_type='netcdf'    
-io_stride = 16
-/
-EOF
-# run homme_tool to generate np4 scrip file
-srun -n 8 ${e3sm_root}/cmake_homme/src/tool/homme_tool < ${homme_tool_root}/input.nl
+# cd ${homme_tool_root}
+# rm -f ${homme_tool_root}/input.nl
+# cat > ${homme_tool_root}/input.nl <<EOF
+# &ctl_nl
+# ne = ${NE_DST}
+# mesh_file = "none"
+# /
+# &vert_nl    
+# /
+# &analysis_nl
+# tool = 'grid_template_tool'
+# output_dir = "./"
+# output_timeunits=1
+# output_frequency=1
+# output_varnames1='area','corners','cv_lat','cv_lon'
+# output_type='netcdf'    
+# io_stride = 16
+# /
+# EOF
+# # run homme_tool to generate np4 scrip file
+# srun -n 8 ${e3sm_root}/cmake_homme/src/tool/homme_tool < ${homme_tool_root}/input.nl
 
-echo Successfully finished homme_tool
-exit
+#-------------------------------------------------------------------------------
+# echo Successfully finished homme_tool
+# exit
 #-------------------------------------------------------------------------------
 # run python utility to perform format conversion
 ${unified_bin}/python ${e3sm_root}/components/homme/test/tool/python/HOMME2SCRIP.py  \
@@ -184,7 +187,7 @@ ${e3sm_root}/components/eam/tools/topo_tool/cube_to_target/cube_to_target \
   --output-topography ${topo_file_3} \
   --add-oro-shape
 #-------------------------------------------------------------------------------
-# source {unified_src}
+# source {unified_src} # this is problematic - just use unified_bin
 #-------------------------------------------------------------------------------
 # Append the GLL phi_s data to the output
 ${unified_bin}/ncks -A ${topo_file_2} ${topo_file_3}

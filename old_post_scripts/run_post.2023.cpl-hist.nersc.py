@@ -161,33 +161,6 @@ years = "{yr1}:{yr2}:{ts_nyr}",
   frequency = "monthly"
   extra_vars = "landfrac"
 
-[e3sm_diags]
-active = True
-years = "{yr1}:{yr2}:{nyr}",
-ts_num_years = {ts_nyr}
-ref_start_yr = 1979
-ref_final_yr = 2016
-walltime = "24:00:00"
-
-  [[ atm_monthly_{grid}_aave ]]
-  short_name = '{short_name}'
-  grid = '{grid}'
-  sets = 'lat_lon','zonal_mean_xy','zonal_mean_2d','polar','cosp_histogram','meridional_mean_2d','enso_diags','qbo','annual_cycle_zonal_mean','zonal_mean_2d_stratosphere'
-  reference_data_path = '/global/cfs/cdirs/e3sm/diagnostics/observations/Atm/climatology'
-  obs_ts = '/global/cfs/cdirs/e3sm/diagnostics/observations/Atm/time-series'
-  dc_obs_climo = '/global/cfs/cdirs/e3sm/e3sm_diags/test_model_data_for_acme_diags/climatology/'
-  output_format_subplot = "pdf",
-
-[global_time_series]
-active = True
-atmosphere_only = True
-years = "{yr1}-{yr2}", 
-ts_num_years = {ts_nyr}
-figstr = "{short_name}"
-experiment_name = "{case_name}"
-ts_years = "{yr1}-{yr2}",
-climo_years = "{yr1}-{yr2}",
-
 # MPAS-Analysis
 [mpas_analysis]
 active = True
@@ -199,6 +172,93 @@ climo_years = "{yr1}-{yr2}",
 mesh = "EC30to60E2r2"
 
 '''
+#    return f'''
+# [default]
+# account = {acct}
+# input = {case_root}
+# output = {case_root}
+# case = {case_name}
+# www = /global/cfs/cdirs/e3sm/www/whannah/2023-CPL
+# machine = "pm-cpu"
+# partition = batch
+# environment_commands = "source {unified_env}"
+
+# [climo]
+# active = True
+# walltime = "1:00:00"
+# years = "{yr1}:{yr2}:{nyr}",
+
+#   [[ atm_monthly_{grid}_aave ]]
+#   input_subdir = "archive/atm/hist"
+#   input_files = "eam.h0"
+#   mapping_file = {map_file}
+#   grid = "{grid}"
+#   frequency = "monthly"
+
+# [ts]
+# active = True
+# walltime = "0:30:00"
+# years = "{yr1}:{yr2}:{ts_nyr}",
+
+#   [[ atm_monthly_{grid}_aave ]]
+#   input_subdir = "archive/atm/hist"
+#   input_files = "eam.h0"
+#   mapping_file = {map_file}
+#   grid = "{grid}"
+#   frequency = "monthly"
+
+#   [[ atm_monthly_glb ]]
+#   input_subdir = "archive/atm/hist"
+#   input_files = "eam.h0"
+#   mapping_file = "glb"
+#   frequency = "monthly"
+
+#   [[ land_monthly ]]
+#   input_subdir = "archive/lnd/hist"
+#   input_files = "elm.h0"
+#   mapping_file = {map_file}
+#   grid = "{grid}"
+#   frequency = "monthly"
+#   extra_vars = "landfrac"
+
+# [e3sm_diags]
+# active = True
+# years = "{yr1}:{yr2}:{nyr}",
+# ts_num_years = {ts_nyr}
+# ref_start_yr = 1979
+# ref_final_yr = 2016
+# walltime = "24:00:00"
+
+#   [[ atm_monthly_{grid}_aave ]]
+#   short_name = '{short_name}'
+#   grid = '{grid}'
+#   sets = 'lat_lon','zonal_mean_xy','zonal_mean_2d','polar','cosp_histogram','meridional_mean_2d','enso_diags','qbo','annual_cycle_zonal_mean','zonal_mean_2d_stratosphere'
+#   reference_data_path = '/global/cfs/cdirs/e3sm/diagnostics/observations/Atm/climatology'
+#   obs_ts = '/global/cfs/cdirs/e3sm/diagnostics/observations/Atm/time-series'
+#   dc_obs_climo = '/global/cfs/cdirs/e3sm/e3sm_diags/test_model_data_for_acme_diags/climatology/'
+#   output_format_subplot = "pdf",
+
+# [global_time_series]
+# active = True
+# atmosphere_only = True
+# years = "{yr1}-{yr2}", 
+# ts_num_years = {ts_nyr}
+# figstr = "{short_name}"
+# experiment_name = "{case_name}"
+# ts_years = "{yr1}-{yr2}",
+# climo_years = "{yr1}-{yr2}",
+
+# # MPAS-Analysis
+# [mpas_analysis]
+# active = True
+# walltime = "24:00:00"
+# parallelTaskCount = 6
+# ts_years = "{yr1}-{yr2}",
+# enso_years = "{yr1}-{yr2}",
+# climo_years = "{yr1}-{yr2}",
+# mesh = "EC30to60E2r2"
+
+# '''
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
