@@ -145,9 +145,9 @@ else:
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-path_list = [None]*len(case_list)
-for c,case in enumerate(case_list):
-   path_list[c] = f'/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/{case}/case_scripts/timing'
+# path_list = [None]*len(case_list)
+# for c,case in enumerate(case_list):
+#    path_list[c] = f'/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/{case}/case_scripts/timing'
 
 # print()
 # for c in case_list: print(c)

@@ -33,12 +33,12 @@ homme_tool_root=${e3sm_root}/cmake_homme
 module load python
 eval $(${e3sm_root}/cime/CIME/Tools/get_case_env)
 #-------------------------------------------------------------------------------
-# Stop script execution on error
-set -e
-# ANSI color codes for highlighting terminal output
-RED='\033[0;31m' ; GRN='\033[0;32m' CYN='\033[0;36m' ; NC='\033[0m'
-# start timer for entire script
-start=`date +%s`
+# # Stop script execution on error
+# set -e
+# # ANSI color codes for highlighting terminal output
+# RED='\033[0;31m' ; GRN='\033[0;32m' CYN='\033[0;36m' ; NC='\033[0m'
+# # start timer for entire script
+# start=`date +%s`
 #-------------------------------------------------------------------------------
 # Generate GLL SCRIP grid file for target topo grid
 cd ${homme_tool_root}
@@ -64,11 +64,11 @@ EOF
 srun -n 8 ${e3sm_root}/cmake_homme/src/tool/homme_tool < ${homme_tool_root}/input.nl
 
 #-------------------------------------------------------------------------------
-# Indicate overall run time for this script
-end=`date +%s`
-runtime_sc=$(( end - start ))
-runtime_mn=$(( runtime_sc/60 ))
-runtime_hr=$(( runtime_mn/60 ))
-echo -e    ${CYN} overall runtime: ${NC} ${runtime_sc} seconds / ${runtime_mn} minutes / ${runtime_hr} hours
-echo
+# # Indicate overall run time for this script
+# end=`date +%s`
+# runtime_sc=$(( end - start ))
+# runtime_mn=$(( runtime_sc/60 ))
+# runtime_hr=$(( runtime_mn/60 ))
+# echo -e    ${CYN} overall runtime: ${NC} ${runtime_sc} seconds / ${runtime_mn} minutes / ${runtime_hr} hours
+# echo
 #-------------------------------------------------------------------------------

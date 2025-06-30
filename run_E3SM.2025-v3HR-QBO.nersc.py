@@ -245,7 +245,7 @@ def main(opts):
       # Set some run-time stuff
       if 'stop_opt' in locals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
       if 'stop_n'   in locals(): run_cmd(f'./xmlchange STOP_N={stop_n}')
-      if 'queue'    in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
+      if 'queue'    in locals(): run_cmd(f' ')
       if 'resub'    in locals(): run_cmd(f'./xmlchange RESUBMIT={resub}')
       if 'walltime' in locals(): run_cmd(f'./xmlchange JOB_WALLCLOCK_TIME={walltime}')
       #-------------------------------------------------------------------------
@@ -474,7 +474,6 @@ v3HR_lnd_opts = f'''
  !--- land BGC spin-up initial conditions ---, pending
  ! finidat='/pscratch/sd/w/wlin/inputdata/20231130.v3b02-icos_trigrid_top_bgc.IcoswISC30E3r5.chrysalis.fnsp.elm.r.0251-01-01-00000.nc'
  finidat='/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.r025_RRSwISC6to18E3r5.1985.nc'
-
 '''
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
