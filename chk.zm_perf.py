@@ -54,8 +54,8 @@ test_root = '/lcrc/group/e3sm/ac.whannah/ZM_testing'
 test_list = [ 
             'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
             'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
-            'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
-            'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
+            # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
+            # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
             ]
 
 #---------------------------------------------------------------------------------------------------
@@ -76,7 +76,9 @@ param_list.append('ATM Run Time')
 # param_list.append('ICE Run Time:')
 # param_list.append('CPL:ATM_RUN')
 
-param_list.append('a:zm_conv_tend')
+param_list.append('a_i:zm_convr')
+param_list.append('a:zm_convr')
+# param_list.append('a:zm_conv_tend')
 # param_list.append('a:zm_convr')
 # param_list.append('a:zm_conv_evap')
 # param_list.append('a:radiation')

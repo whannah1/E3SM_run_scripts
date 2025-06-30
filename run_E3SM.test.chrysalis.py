@@ -15,9 +15,9 @@ project = 'e3sm'
 output_root = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
 
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'; generate = True # generate baselines
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
+# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_BASE'                  # just run tests, no comparison
-# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1'                  # just run tests, no comparison
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1'                  # just run tests, no comparison
 
 # baseline_branch_name = 'custom_baseline'
 baseline_branch_name = 'master'
@@ -27,12 +27,15 @@ verbose      = True      # print commands
 
 # tests = ['e3sm_mmf_integration']
 # tests = ['e3sm_developer']
-tests = ['e3sm_atm_developer']
+# tests = ['e3sm_atm_developer']
 # tests = ['e3sm_atm_integration']
 # tests = ['mmf_tmp']
 # tests = ['e3sm_orodrag_developer']
 
 # tests = [ 'SMS_Ln5.ne4pg2_oQU480.F2010.chrysalis_intel' ]
+
+# tests = [ 'SMS_P720.arcticx4v1pg2_ARRM10to60E2r1.WCYCL1850.chrysalis_intel' ]
+tests = [ 'SMS_Ln9_P720.arcticx4v1pg2_ARRM10to60E2r1.WCYCL1850.chrysalis_intel' ]
 
 # tests = [
 #         'SMS_D_Ln5.ne4pg2_oQU480.F2010.chrysalis_intel.eam-orodrag_ne4pg2', # from oro drag test suite

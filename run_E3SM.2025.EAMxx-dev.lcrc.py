@@ -15,8 +15,6 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'e3sm'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-# src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => 
-# src_dir  = f'{top_dir}/E3SM_SRC/2/' # branch => whannah/eam/zm-bridge-00
 
 # clean        = True
 # newcase      = True
@@ -36,42 +34,12 @@ stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:05:00'
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-### testing clean-up branches
+### EAMxx atm export bug fix
 
-src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne4pg2_oQU480', num_nodes=1)
+src_dir=f'{top_dir}/E3SM_SRC1'
 
-### EAMxx-ZM bridge testing
+add_case(prefix='2025-EAMxx-DEV-00', compset='F2010-SCREAMv1-MPASSI', grid='ne4pg2_oQU480', num_nodes=1)
 
-# src_dir=f'{top_dir}/E3SM_SRC2'; add_case(prefix='2025-ZM-DEV-01', compset='F2010-SCREAMv1-MPASSI', grid='ne4pg2_oQU480', num_nodes=1)
-
-#---------------------------------------------------------------------------------------------------
-# old cases prior to creating add_case() method
-
-# compset,grid,num_nodes='F2010', f'ne4pg2_oQU480', 1
-# case_list = ['E3SM','2025-ZM-DEV-00',grid,compset]
-
-# compset,grid,num_nodes='F2010', f'ne30pg2_r05_IcoswISC30E3r5', 16
-# src_dir=f'{top_dir}/E3SM_SRC0/'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_OLD',grid,compset]
-# src_dir=f'{top_dir}/E3SM_SRC1/'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_NEW',grid,compset]
-# src_dir=f'{top_dir}/E3SM_SRC1'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_NEW_REBASE',grid,compset]
-
-# EAMxx-ZM bridge testing
-# compset,grid,num_nodes='F2010-SCREAMv1', f'ne4pg2_oQU480', 1
-# compset,grid,num_nodes='F2010-SCREAMv1-MPASSI', f'ne4pg2_oQU480', 1
-# src_dir=f'{top_dir}/E3SM_SRC2'; case_list = ['E3SM','2025-ZM-DEV-01',grid,compset]
-
-
-# if debug_mode: case_list.append('debug')
-
-# case='.'.join(case_list)
-
-#---------------------------------------------------------------------------------------------------
-atm_opts = f'''
- avgflag_pertape = 'A','A'
- nhtfrq = 0,-24
- mfilt  = 1,1
- fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
-'''
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
    grid_name = opts['grid']
@@ -149,10 +117,7 @@ def main(opts):
    if submit :
       #-------------------------------------------------------
       # atmos namelist options
-      nfile = 'user_nl_eam'
-      file = open(nfile,'w') 
-      file.write(atm_opts)
-      file.close()
+      
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')

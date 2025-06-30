@@ -42,6 +42,9 @@ class tclr:
     MAGENTA  = '\033[35m'
     CYAN     = '\033[36m'
     WHITE    = '\033[37m'
+    LTGREEN  = '\033[92m'
+    LTYELLOW = '\033[93m'
+    LTCYAN   = '\033[96m'
 
 def print_line(line_length=80,char='-'):
     dline = ''
@@ -190,14 +193,14 @@ if method in [1,2] :
                     clr = ''
                     if 'FAIL'   in line : clr = tclr.RED
                     if 'NLFAIL' in line : clr = tclr.GREEN
-                    if 'PASS'   in line : clr = tclr.GREEN
+                    if 'PASS'   in line : clr = tclr.LTGREEN
                     if 'PEND'   in line : clr = tclr.YELLOW
                     if 'DIFF'   in line : clr = tclr.MAGENTA
-                    line = line.replace('FAIL',  clr+'FAIL'  +tclr.END)
-                    line = line.replace('NLFAIL',clr+'NLFAIL'+tclr.END)
-                    line = line.replace('PASS',  clr+'PASS'  +tclr.END)
-                    line = line.replace('PEND',  clr+'PEND'  +tclr.END)
-                    line = line.replace('DIFF',  clr+'DIFF'  +tclr.END)
+                    line = line.replace(': FAIL',  f': {clr}FAIL'  +tclr.END)
+                    line = line.replace(': NLFAIL',f': {clr}NLFAIL'+tclr.END)
+                    line = line.replace(': PASS',  f': {clr}PASS'  +tclr.END)
+                    line = line.replace(': PEND',  f': {clr}PEND'  +tclr.END)
+                    line = line.replace(': DIFF',  f': {clr}DIFF'  +tclr.END)
 
                 if method==1 :
                     if line.strip()!='': print(line)
@@ -351,9 +354,9 @@ elif method==0:
 
                 ### consturct the final string
                 tline = line
-                if opts.truncate_flag and (num_lines-cnt) > 4 : 
-                    tline = ''
-                    # if cnt==0 : tline = '...\n'
+                # if opts.truncate_flag and (num_lines-cnt) > 4 : 
+                #     tline = ''
+                #     # if cnt==0 : tline = '...\n'
                         
                 if tline!='' :
                     if out_cnt>0 : lines_out = lines_out + '\n'
