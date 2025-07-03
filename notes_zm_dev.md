@@ -53,7 +53,7 @@ opt ==> release
 E3SM_SRC=/pscratch/sd/w/whannah/tmp_eamxx_src
 TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests
 mach=pm-cpu
-comp=intel
+comp=gnu
 
 cd ${TEST_ROOT}/full_debug
 
@@ -63,6 +63,14 @@ ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-o
 
 cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
 make -j128
+
+
+OMP_NUM_THREADS=1 gdb ./zm_tests
+
+break __cxa_throw
+run
+
+OMP_NUM_THREADS=1 valgrind ./zm_tests
 
 
 ```
