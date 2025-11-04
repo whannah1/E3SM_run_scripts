@@ -25,24 +25,43 @@ top_dir  = os.getenv('HOME')+'/E3SM/'
 submit       = True
 # continue_run = True
 
-debug_mode = False
+# debug_mode = False
 
-# queue = 'regular'  # regular / debug
+queue = 'debug'  # regular / debug
 
-stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:05:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'nsteps',2,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
 ### testing clean-up branches
 
-src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne4pg2_oQU480', num_nodes=1)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne4pg2_oQU480', num_nodes=1)
+
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_tasks=1, debug=True)
+
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=1, debug=True)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=2, debug=True)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=4, debug=True)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=8, debug=True)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=16, debug=True)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=32, debug=True)
 
 ### EAMxx-ZM bridge testing
 
-# src_dir=f'{top_dir}/E3SM_SRC2'; add_case(prefix='2025-ZM-DEV-01', compset='F2010-SCREAMv1-MPASSI', grid='ne4pg2_oQU480', num_nodes=1)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010-SCREAMv1-MPASSI',    grid='ne4pg2_oQU480', num_nodes=1)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, debug=True)
+
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_tasks=96, debug=True)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_tasks=1, debug=True)
+
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, debug=True)
+
+
+
 
 #---------------------------------------------------------------------------------------------------
 # old cases prior to creating add_case() method
@@ -66,13 +85,6 @@ src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010
 # case='.'.join(case_list)
 
 #---------------------------------------------------------------------------------------------------
-atm_opts = f'''
- avgflag_pertape = 'A','A'
- nhtfrq = 0,-24
- mfilt  = 1,1
- fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
-'''
-#---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
    grid_name = opts['grid']
    if 'ne4pg2_'   in opts['grid']: grid_name = 'ne4pg2'
@@ -81,19 +93,28 @@ def get_grid_name(opts):
    return grid_name
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
+   # global debug_mode
+   #----------------------------------------------------------------------------
+   debug_mode = False
+   if 'debug' in opts: debug_mode = opts['debug']
    case_list = ['E3SM']
    for key,val in opts.items(): 
-      if key in ['prefix','compset']:
+      if key in ['prefix','compset','arch']:
          case_list.append(val)
       elif key in ['grid']: 
          case_list.append(get_grid_name(opts))
+      elif key in ['debug']: 
+         continue
       elif key in ['num_nodes']:
          case_list.append(f'NN_{val}')
+      elif key in ['num_tasks']:
+         case_list.append(f'NT_{val}')
       else:
          if isinstance(val, str):
             case_list.append(f'{key}_{val}')
          else:
             case_list.append(f'{key}_{val:g}')
+   if debug_mode: case_list.append('debug')
    case = '.'.join(case_list)
    # clean up the exponential numbers in the case name
    for i in range(1,9+1): case = case.replace(f'e+0{i}',f'e{i}')
@@ -104,14 +125,26 @@ def main(opts):
    case = get_case_name(opts)
 
    print(f'\n  case : {case}\n')
+
+   #------------------------------------------------------------------------------------------------
+   if 'num_nodes' in opts and 'num_tasks' in opts:
+      raise ValueError('cannot specify both num_nodes and num_tasks!')
+   if 'num_nodes' not in opts and 'num_tasks' not in opts:
+      raise ValueError('you must specify either num_nodes of num_tasks!')
+   #------------------------------------------------------------------------------------------------
+   debug_mode = False
+   if 'debug' in opts: debug_mode = opts['debug']
    #------------------------------------------------------------------------------------------------
    # exit()
    #------------------------------------------------------------------------------------------------
    case_root = f'/lcrc/group/e3sm/ac.whannah/scratch/chrys/{case}'
 
-   num_nodes = opts['num_nodes']
-   max_mpi_per_node,atm_nthrds = 64,1 ; max_task_per_node = 64
-   atm_ntasks = max_mpi_per_node*num_nodes
+   if 'num_nodes' in opts:
+      num_nodes = opts['num_nodes']
+      max_mpi_per_node,atm_nthrds = 64,1 ; max_task_per_node = 64
+      atm_ntasks = max_mpi_per_node*num_nodes
+   if 'num_tasks' in opts:
+      atm_ntasks,atm_nthrds = opts['num_tasks'],1
    #------------------------------------------------------------------------------------------------
    # Create new case
    if newcase :
@@ -122,8 +155,10 @@ def main(opts):
       cmd += f' --script-root {case_root}/case_scripts '
       cmd += f' --compset {opts["compset"]}'
       cmd += f' --res {opts["grid"]} '
-      cmd += f' -pecount {atm_ntasks}x{atm_nthrds} '
+      cmd += f' --pecount {atm_ntasks}x{atm_nthrds} '
       cmd += f' --project {acct} '
+      # cmd += f' --mach chrysalis --compiler gnu'
+      cmd += f' --mach chrysalis --compiler intel'
       run_cmd(cmd)
       #----------------------------------------------------------------------------
       # # Copy this run script into the case directory
@@ -136,7 +171,7 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      if 'SCREAM' in opts["compset"]: run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=zm')
+      # if 'SCREAM' in opts["compset"]: run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=zm')
       #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
@@ -147,12 +182,22 @@ def main(opts):
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
-      #-------------------------------------------------------
-      # atmos namelist options
-      nfile = 'user_nl_eam'
-      file = open(nfile,'w') 
-      file.write(atm_opts)
-      file.close()
+      #-------------------------------------------------------------------------
+      if 'SCREAM' in opts['compset']:
+         hist_file_list = []
+         def add_hist_file(hist_file,txt):
+            file=open(hist_file,'w'); file.write(txt); file.close()
+            hist_file_list.append(hist_file)
+         #----------------------------------------------------------------------
+         # add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_inst)
+         # hist_file_list_str = ','.join(hist_file_list)
+         # run_cmd(f'./atmchange Scorpio::output_yaml_files="{hist_file_list_str}"')
+      else:
+         # EAM namelist options
+         nfile = 'user_nl_eam'
+         file = open(nfile,'w') 
+         file.write(eam_opts)
+         file.close()
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
@@ -170,7 +215,63 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    # Print the case name again
    print(f'\n  case : {case}\n') 
+
+   print()
+   print(clr.RED+'WARNING - all output is disabled for debugging!'+clr.END)
+   print()
 #---------------------------------------------------------------------------------------------------
+eam_opts = f'''
+ avgflag_pertape = 'A','A'
+ nhtfrq = 0,-24
+ mfilt  = 1,1
+ fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
+'''
+#---------------------------------------------------------------------------------------------------
+field_txt_2D = '\n'
+# field_txt_2D += '      - precip_total_surf_mass_flux'
+# field_txt_2D += '      - LiqWaterPath'
+# field_txt_2D += '      - surf_sens_flux'
+# field_txt_2D += '      - surf_evap'
+# field_txt_2D += '      - surf_mom_flux'
+field_txt_2D += '      - U_at_model_bot'
+# field_txt_2D += '      - V_at_model_bot'
+# field_txt_2D += '      - ash'
+
+
+# hist_opts_2D_inst = f'''
+# %YAML 1.1
+# ---
+# filename_prefix: output.scream.2D.1hr
+# Averaging Type: Instant
+# Max Snapshots Per File: 24
+# Fields:
+#    Physics PG2:
+#       Field Names:{field_txt_2D}
+# output_control:
+#    Frequency: 1
+#    frequency_units: nhours
+#    MPI Ranks in Filename: false
+# Restart:
+#    force_new_file: true
+# '''
+
+hist_opts_2D_inst = f'''
+%YAML 1.1
+---
+filename_prefix: output.scream.2D
+Averaging Type: Instant
+Max Snapshots Per File: 48
+Fields:
+   Physics PG2:
+      Field Names:{field_txt_2D}
+output_control:
+   Frequency: 1
+   frequency_units: nsteps
+   MPI Ranks in Filename: false
+Restart:
+   force_new_file: true
+'''
+
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
    for n in range(len(opt_list)):

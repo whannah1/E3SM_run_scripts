@@ -9,14 +9,70 @@ salloc --nodes 1 --qos interactive --time 4:00:00 --constraint gpu --account=e3s
 
 # chrysalis
 salloc --nodes 1 --qos interactive --time 4:00:00 --account=e3sm
-srun --pty --nodes=1 --time=08:00:00 /bin/bash
+srun --pty --nodes=1 --time=04:00:00 /bin/bash
+```
+
+
+--------------------------------------------------------------------------------
+# Running with valgrind
+
+```shell
+salloc --nodes 2 --qos interactive --time 4:00:00 --account=e3sm
+srun --pty --nodes=1 --time=04:00:00 /bin/bash
+
+CASE=E3SM.2025-ZM-DEV-00.F2010xx-ZM.ne4pg2.NT_96.debug
+CASE_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/chrys/$CASE
+cd $CASE_ROOT
+source $CASE_ROOT/case_scripts/.env_mach_specific.sh
+
+# cd $CASE_ROOT/bld/cmake-bld/
+# make -j 256
+
+cd $CASE_ROOT/run
+# mkdir -p  timing/checkpoints
+# srun --mpi=pmi2 -l -n 96 -N 2 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe
+valgrind srun --mpi=pmi2 -l -n 96 -N 2 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe  &> tmp_log
+
+```
+
+--------------------------------------------------------------------------------
+# Running with GDB
+
+```shell
+salloc --nodes 1 --qos interactive --time 4:00:00 --account=e3sm
+srun --pty --nodes=1 --time=04:00:00 /bin/bash
+
+CASE=E3SM.2025-ZM-DEV-00.F2010xx-ZM.ne4pg2.NT_1.debug
+CASE_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/chrys/$CASE
+cd $CASE_ROOT
+source $CASE_ROOT/case_scripts/.env_mach_specific.sh
+
+# cd $CASE_ROOT/bld/cmake-bld/
+# make -j 256
+
+# cd $CASE_ROOT/run
+# # mkdir -p  timing/checkpoints
+# srun --mpi=pmi2 -l -n 96 -N 2 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe
+# valgrind srun --mpi=pmi2 -l -n 96 -N 2 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe  &> tmp_log
+
+module load gcc/9.2.0-ugetvbp
+module load gdb
+
+cd $CASE_ROOT/run
+
+gdb $CASE_ROOT/bld/e3sm.exe
+
+/gpfs/fs1/soft/chrysalis/spack/opt/spack/linux-centos8-x86_64/gcc-9.2.0/gdb-12.1-2ip75al/bin/gdb $CASE_ROOT/bld/e3sm.exe
+
+break __cxa_throw
+
 ```
 
 --------------------------------------------------------------------------------
 # Building Unit Tests - chrysalis
 
 ```shell
-E3SM_SRC=${HOME}/E3SM/E3SM_SRC2
+E3SM_SRC=${HOME}/E3SM/E3SM_SRC3
 TEST_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/chrys/zm_dev/tests
 mach=chrysalis
 comp=intel
@@ -50,7 +106,8 @@ opt ==> release
 # Building Unit Tests - perlmutter
 
 ```shell
-E3SM_SRC=/pscratch/sd/w/whannah/tmp_eamxx_src
+# E3SM_SRC=/pscratch/sd/w/whannah/tmp_eamxx_src
+E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC4
 TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests
 mach=pm-cpu
 comp=gnu

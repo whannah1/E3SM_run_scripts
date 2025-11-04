@@ -20,8 +20,12 @@ test_root = '/lcrc/group/e3sm/ac.whannah/ZM_testing'
 #baseline_branch = 'zm_cleanup_09' ; baseline_root = f'{test_root}/baselines'
 
 # src_dir = f'{home}/E3SM/E3SM_SRC1'; generate = True # generate baselines
-src_dir = f'{home}/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
-baseline_branch = 'zm_bridge_00' ; baseline_root = f'{test_root}/baselines'
+# src_dir = f'{home}/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
+# baseline_branch = 'zm_bridge_00' ; baseline_root = f'{test_root}/baselines'
+
+# src_dir = f'{home}/E3SM/E3SM_SRC2'; generate = True # generate baselines
+src_dir = f'{home}/E3SM/E3SM_SRC3'; compare  = True # compare to baselines
+baseline_branch = 'zm_bridge_02' ; baseline_root = f'{test_root}/baselines'
 #---------------------------------------------------------------------------------------------------
 verbose      = True      # print commands
 # debug_script = True      # do not submit test - used for debugging this script
@@ -34,6 +38,7 @@ tests = [ # standard test suite for ZM dev
         'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
         'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
         'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
+        'SMS_Lh4.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_gnu.eamxx-output-preset-1--eamxx-prod',
         ]
 
 
@@ -45,7 +50,7 @@ tests = [ # standard test suite for ZM dev
 #        ]
 
 # simple EAMxx tests
-tests = ['SMS_Lh4.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_gnu.eamxx-output-preset-1--eamxx-prod']
+# tests = ['SMS_Lh4.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_gnu.eamxx-output-preset-1--eamxx-prod']
 
 # src_dir = f'{home}/E3SM/E3SM_SRC0'; baseline_branch='master'; baseline_root=None
 # tests = [ # test dcpae diags problem found on gcp

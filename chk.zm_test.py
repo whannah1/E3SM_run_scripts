@@ -214,7 +214,7 @@ if method in [1,2] :
                         line_split = line.split(' ')
                         for l,line in enumerate(line_split):
                             if any([x in line for x in ['SMS','ERS','ERP']]):
-                                line_split[l] = f'{line_split[l]:80}'
+                                line_split[l] = f'{line_split[l]:90}'
                         line = ' '.join(line_split)
                         test_name = line.strip().split()[0]
                         # if FAIL or DIFF is detected then print some extra stuff
