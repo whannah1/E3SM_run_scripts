@@ -10,28 +10,23 @@ readonly PROJECT="$(sacctmgr show user $USER format=DefaultAccount | tail -n1 | 
 # Simulation
 readonly COMPSET="F20TR"
 readonly RESOLUTION="ne120pg2_r025_RRSwISC6to18E3r5"
-#readonly CASE_NAME="20250313.v3HR.F20TR-ORO-GWD.wSLtraj.tuning.ni14_p3rain20.c12-apr8.n240t120x1.coilr4.alvarez-cpu"
-readonly CASE_NAME="20250313.v3HR.F20TR-ORO-GWD.wSLtraj.tuning.ni14_p3rain20.c12-apr8.alvarez-cpu"
+
+# long cases:
+readonly CASE_NAME="20250612.v3HR.QBO-ndk.F20TR.fgfc_2E-14.tsps_2.c17-jun4.alvarez-cpu"
+
 readonly CASE_GROUP=""
 
-readonly CHECKOUT="c12-apr8"
+readonly CHECKOUT="c17-jun4"
 readonly BRANCH="master" #35fff3cb892fa12b160f2262794f9f5736feb832 (master as of 20250313)
 readonly CHERRY=() #yunpeng's commits here https://github.com/E3SM-Project/E3SM/compare/master...yunpengshan2014/E3SM/AddDustEmissionCap-TuningParameterV6
 readonly DEBUG_COMPILE=false
 
 # Run options
-readonly MODEL_START_TYPE="branch"  # 'initial', 'continue', 'branch', 'hybrid'
-readonly START_DATE="1996-01-01"
+readonly MODEL_START_TYPE="initial"  # 'initial', 'continue', 'branch', 'hybrid'
+readonly START_DATE="1985-01-01"
 
 # Additional options for 'branch' and 'hybrid'
-readonly GET_REFCASE=true
-#readonly RUN_REFDIR="$PSCRATCH/20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod/"
-#/pscratch/sd/t/terai/E3SMv3_dev/20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod/archive/rest/1996-01-01-00000
-#readonly RUN_REFDIR="/pscratch/sd/t/terai/E3SMv3_dev/20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod/"
-#readonly RUN_REFDIR="/dvs_ro/cfs/cdirs/e3sm/terai/E3SM_restarts/20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod/"
-readonly RUN_REFDIR="/dvs_ro/cfs/cdirs/e3sm/terai/E3SM_restarts/20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod/1996-01-01-00000/"
-readonly RUN_REFCASE="20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod"
-readonly RUN_REFDATE="1996-01-01"
+readonly GET_REFCASE=false
 
 # Set paths
 readonly CODE_ROOT="/dvs_ro/cfs/cdirs/e3sm/ndk/repos/${CHECKOUT}"
@@ -49,10 +44,10 @@ readonly CASE_RUN_DIR=${CASE_ROOT}/run
 readonly PELAYOUT="custom-240"
 readonly WALLTIME="8:00:00"
 readonly STOP_OPTION="nmonths"
-readonly STOP_N="18"
+readonly STOP_N="12"
 readonly REST_OPTION="nmonths"
 readonly REST_N="6"
-readonly RESUBMIT="0"
+readonly RESUBMIT="1"
 readonly DO_SHORT_TERM_ARCHIVING=false
 
 # Coupler history
@@ -155,6 +150,8 @@ cat << EOF >> user_nl_eam
           'CLDMED_CAL_LIQ','CLDMED_CAL_ICE','CLDMED_CAL_UN',
           'CLDLOW_CAL_LIQ','CLDLOW_CAL_ICE','CLDLOW_CAL_UN',
           'CLWMODIS','CLIMODIS',
+          'BUTGWSPEC','UTGWORO','UTGWSPEC'
+          'Uzm','Vzm','Wzm','THzm','VTHzm','WTHzm','UVzm','UWzm','THphys','PSzm'
 
  fincl2 = 'PS', 'FLUT','PRECT','U200','V200','U850','V850',
           'TCO','SCO','TREFHTMN:M','TREFHTMX:X','TREFHT','QREFHT'
@@ -162,6 +159,11 @@ cat << EOF >> user_nl_eam
  fincl4 = 'PRECT'
  fincl5 = 'O3_SRF'
  fincl6 = 'CO_2DMSD','NO2_2DMSD','NO_2DMSD','O3_2DMSD','O3_2DMSD_trop'
+
+ ! parameters to enable zonal mean diagnostics
+ phys_grid_ctem_zm_nbas = 120
+ phys_grid_ctem_za_nlat = 90
+ phys_grid_ctem_nfreq = -1
 
  ! -- chemUCI settings ------------------
  history_chemdyg_summary = .true.
@@ -177,9 +179,13 @@ cat << EOF >> user_nl_eam
  cld_macmic_num_steps           =  3
 
  ! gravity wave parameters perturbed
-  effgw_oro = 0.25
-  gw_convect_hcf = 2.5
-  effgw_beres = 0.1
+ !effgw_oro = 0.25
+ ! gw_convect_hcf = 2.5
+ ! effgw_beres = 0.1
+
+ ! frontal GWD tuning
+ frontgfc = 2E-14
+ tom_sponge_start = 2
 
  ! Sea salt emissions
   seasalt_emis_scale = 0.72
@@ -191,7 +197,7 @@ cat << EOF >> user_nl_eam
  zmconv_clos_dyn_adj = .false.
 
  ! lightning NOx emissions
- lght_no_prd_factor = 0.31D0
+ !lght_no_prd_factor = 0.31D0
 
  !new ORO GWD scheme
  use_gw_oro=.false.
@@ -202,7 +208,7 @@ cat << EOF >> user_nl_eam
  bnd_topo='/dvs_ro/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-gtopo30_ne120np4pg2_x6t_forOroDrag.c20241019.nc'
 
  !Tunings
- od_ls_ncleff = 2
+! od_ls_ncleff = 2
  od_bl_ncd = 3 !(FBD)
  od_ss_sncleff = 1 !(sGWD).
 
@@ -213,10 +219,19 @@ cat << EOF >> user_nl_eam
  nucleate_ice_subgrid = 1.40
  p3_embryonic_rain_size = 0.000020D0
 
+ !QBO
+ ! effgw_cm = 0.5
+
+ ! set2
+ lght_no_prd_factor = 0.325D0 ! test5 is 0.31D0, set1 = 0.35
+ linoz_psc_t =  196.0D0 ! test5 198, set1 =194
+ effgw_oro   =  0.3  !test5 is 0.25
+ od_ls_ncleff = 3 !test5 is 2
+ so4_sz_thresh_icenuc  = 0.065e-6  !test5 is 0.080e-6
 EOF
 
 cat << EOF >> user_nl_elm
- hist_dov2xy = .true.,.true.
+hist_dov2xy = .true.,.true.
 hist_fexcl1 = 'AGWDNPP','ALTMAX_LASTYEAR','AVAIL_RETRANSP','AVAILC','BAF_CROP',
               'BAF_PEATF','BIOCHEM_PMIN_TO_PLANT','CH4_SURF_AERE_SAT','CH4_SURF_AERE_UNSAT','CH4_SURF_DIFF_SAT',
               'CH4_SURF_DIFF_UNSAT','CH4_SURF_EBUL_SAT','CH4_SURF_EBUL_UNSAT','CMASS_BALANCE_ERROR','cn_scalar',
@@ -260,11 +275,12 @@ hist_fexcl1 = 'AGWDNPP','ALTMAX_LASTYEAR','AVAIL_RETRANSP','AVAILC','BAF_CROP',
  check_finidat_fsurdat_consistency = .false.
 
  ! if finidat from a different period is specified
- ! check_finidat_pct_consistency   = .false.
+  check_finidat_pct_consistency   = .false.
 
  !--- land BGC spin-up initial conditions ---, pending
  ! finidat='/pscratch/sd/w/wlin/inputdata/20231130.v3b02-icos_trigrid_top_bgc.IcoswISC30E3r5.chrysalis.fnsp.elm.r.0251-01-01-00000.nc'
-  finidat='/dvs_ro/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.r025_RRSwISC6to18E3r5.1985.nc'
+  !finidat='/dvs_ro/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.r025_RRSwISC6to18E3r5.1985.nc'
+  finidat='/dvs_ro/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.ne120pg2_r025_RRSwISC6to18E3r5.1985.nc'
 ! New snow grain shape for the ice-sheet warm bias
  snow_shape = 'hexagonal_plate'
 EOF
@@ -432,31 +448,66 @@ custom_pelayout() {
 
     ./xmlchange NTHRDS=1
     ./xmlchange ROOTPE=0
+
+
+    #echo "Using custom 256 nodes layout 120x1 with coilr strid4"
+    #./xmlchange MAX_MPITASKS_PER_NODE=120
+    #./xmlchange MAX_TASKS_PER_NODE=120
+    #./xmlchange ATM_NTASKS=30720
+    #./xmlchange CPL_NTASKS=7680
+    #./xmlchange ICE_NTASKS=7680
+    #./xmlchange LND_NTASKS=7680
+    #./xmlchange ROF_NTASKS=7680
+    #./xmlchange OCN_NTASKS=7680
+    #./xmlchange CPL_PSTRID=4
+    #./xmlchange ICE_PSTRID=4
+    #./xmlchange LND_PSTRID=4
+    #./xmlchange ROF_PSTRID=4
+    #./xmlchange OCN_PSTRID=4
+    #echo "Using custom 256 nodes layout 128x1 with coilr strid4"
+    #./xmlchange MAX_MPITASKS_PER_NODE=128
+    #./xmlchange MAX_TASKS_PER_NODE=128
+    #./xmlchange ATM_NTASKS=32768
+    #./xmlchange CPL_NTASKS=8192
+    #./xmlchange ICE_NTASKS=8192
+    #./xmlchange LND_NTASKS=8192
+    #./xmlchange ROF_NTASKS=8192
+    #./xmlchange OCN_NTASKS=8192
+    #./xmlchange CPL_PSTRID=4
+    #./xmlchange ICE_PSTRID=4
+    #./xmlchange LND_PSTRID=4
+    #./xmlchange ROF_PSTRID=4
+    #./xmlchange OCN_PSTRID=4
+
+    echo "Using custom 240 nodes layout 120x1 with coilr strid4"
     ./xmlchange MAX_MPITASKS_PER_NODE=120
     ./xmlchange MAX_TASKS_PER_NODE=120
-
-    #echo "Using custom 180 nodes layout with coilr strid4"
-
-    #./xmlchange ATM_NTASKS=21600
-    #./xmlchange CPL_NTASKS=5400
-    #./xmlchange ICE_NTASKS=5400
-    #./xmlchange LND_NTASKS=5400
-    #./xmlchange ROF_NTASKS=5400
-    #./xmlchange OCN_NTASKS=5400
-    echo "Using custom 240 nodes layout with coilr strid4"
-
     ./xmlchange ATM_NTASKS=28800
     ./xmlchange CPL_NTASKS=7200
     ./xmlchange ICE_NTASKS=7200
     ./xmlchange LND_NTASKS=7200
     ./xmlchange ROF_NTASKS=7200
     ./xmlchange OCN_NTASKS=7200
-
     ./xmlchange CPL_PSTRID=4
     ./xmlchange ICE_PSTRID=4
     ./xmlchange LND_PSTRID=4
     ./xmlchange ROF_PSTRID=4
     ./xmlchange OCN_PSTRID=4
+
+    #echo "Using custom 240 nodes layout 128x1 with coilr strid4"
+    #./xmlchange MAX_MPITASKS_PER_NODE=128
+    #./xmlchange MAX_TASKS_PER_NODE=128
+    #./xmlchange ATM_NTASKS=30720
+    #./xmlchange CPL_NTASKS=7680
+    #./xmlchange ICE_NTASKS=7680
+    #./xmlchange LND_NTASKS=7680
+    #./xmlchange ROF_NTASKS=7680
+    #./xmlchange OCN_NTASKS=7680
+    #./xmlchange CPL_PSTRID=4
+    #./xmlchange ICE_PSTRID=4
+    #./xmlchange LND_PSTRID=4
+    #./xmlchange ROF_PSTRID=4
+    #./xmlchange OCN_PSTRID=4
 
     #echo "Using custom 16 nodes layout"
     #./xmlchange MAX_MPITASKS_PER_NODE=128

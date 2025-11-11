@@ -49,13 +49,14 @@ parser.add_option('-b',action='store_true', dest='show_base', default=False,help
 (opts, args) = parser.parse_args()
 #---------------------------------------------------------------------------------------------------
 
-test_root = '/lcrc/group/e3sm/ac.whannah/ZM_testing'
+test_root = '/pscratch/sd/w/whannah/e3sm_scratch/ZM_testing'
+# test_root = '/lcrc/group/e3sm/ac.whannah/ZM_testing'
 
 test_list = [ 
-            'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
-            'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
-            'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
-            'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
+            # 'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
+            # 'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
+            'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_intel',
+            'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_gnu',
             ]
 
 #---------------------------------------------------------------------------------------------------

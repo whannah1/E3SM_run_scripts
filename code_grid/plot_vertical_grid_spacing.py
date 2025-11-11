@@ -68,15 +68,18 @@ grid_path = f'{home}/E3SM/vert_grid_files'
 
 
 # add_grid(f'{home}/E3SM/vert_grid_files/L72_E3SM.nc',                  n='L72',     c='black')
-add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',         n='L128v1.0',d=0,c='red'  )
+# add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',         n='L128v1.0',d=0,c='red'  )
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v2.1_c20230216.nc',n='L128v2.1',d=0,c='green')
-add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v2.2_c20230216.nc',n='L128v2.2',d=1,c='blue' )
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v2.2_c20230216.nc',n='L128v2.2',d=1,c='blue' )
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L276_v1.1_c20240905.nc',n='L276v1.1',d=0,c='magenta' )
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L256_v1.1_c20240905.nc',n='L256v1.1',d=0,c='cyan' )
 
-add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v1_c20250414.nc',n='L192v1',d=2,c='magenta' )
-add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v2_c20250414.nc',n='L192v2',d=2,c='cyan' )
-add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc',n='L256v2',d=1,c='green' )
+add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',           n='L80 EAMv3 default',d=0, c='blue')
+add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',     n='L128 SCREAM default',d=0,c='red'  )
+# add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v1_c20250414.nc',n='L192v1',d=2,c='magenta' )
+# add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v2_c20250414.nc',n='L192v2',d=2,c='cyan' )
+add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc',n='L256 for SOHIP',d=1,c='green' )
+add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v4_c20250930.nc',n='L256 for SOHIP',d=1,c='magenta' )
 
 # add_grid(f'{home}/E3SM/vert_grid_files/L72_E3SM.nc',         n='L72',  c='blue')
 # add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',n='L128', c='red')
@@ -113,7 +116,7 @@ fig_file = os.getenv('HOME')+'/E3SM/figs_grid/vertical_grid_spacing'
 
 print_table     = False
 use_height      = True # for Y-axis, or else use pressure
-add_zoomed_plot = False
+add_zoomed_plot = True
 add_refine_box  = False
 
 # set limits for second plot zoomed in on lower levels
@@ -271,9 +274,13 @@ for f,vert_file in enumerate(vert_file_list):
   #tres1.trYMinF = 10
 
   tres2.trXMinF = 0 # dlev_min_2
-  tres2.trXMaxF = dlev_max_2 + (dlev_max_2-dlev_min_2)*0.05
-  tres2.trYMinF = mlev_min_2 #- mlev_min_2/2
-  tres2.trYMaxF = 1e3 #mlev_max_2
+  tres2.trXMaxF = 100#dlev_max_2 + (dlev_max_2-dlev_min_2)*0.05
+  if use_height:
+    tres2.trYMinF = 0
+    tres2.trYMaxF = 1
+  else:
+    tres2.trYMinF = mlev_min_2 #- mlev_min_2/2
+    tres2.trYMaxF = 1e3 #mlev_max_2
 
   # temporary override to highlight new grid
   #tres1.trXMaxF = 800

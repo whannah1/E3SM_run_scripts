@@ -1,92 +1,53 @@
 #!/bin/bash -fe
 
-# adapted from:
-# /global/cfs/cdirs/e3sm/ndk/tmpdata/20250313.v3HR.F20TR-ORO-GWD.wSLtraj.tuning.ni14_p3rain20.c12-apr8.alvarez-cpu/case_scripts/run_script_provenance/my-run.v3HR.F20TR.test4.oldSL.newsnow_shape.alvarez-cpu.sh.20250417-121523
-
 main() {
 
-do_ftch_cde=false;do_new_case=false;do_case_cfg=false;do_case_bld=false;do_case_sub=false
-clean_build=false
-# --- Toggle flags for what to do ----
-### do_ftch_cde=true
-
-# do_new_case=true
-# do_case_cfg=true
-# do_case_bld=true
-do_case_sub=true
-
-# clean_build=true
-
-readonly MODEL_START_TYPE="continue"  # 'initial', 'continue', 'branch', 'hybrid'
-
-# ==================================================================================================
-
-# fgfc => frontgfc
-# tsps => tom_sponge_start
-
-### round #1
-# fgfc=5E-14 ; tsps=5
-# fgfc=2E-14 ; tsps=5
-# fgfc=5E-14 ; tsps=2
-# fgfc=2E-14 ; tsps=2
-
-### round #2
-fgfc=2E-14 ; tsps=2
-# fgfc=2E-14 ; tsps=1 # default sponge layer
-
-# readonly CASE_NAME="E3SM.v3HR.QBO-tuning-00.F20TR.fgfc_${fgfc}.tsps_${tsps}.pm-cpu" # Initial tests
-readonly CASE_NAME="E3SM.v3HR.QBO-tuning-01.F20TR.fgfc_${fgfc}.tsps_${tsps}.pm-cpu" # revert Beres defaults
-
-
-# ==================================================================================================
-
-readonly WALLTIME="8:00:00"; STOP_OPTION="nmonths"; STOP_N="12"; RESUBMIT="0"
-
-readonly REST_OPTION="nmonths"; REST_N="6"
-# ./xmlchange REST_N=1
-
-
-readonly MACHINE=pm-cpu
+readonly MACHINE=alvarez-cpu
 # NOTE: The command below will return your default project on SLURM-based systems.
 # If you are not using SLURM or need a different project, remove the command and set it directly
-# readonly PROJECT="$(sacctmgr show user $USER format=DefaultAccount | tail -n1 | tr -d ' ')"
-
-readonly PROJECT=m4310 # m4310 / e3sm
-readonly QUEUE=regular # regular / premium
+readonly PROJECT="$(sacctmgr show user $USER format=DefaultAccount | tail -n1 | tr -d ' ')"
 
 # Simulation
 readonly COMPSET="F20TR"
 readonly RESOLUTION="ne120pg2_r025_RRSwISC6to18E3r5"
+
+# long cases:
+readonly CASE_NAME="20250612.v3HR.QBO-ndk.F20TR.fgfc_2E-14.tsps_1.c17-jun4.alvarez-cpu"
+
 readonly CASE_GROUP=""
 
-# readonly CHECKOUT="c12-apr8"
-# readonly BRANCH="master"
-# readonly CHERRY=()
+readonly CHECKOUT="c17-jun4"
+readonly BRANCH="master" #35fff3cb892fa12b160f2262794f9f5736feb832 (master as of 20250313)
+readonly CHERRY=() #yunpeng's commits here https://github.com/E3SM-Project/E3SM/compare/master...yunpengshan2014/E3SM/AddDustEmissionCap-TuningParameterV6
 readonly DEBUG_COMPILE=false
 
 # Run options
+readonly MODEL_START_TYPE="initial"  # 'initial', 'continue', 'branch', 'hybrid'
 readonly START_DATE="1985-01-01"
 
-# # Additional options for 'branch' and 'hybrid'
-# readonly GET_REFCASE=true
-# readonly RUN_REFDIR="/dvs_ro/cfs/cdirs/e3sm/terai/E3SM_restarts/20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod/1996-01-01-00000/"
-# readonly RUN_REFCASE="20250114.v3HR.F2010-ORO-GWD.tuning.SLtransportNewTrajectoryMethod"
-# readonly RUN_REFDATE="1996-01-01"
+# Additional options for 'branch' and 'hybrid'
+readonly GET_REFCASE=false
 
 # Set paths
-# readonly CODE_ROOT="/pscratch/sd/w/whannah/tmp_v3HR_src" # master checkout @ May 21 (a987dd0305dc8c0fd55f2df12350860012462346)
-readonly CODE_ROOT="/pscratch/sd/w/whannah/tmp_v3HR_src" # master checkout @ Apr 29 (d633bd7e454c3cd1c48f92a1d4c9a5d7d57ec2e1)
-readonly CASE_ROOT="$SCRATCH/e3sm_scratch/${MACHINE}/${CASE_NAME}"
+readonly CODE_ROOT="/dvs_ro/cfs/cdirs/e3sm/ndk/repos/${CHECKOUT}"
+readonly CASE_ROOT="$SCRATCH/e3sm_scratch/${MACHINE}/${CHECKOUT}/${CASE_NAME}"
+#readonly CODE_ROOT="$PSCRATCH/E3SMv3_dev/code/${CHECKOUT}"
+#readonly CASE_ROOT="$PSCRATCH/E3SMv3_dev/${CASE_NAME}"
 
 # Sub-directories
 readonly CASE_BUILD_DIR=${CASE_ROOT}/build
 readonly CASE_ARCHIVE_DIR=${CASE_ROOT}/archive
 
-# Production simulation
+  # Production simulation
 readonly CASE_SCRIPTS_DIR=${CASE_ROOT}/case_scripts
 readonly CASE_RUN_DIR=${CASE_ROOT}/run
-# readonly PELAYOUT="custom-240"
-readonly PELAYOUT="custom-256"
+readonly PELAYOUT="custom-240"
+readonly WALLTIME="8:00:00"
+readonly STOP_OPTION="nmonths"
+readonly STOP_N="12"
+readonly REST_OPTION="nmonths"
+readonly REST_N="6"
+readonly RESUBMIT="1"
 readonly DO_SHORT_TERM_ARCHIVING=false
 
 # Coupler history
@@ -96,30 +57,50 @@ readonly HIST_N="1"
 # Leave empty (unless you understand what it does)
 readonly OLD_EXECUTABLE=""
 
-# ==================================================================================================
+# --- Toggle flags for what to do ----
+do_fetch_code=false
+do_create_newcase=true
+do_case_setup=true
+do_case_build=true
+do_case_submit=true
+
 # --- Now, do the work ---
 
 # Make directories created by this script world-readable
 umask 022
 
-echo $'\n  case: '${CASE_NAME}$'\n'
+# Fetch code from Github
+fetch_code
 
-# fetch_code      # Fetch code from Github
-create_newcase  # Create case
-copy_script     # Copy script into case_script directory for provenance
-custom_pelayout # Custom PE layout
-case_setup      # Setup
-case_build      # Build
-runtime_options # Configure runtime options
-case_submit     # Submit
+# Create case
+create_newcase
 
+# Copy script into case_script directory for provenance
+copy_script
+
+# Custom PE layout
+custom_pelayout
+
+# Setup
+case_setup
+
+# Build
+case_build
+
+# Configure runtime options
+runtime_options
+
+# Submit
+case_submit
+
+# All done
 echo $'\n----- All done -----\n'
-echo $'  case: '${CASE_NAME}$'\n'
 
 }
 
-# ==================================================================================================
-# atmos namelist
+# =======================
+# Custom user_nl settings
+# =======================
 
 user_nl() {
 
@@ -172,41 +153,42 @@ cat << EOF >> user_nl_eam
           'BUTGWSPEC','UTGWORO','UTGWSPEC'
           'Uzm','Vzm','Wzm','THzm','VTHzm','WTHzm','UVzm','UWzm','THphys','PSzm'
 
- fincl2 = 'PS', 'FLUT','PRECT','U200','V200','U850','V850','TCO','SCO','TREFHTMN:M','TREFHTMX:X','TREFHT','QREFHT'
+ fincl2 = 'PS', 'FLUT','PRECT','U200','V200','U850','V850',
+          'TCO','SCO','TREFHTMN:M','TREFHTMX:X','TREFHT','QREFHT'
  fincl3 = 'PS', 'PSL','PRECT','TUQ','TVQ','UBOT','VBOT','TREFHT','FLUT','OMEGA500','TBOT','U850','V850','U200','V200','T200','T500','Z700'
  fincl4 = 'PRECT'
  fincl5 = 'O3_SRF'
  fincl6 = 'CO_2DMSD','NO2_2DMSD','NO_2DMSD','O3_2DMSD','O3_2DMSD_trop'
 
- !------------------------------------------------------------------------------
- ! enable zonal mean diagnostics
+ ! parameters to enable zonal mean diagnostics
  phys_grid_ctem_zm_nbas = 120
  phys_grid_ctem_za_nlat = 90
  phys_grid_ctem_nfreq = -1
 
- !------------------------------------------------------------------------------
- ! chemUCI settings
+ ! -- chemUCI settings ------------------
  history_chemdyg_summary = .true.
  history_gaschmbudget_2D = .false.
  history_gaschmbudget_2D_levels = .false.
  history_gaschmbudget_num = 6 !! no impact if  history_gaschmbudget_2D = .false.
 
- !------------------------------------------------------------------------------
- ! MAM5 settings
+ ! -- MAM5 settings ------------------
  is_output_interactive_volc = .true.
 
- !------------------------------------------------------------------------------
- ! misc tuning parameter changes for HR
+ ! Parameter changes for HR
 
- cld_macmic_num_steps =  3
+ cld_macmic_num_steps           =  3
 
  ! gravity wave parameters perturbed
- effgw_oro = 0.25
+ !effgw_oro = 0.25
  ! gw_convect_hcf = 2.5
  ! effgw_beres = 0.1
 
+ ! frontal GWD tuning
+ frontgfc = 2E-14
+ tom_sponge_start = 1
+
  ! Sea salt emissions
- seasalt_emis_scale = 0.72
+  seasalt_emis_scale = 0.72
 
  ! Raise dust emission from original
  dust_emis_fact = 9.2
@@ -215,9 +197,9 @@ cat << EOF >> user_nl_eam
  zmconv_clos_dyn_adj = .false.
 
  ! lightning NOx emissions
- lght_no_prd_factor = 0.31D0
+ !lght_no_prd_factor = 0.31D0
 
- ! oro GWD - enable new schemes
+ !new ORO GWD scheme
  use_gw_oro=.false.
  use_od_ls=.true.
  use_od_bl=.true.
@@ -225,30 +207,32 @@ cat << EOF >> user_nl_eam
  use_od_fd=.true.
  bnd_topo='/dvs_ro/cfs/cdirs/e3sm/inputdata/atm/cam/topo/USGS-gtopo30_ne120np4pg2_x6t_forOroDrag.c20241019.nc'
 
- ! oro GWD - tuning parameters
- od_ls_ncleff = 2
+ !Tunings
+! od_ls_ncleff = 2
  od_bl_ncd = 3 !(FBD)
  od_ss_sncleff = 1 !(sGWD).
 
- ! frontal GWD tuning
- frontgfc = ${fgfc}
- tom_sponge_start = ${tsps}
-
- ! Dust emission cap
+! Dust emission cap
  dstemislimitswitch = .true.
 
  ! Cloud tuning parameter changes
  nucleate_ice_subgrid = 1.40
  p3_embryonic_rain_size = 0.000020D0
 
+ !QBO
+ ! effgw_cm = 0.5
+
+ ! set2
+ lght_no_prd_factor = 0.325D0 ! test5 is 0.31D0, set1 = 0.35
+ linoz_psc_t =  196.0D0 ! test5 198, set1 =194
+ effgw_oro   =  0.3  !test5 is 0.25
+ od_ls_ncleff = 3 !test5 is 2
+ so4_sz_thresh_icenuc  = 0.065e-6  !test5 is 0.080e-6
 EOF
 
-# ==================================================================================================
-# land namelist
-
 cat << EOF >> user_nl_elm
- hist_dov2xy = .true.,.true.
- hist_fexcl1 ='AGWDNPP','ALTMAX_LASTYEAR','AVAIL_RETRANSP','AVAILC','BAF_CROP',
+hist_dov2xy = .true.,.true.
+hist_fexcl1 = 'AGWDNPP','ALTMAX_LASTYEAR','AVAIL_RETRANSP','AVAILC','BAF_CROP',
               'BAF_PEATF','BIOCHEM_PMIN_TO_PLANT','CH4_SURF_AERE_SAT','CH4_SURF_AERE_UNSAT','CH4_SURF_DIFF_SAT',
               'CH4_SURF_DIFF_UNSAT','CH4_SURF_EBUL_SAT','CH4_SURF_EBUL_UNSAT','CMASS_BALANCE_ERROR','cn_scalar',
               'COL_PTRUNC','CONC_CH4_SAT','CONC_CH4_UNSAT','CONC_O2_SAT','CONC_O2_UNSAT',
@@ -291,14 +275,13 @@ cat << EOF >> user_nl_elm
  check_finidat_fsurdat_consistency = .false.
 
  ! if finidat from a different period is specified
- ! check_finidat_pct_consistency   = .false.
+  check_finidat_pct_consistency   = .false.
 
  !--- land BGC spin-up initial conditions ---, pending
- finidat='/dvs_ro/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.r025_RRSwISC6to18E3r5.1985.nc'
- ! finidat="/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.ne120pg2_r025_RRSwISC6to18E3r5.1985.nc"
- ! finidat='/dvs_ro/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.r025_RRSwISC6to18E3r5.1850.c20250325.nc'
- 
- ! New snow grain shape for the ice-sheet warm bias
+ ! finidat='/pscratch/sd/w/wlin/inputdata/20231130.v3b02-icos_trigrid_top_bgc.IcoswISC30E3r5.chrysalis.fnsp.elm.r.0251-01-01-00000.nc'
+  !finidat='/dvs_ro/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.r025_RRSwISC6to18E3r5.1985.nc'
+  finidat='/dvs_ro/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.ne120pg2_r025_RRSwISC6to18E3r5.1985.nc'
+! New snow grain shape for the ice-sheet warm bias
  snow_shape = 'hexagonal_plate'
 EOF
 
@@ -310,92 +293,131 @@ echo
 
 }
 
-# ==================================================================================================
-# fetch_code() {
-#     if [ "${do_ftch_cde,,}" != "true" ]; then
-#         echo $'\n----- Skipping fetch_code -----\n'
-#         return
-#     fi
-#     echo $'\n----- Starting fetch_code -----\n'
-#     local path=${CODE_ROOT}
-#     local repo=e3sm
-#     echo "Cloning $repo repository branch $BRANCH under $path"
-#     if [ -d "${path}" ]; then
-#         echo "ERROR: Directory already exists. Not overwriting"
-#         exit 20
-#     fi
-#     mkdir -p ${path}
-#     pushd ${path}
-#     # This will put repository, with all code
-#     git clone git@github.com:E3SM-Project/${repo}.git .
-#     # Setup git hooks
-#     rm -rf .git/hooks
-#     git clone git@github.com:E3SM-Project/E3SM-Hooks.git .git/hooks
-#     git config commit.template .git/hooks/commit.template
-#     # Check out desired branch
-#     git checkout ${BRANCH}
-#     # Custom addition
-#     if [ "${CHERRY}" != "" ]; then
-#         echo ----- WARNING: adding git cherry-pick -----
-#         for commit in "${CHERRY[@]}"
-#         do
-#             echo ${commit}
-#             git cherry-pick ${commit}
-#         done
-#         echo -------------------------------------------
-#     fi
-#     # Bring in all submodule components
-#     git submodule update --init --recursive
-#     popd
-# }
-# ==================================================================================================
+######################################################
+### Most users won't need to change anything below ###
+######################################################
+
+#-----------------------------------------------------
+fetch_code() {
+
+    if [ "${do_fetch_code,,}" != "true" ]; then
+        echo $'\n----- Skipping fetch_code -----\n'
+        return
+    fi
+
+    echo $'\n----- Starting fetch_code -----\n'
+    local path=${CODE_ROOT}
+    local repo=e3sm
+
+    echo "Cloning $repo repository branch $BRANCH under $path"
+    if [ -d "${path}" ]; then
+        echo "ERROR: Directory already exists. Not overwriting"
+        exit 20
+    fi
+    mkdir -p ${path}
+    pushd ${path}
+
+    # This will put repository, with all code
+    git clone git@github.com:E3SM-Project/${repo}.git .
+
+    # Setup git hooks
+    rm -rf .git/hooks
+    git clone git@github.com:E3SM-Project/E3SM-Hooks.git .git/hooks
+    git config commit.template .git/hooks/commit.template
+
+    # Check out desired branch
+    git checkout ${BRANCH}
+
+    # Custom addition
+    if [ "${CHERRY}" != "" ]; then
+        echo ----- WARNING: adding git cherry-pick -----
+        for commit in "${CHERRY[@]}"
+        do
+            echo ${commit}
+            git cherry-pick ${commit}
+        done
+        echo -------------------------------------------
+    fi
+
+    # Bring in all submodule components
+    git submodule update --init --recursive
+
+    popd
+}
+
+#-----------------------------------------------------
 create_newcase() {
-    if [ "${do_new_case,,}" != "true" ]; then
+
+    if [ "${do_create_newcase,,}" != "true" ]; then
         echo $'\n----- Skipping create_newcase -----\n'
         return
     fi
+
     echo $'\n----- Starting create_newcase -----\n'
+
+
     if [[ ${PELAYOUT} == custom-* ]];
     then
         layout="M" # temporary placeholder for create_newcase
     else
         layout=${PELAYOUT}
     fi
+
         if [[ -z "$CASE_GROUP" ]]; then
                 ${CODE_ROOT}/cime/scripts/create_newcase \
                         --case ${CASE_NAME} \
-                        --output-root ${CASE_ROOT} --script-root ${CASE_SCRIPTS_DIR} \
+                        --output-root ${CASE_ROOT} \
+                        --script-root ${CASE_SCRIPTS_DIR} \
                         --handle-preexisting-dirs u \
-                        --compset ${COMPSET} --res ${RESOLUTION} \
-                        --machine ${MACHINE} --project ${PROJECT} \
-                        --walltime ${WALLTIME} --pecount ${layout}
+                        --compset ${COMPSET} \
+                        --res ${RESOLUTION} \
+                        --machine ${MACHINE} \
+                        --project ${PROJECT} \
+                        --walltime ${WALLTIME} \
+                        --pecount ${layout}
         else
                 ${CODE_ROOT}/cime/scripts/create_newcase \
-                        --case ${CASE_NAME} --case-group ${CASE_GROUP} --handle-preexisting-dirs u \
-                        --output-root ${CASE_ROOT} --script-root ${CASE_SCRIPTS_DIR} \
-                        --compset ${COMPSET} --res ${RESOLUTION} \
-                        --machine ${MACHINE} --project ${PROJECT} \
-                        --walltime ${WALLTIME} --pecount ${layout}
+                        --case ${CASE_NAME} \
+                        --case-group ${CASE_GROUP} \
+                        --output-root ${CASE_ROOT} \
+                        --script-root ${CASE_SCRIPTS_DIR} \
+                        --handle-preexisting-dirs u \
+                        --compset ${COMPSET} \
+                        --res ${RESOLUTION} \
+                        --machine ${MACHINE} \
+                        --project ${PROJECT} \
+                        --walltime ${WALLTIME} \
+                        --pecount ${layout}
         fi
+
+
     if [ $? != 0 ]; then
       echo $'\nNote: if create_newcase failed because sub-directory already exists:'
       echo $'  * delete old case_script sub-directory'
       echo $'  * or set do_newcase=false\n'
       exit 35
     fi
+
 }
-# ==================================================================================================
+
+#-----------------------------------------------------
 case_setup() {
-    if [ "${do_case_cfg,,}" != "true" ]; then
+
+    if [ "${do_case_setup,,}" != "true" ]; then
         echo $'\n----- Skipping case_setup -----\n'
         return
     fi
+
     echo $'\n----- Starting case_setup -----\n'
     pushd ${CASE_SCRIPTS_DIR}
-    ./xmlchange EXEROOT=${CASE_BUILD_DIR}               # Setup CIME EXE directory
-    ./xmlchange RUNDIR=${CASE_RUN_DIR}                  # Setup CIME RUN directory
-    ./xmlchange DOUT_S=${DO_SHORT_TERM_ARCHIVING^^}     # Short term archiving flag
-    ./xmlchange DOUT_S_ROOT=${CASE_ARCHIVE_DIR}         # Short term archiving root
+
+    # Setup some CIME directories
+    ./xmlchange EXEROOT=${CASE_BUILD_DIR}
+    ./xmlchange RUNDIR=${CASE_RUN_DIR}
+
+    # Short term archiving
+    ./xmlchange DOUT_S=${DO_SHORT_TERM_ARCHIVING^^}
+    ./xmlchange DOUT_S_ROOT=${CASE_ARCHIVE_DIR}
 
     # Build with COSP, except for a data atmosphere (datm)
     if [ `./xmlquery --value COMP_ATM` == "datm"  ]; then
@@ -404,65 +426,114 @@ case_setup() {
       echo $'\nConfiguring E3SM to use the COSP simulator\n'
       ./xmlchange --id CAM_CONFIG_OPTS --append --val='-cosp'
     fi
+
     # Extracts input_data_dir in case it is needed for user edits to the namelist later
     ./xmlchange DIN_LOC_ROOT="/dvs_ro/cfs/cdirs/e3sm/inputdata"
     ./xmlchange DIN_LOC_ROOT_CLMFORC="/dvs_ro/cfs/cdirs/e3sm/inputdata/atm/datm7"
     local input_data_dir=`./xmlquery DIN_LOC_ROOT --value`
-    user_nl                 # setup custom user_nl
-    ./case.setup --reset    # Finally, run CIME case.setup
+
+    # Custom user_nl
+    user_nl
+
+    # Finally, run CIME case.setup
+    ./case.setup --reset
+
     popd
 }
-# ==================================================================================================
+
+#-----------------------------------------------------
 custom_pelayout() {
+
     pushd ${CASE_SCRIPTS_DIR}
+
     ./xmlchange NTHRDS=1
     ./xmlchange ROOTPE=0
 
-    # ./xmlchange MAX_MPITASKS_PER_NODE=120
-    # ./xmlchange MAX_TASKS_PER_NODE=120
 
-    # echo "Using custom 240 nodes layout with coilr strid4"
+    #echo "Using custom 256 nodes layout 120x1 with coilr strid4"
+    #./xmlchange MAX_MPITASKS_PER_NODE=120
+    #./xmlchange MAX_TASKS_PER_NODE=120
+    #./xmlchange ATM_NTASKS=30720
+    #./xmlchange CPL_NTASKS=7680
+    #./xmlchange ICE_NTASKS=7680
+    #./xmlchange LND_NTASKS=7680
+    #./xmlchange ROF_NTASKS=7680
+    #./xmlchange OCN_NTASKS=7680
+    #./xmlchange CPL_PSTRID=4
+    #./xmlchange ICE_PSTRID=4
+    #./xmlchange LND_PSTRID=4
+    #./xmlchange ROF_PSTRID=4
+    #./xmlchange OCN_PSTRID=4
+    #echo "Using custom 256 nodes layout 128x1 with coilr strid4"
+    #./xmlchange MAX_MPITASKS_PER_NODE=128
+    #./xmlchange MAX_TASKS_PER_NODE=128
+    #./xmlchange ATM_NTASKS=32768
+    #./xmlchange CPL_NTASKS=8192
+    #./xmlchange ICE_NTASKS=8192
+    #./xmlchange LND_NTASKS=8192
+    #./xmlchange ROF_NTASKS=8192
+    #./xmlchange OCN_NTASKS=8192
+    #./xmlchange CPL_PSTRID=4
+    #./xmlchange ICE_PSTRID=4
+    #./xmlchange LND_PSTRID=4
+    #./xmlchange ROF_PSTRID=4
+    #./xmlchange OCN_PSTRID=4
 
-    # LOC_ATM_NTASK=28800
-    # LOC_OTH_NTASK=7200
-    # LOC_ALL_PSTRD=4
-
-    # ./xmlchange ATM_NTASKS=${LOC_ATM_NTASK}
-    # ./xmlchange CPL_NTASKS=${LOC_OTH_NTASK},ICE_NTASKS=${LOC_OTH_NTASK},LND_NTASKS=${LOC_OTH_NTASK},ROF_NTASKS=${LOC_OTH_NTASK},OCN_NTASKS=${LOC_OTH_NTASK}
-    # ./xmlchange CPL_PSTRID=${LOC_ALL_PSTRD},ICE_PSTRID=${LOC_ALL_PSTRD},LND_PSTRID=${LOC_ALL_PSTRD},ROF_PSTRID=${LOC_ALL_PSTRD},OCN_PSTRID=${LOC_ALL_PSTRD}
-
-
-    echo "Using custom 256 nodes layout"
+    echo "Using custom 240 nodes layout 120x1 with coilr strid4"
     ./xmlchange MAX_MPITASKS_PER_NODE=120
     ./xmlchange MAX_TASKS_PER_NODE=120
-
-    ./xmlchange ATM_NTASKS=30720
-    ./xmlchange CPL_NTASKS=7680
-    ./xmlchange ICE_NTASKS=7680
-    ./xmlchange LND_NTASKS=7680
-    ./xmlchange ROF_NTASKS=7680
-    ./xmlchange OCN_NTASKS=7680
-
+    ./xmlchange ATM_NTASKS=28800
+    ./xmlchange CPL_NTASKS=7200
+    ./xmlchange ICE_NTASKS=7200
+    ./xmlchange LND_NTASKS=7200
+    ./xmlchange ROF_NTASKS=7200
+    ./xmlchange OCN_NTASKS=7200
     ./xmlchange CPL_PSTRID=4
     ./xmlchange ICE_PSTRID=4
     ./xmlchange LND_PSTRID=4
     ./xmlchange ROF_PSTRID=4
     ./xmlchange OCN_PSTRID=4
 
+    #echo "Using custom 240 nodes layout 128x1 with coilr strid4"
+    #./xmlchange MAX_MPITASKS_PER_NODE=128
+    #./xmlchange MAX_TASKS_PER_NODE=128
+    #./xmlchange ATM_NTASKS=30720
+    #./xmlchange CPL_NTASKS=7680
+    #./xmlchange ICE_NTASKS=7680
+    #./xmlchange LND_NTASKS=7680
+    #./xmlchange ROF_NTASKS=7680
+    #./xmlchange OCN_NTASKS=7680
+    #./xmlchange CPL_PSTRID=4
+    #./xmlchange ICE_PSTRID=4
+    #./xmlchange LND_PSTRID=4
+    #./xmlchange ROF_PSTRID=4
+    #./xmlchange OCN_PSTRID=4
+
+    #echo "Using custom 16 nodes layout"
+    #./xmlchange MAX_MPITASKS_PER_NODE=128
+    #./xmlchange MAX_TASKS_PER_NODE=128
+    #./xmlchange NTASKS=2048
 
     popd
+
 }
-# ==================================================================================================
+
+#-----------------------------------------------------
 case_build() {
+
     pushd ${CASE_SCRIPTS_DIR}
-    if [ "${do_case_bld,,}" != "true" ]; then
+
+    # do_case_build = false
+    if [ "${do_case_build,,}" != "true" ]; then
+
         echo $'\n----- case_build -----\n'
+
         if [ "${OLD_EXECUTABLE}" == "" ]; then
             # Ues previously built executable, make sure it exists
             if [ -x ${CASE_BUILD_DIR}/e3sm.exe ]; then
-                echo 'Skipping build because $do_case_bld = '${do_case_bld}
+                echo 'Skipping build because $do_case_build = '${do_case_build}
             else
-                echo 'ERROR: $do_case_bld = '${do_case_bld}' but no executable exists for this case.'
+                echo 'ERROR: $do_case_build = '${do_case_build}' but no executable exists for this case.'
                 exit 297
             fi
         else
@@ -477,47 +548,66 @@ case_build() {
         fi
         echo 'WARNING: Setting BUILD_COMPLETE = TRUE.  This is a little risky, but trusting the user.'
         ./xmlchange BUILD_COMPLETE=TRUE
+
+    # do_case_build = true
     else
-        if [ "${clean_build,,}" == "true" ]; then
-            echo $'\n----- Cleaning previous build -----\n'
-            ./case.build --clean-all
-        fi
 
         echo $'\n----- Starting case_build -----\n'
+
+        # Turn on debug compilation option if requested
         if [ "${DEBUG_COMPILE^^}" == "TRUE" ]; then
-            ./xmlchange DEBUG=${DEBUG_COMPILE^^} # Turn on debug compilation option if requested
+            ./xmlchange DEBUG=${DEBUG_COMPILE^^}
         fi
 
-        ./case.build # Run CIME case.build
+        # Run CIME case.build
+        ./case.build
+
         # Some user_nl settings won't be updated to *_in files under the run directory
         # Call preview_namelists to make sure *_in and user_nl files are consistent.
          echo $'\n----- Preview namelists -----\n'
         ./preview_namelists
+
     fi
+
     popd
 }
-# ==================================================================================================
+
+#-----------------------------------------------------
 runtime_options() {
+
     echo $'\n----- Starting runtime_options -----\n'
     pushd ${CASE_SCRIPTS_DIR}
 
-    ./xmlchange RUN_STARTDATE=${START_DATE}                     # Set simulation start date
-    ./xmlchange STOP_OPTION=${STOP_OPTION,,},STOP_N=${STOP_N}   # Segment length
-    ./xmlchange REST_OPTION=${REST_OPTION,,},REST_N=${REST_N}   # Restart frequency
-    ./xmlchange HIST_OPTION=${HIST_OPTION,,},HIST_N=${HIST_N}   # Coupler history
-    ./xmlchange BUDGETS=TRUE                                    # Coupler budgets (always on)
+    # Set simulation start date
+    ./xmlchange RUN_STARTDATE=${START_DATE}
+
+    # Segment length
+    ./xmlchange STOP_OPTION=${STOP_OPTION,,},STOP_N=${STOP_N}
+
+    # Restart frequency
+    ./xmlchange REST_OPTION=${REST_OPTION,,},REST_N=${REST_N}
+
+    # Coupler history
+    ./xmlchange HIST_OPTION=${HIST_OPTION,,},HIST_N=${HIST_N}
+
+    # Coupler budgets (always on)
+    ./xmlchange BUDGETS=TRUE
+
     # Set resubmissions
     if (( RESUBMIT > 0 )); then
         ./xmlchange RESUBMIT=${RESUBMIT}
     fi
 
+    # Run type
     # Start from default of user-specified initial conditions
     if [ "${MODEL_START_TYPE,,}" == "initial" ]; then
         ./xmlchange RUN_TYPE="startup"
         ./xmlchange CONTINUE_RUN="FALSE"
+
     # Continue existing run
     elif [ "${MODEL_START_TYPE,,}" == "continue" ]; then
         ./xmlchange CONTINUE_RUN="TRUE"
+
     elif [ "${MODEL_START_TYPE,,}" == "branch" ] || [ "${MODEL_START_TYPE,,}" == "hybrid" ]; then
         ./xmlchange RUN_TYPE=${MODEL_START_TYPE,,}
         ./xmlchange GET_REFCASE=${GET_REFCASE}
@@ -528,37 +618,50 @@ runtime_options() {
         echo '$RUN_REFDIR = '${RUN_REFDIR}
         echo '$RUN_REFCASE = '${RUN_REFCASE}
         echo '$RUN_REFDATE = '${START_DATE}
+
     else
         echo 'ERROR: $MODEL_START_TYPE = '${MODEL_START_TYPE}' is unrecognized. Exiting.'
         exit 380
     fi
-    patch_mpas_streams # Patch mpas streams files
+
+    # Patch mpas streams files
+    patch_mpas_streams
+
     popd
 }
-# ==================================================================================================
+
+#-----------------------------------------------------
 case_submit() {
-    if [ "${do_case_sub,,}" != "true" ]; then
+
+    if [ "${do_case_submit,,}" != "true" ]; then
         echo $'\n----- Skipping case_submit -----\n'
         return
     fi
+
     echo $'\n----- Starting case_submit -----\n'
     pushd ${CASE_SCRIPTS_DIR}
-    ./xmlchange CHARGE_ACCOUNT=${PROJECT},PROJECT=${PROJECT} --force
-    ./xmlchange JOB_QUEUE=${QUEUE} --force
+
+    # Run CIME case.submit
     ./case.submit
+
     popd
 }
-# ==================================================================================================
+
+#-----------------------------------------------------
 copy_script() {
+
     echo $'\n----- Saving run script for provenance -----\n'
+
     local script_provenance_dir=${CASE_SCRIPTS_DIR}/run_script_provenance
     mkdir -p ${script_provenance_dir}
     local this_script_name=$( basename -- "$0"; )
     local this_script_dir=$( dirname -- "$0"; )
     local script_provenance_name=${this_script_name}.`date +%Y%m%d-%H%M%S`
     cp -vp "${this_script_dir}/${this_script_name}" ${script_provenance_dir}/${script_provenance_name}
+
 }
-# ==================================================================================================
+
+#-----------------------------------------------------
 # Silent versions of popd and pushd
 pushd() {
     command pushd "$@" > /dev/null
@@ -568,5 +671,5 @@ popd() {
 }
 
 # Now, actually run the script
-# ==================================================================================================
+#-----------------------------------------------------
 main

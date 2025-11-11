@@ -74,6 +74,7 @@ top_dir.append( home+'/SCREAM/scratch' )
 top_dir.append( home+'/SCREAM/scratch_pm-gpu' )
 top_dir.append( home+'/SCREAM/scratch_pm-cpu' )
 top_dir.append( home+'/E3SM/scratch-summit')
+top_dir.append( home+'/E3SM/scratch-scream')
 # top_dir.append( home+'/E3SM/scratch/tests/baselines' )
 
 # make sure list of top dir's don't end with "/"
@@ -121,6 +122,7 @@ for tdir in dirs :
 
         if ('E3SM' in case 
             or 'SCREAM' in case 
+            or 'DP.' in case 
             or 'ELM_spinup' in case 
             or 'INCITE' in case 
             or 'DPSCREAM' in case 

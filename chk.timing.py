@@ -133,14 +133,16 @@ else:
 
    # sort the cases alphabetically
    if natsort_found:
-      case_list = natsorted(case_list)
+      # case_list = natsorted(case_list)
+      case_list_sort = [case_list for _, case_list in natsorted(zip(case_list, case_list))]
+      path_list_sort = [path_list for _, path_list in natsorted(zip(case_list, path_list))]
+      case_list = case_list_sort
+      path_list = path_list_sort
    else:
-      case_list.sort()
-
-   case_list.sort()
-   path_list.sort()
-
-   case_list = args
+      case_list_sort = [case_list for _, case_list in sorted(zip(case_list, case_list))]
+      path_list_sort = [path_list for _, path_list in sorted(zip(case_list, path_list))]
+      case_list = case_list_sort
+      path_list = path_list_sort
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
@@ -153,6 +155,7 @@ else:
 # for c in case_list: print(c)
 # print()
 # exit()
+
 
 #-------------------------------------------------------------------------------
 # Define timing file parameters to be parsed
@@ -172,8 +175,8 @@ if opts.params is None:
       param_list.append('OCN Run Time:')
       param_list.append('ICE Run Time:')
    else:
-      # param_list.append('ATM Run Time')
-      param_list.append('TOT Run Time:')
+      param_list.append('ATM Run Time')
+      # param_list.append('TOT Run Time:')
       # param_list.append('Throughput')
 
    # param_list.append('CPL:ATM_RUN')

@@ -82,13 +82,17 @@ compset ='F20TR'
 # add_case(prefix='2025-v3HR-QBO-02',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75) # 
 # add_case(prefix='2025-v3HR-QBO-02',grid='ne30pg2_r05_IcoswISC30E3r5',num_nodes=16) # 
 
+### get more output for frontogenesis function analysis
+# add_case(prefix='2025-FG',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75) # 
+# add_case(prefix='2025-FG',grid='ne30pg2_r05_IcoswISC30E3r5',num_nodes=16) # 
+
 ### try tuning frontal GWD
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='1.25D-15')
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='0.5', frontgfc='1.25D-15')
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='2.00D-14')
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='5.00D-14')
 
-add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='5.00D-14',tom_sponge_start=10)
+# add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='5.00D-14',tom_sponge_start=10)
 
 #---------------------------------------------------------------------------------------------------
 

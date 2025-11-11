@@ -389,7 +389,7 @@ def get_atm_nl_opts(atm_init_file, gweff, cfrac, hdpth, hdpth_min, stspd_min, pl
          ,'QFLX', 'SCO', 'SHFLX', 'SOLIN', 'SWCF', 'LWCF'
          ,'TAUX', 'TAUY', 'TCO', 'TGCLDLWP', 'TGCLDIWP', 'TMQ'
          ,'TS', 'TREFHT', 'TREFMNAV', 'TREFMXAV'
-         ,'HDEPTH', 'MAXQ0', 'UTGWSPEC','BUTGWSPEC'
+         ,'HDEPTH', 'MAXQ0', 'UTGWSPEC', 'BUTGWSPEC', 'UTGWORO'
 
 '''
 #         ,'PSzm','Uzm','Vzm','Wzm','THzm','VTHzm','WTHzm','UVzm','UWzm','THphys'

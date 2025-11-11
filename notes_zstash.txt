@@ -377,10 +377,16 @@ E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L128
 
 CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L72; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash extract --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h1.*" 
 CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L80; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash extract --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h1.*" 
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L128;cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash extract --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h0.*" 
+
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L80 ; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash extract --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "post/atm/90x180/ts/monthly/5yr/U*"
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L128; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash extract --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "post/atm/90x180/ts/monthly/5yr/U*"
 
 ### examine
 
-CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L80; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash ls --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h2.200[0-9][0-9]-03-22*" 
+CASE=E3SM.2023-SCIDAC-v2-AMIP.ne30pg2_EC30to60E2r2.L128; cd /pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE/; zstash ls --hpss=E3SM/2023-SciDAC-v2-AMIP/$CASE "*eam.h2.200[0-9][0-9]-03-22*" 
+
+
 
 --------------------------------------------------------------------------------
 INCITE 2022 - LOW-CLD Tuning

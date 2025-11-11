@@ -12,45 +12,60 @@ def add_case( **kwargs ):
    for k, val in kwargs.items(): case_opts[k] = val
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
-newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
+newcase,config,build,clean,set_opts,submit,continue_run = False,False,False,False,False,False,False
 
 acct = 'm4310'
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/scidac-2025-multifidelity
+# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/scidac-2025-multifidelity
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4' # branch => whannah/eam/test-frontogenesis-correction
 
 # clean        = True
-# newcase      = True
-# config       = True
-# build        = True
+newcase      = True
+config       = True
+build        = True
+set_opts     = True
 submit       = True
-continue_run = True
+# continue_run = True
 
 queue = 'regular' # regular / debug
 
-# stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:10:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',10,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'1:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',365-32,0,'3:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',365,6-1,'4:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',365*2,5-1,'6:00:00' # 10-years
-
-walltime = '6:00:00'
-
-compset='F20TR'
-#---------------------------------------------------------------------------------------------------
-### debug cases just to see if it runs
-
-# add_case(prefix='2025-MF-test-00',grid='ne18pg2_r05_IcoswISC30E3r5',compset=compset,num_nodes=2) # debug
-# add_case(prefix='2025-MF-test-00',grid='ne22pg2_r05_IcoswISC30E3r5',compset=compset,num_nodes=2) # debug
-# add_case(prefix='2025-MF-test-00',grid='ne26pg2_r05_IcoswISC30E3r5',compset=compset,num_nodes=2) # debug
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',4,8-1,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'4:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,1,'4:00:00'
 
 #---------------------------------------------------------------------------------------------------
 
-# redo after rebase and deleting accidental timestep output
-# add_case(prefix='2025-MF-test-00',grid='ne18pg2_r05_IcoswISC30E3r5',compset=compset,num_nodes=12)
-# add_case(prefix='2025-MF-test-00',grid='ne22pg2_r05_IcoswISC30E3r5',compset=compset,num_nodes=18)
-add_case(prefix='2025-MF-test-00',grid='ne26pg2_r05_IcoswISC30E3r5',compset=compset,num_nodes=24)
-add_case(prefix='2025-MF-test-00',grid='ne30pg2_r05_IcoswISC30E3r5',compset=compset,num_nodes=32)
+### cases just for special output
+# add_case(prefix='2025-FGF-00',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32)
+
+
+### cases for testing gradient correction
+
+# add_case(prefix='2025-FGF-correction-test-00',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,grad_correct=False)
+# add_case(prefix='2025-FGF-correction-test-00',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,grad_correct=True)
+
+# add_case(prefix='2025-FGF-correction-test-00',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=1,grad_correct=False)
+# add_case(prefix='2025-FGF-correction-test-00',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=1,grad_correct=True)
+
+# test new namelist control
+# add_case(prefix='2025-FGF-correction-test-01',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,grad_correct=False)
+# add_case(prefix='2025-FGF-correction-test-01',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,grad_correct=True)
+
+# add_case(prefix='2025-FGF-correction-test-02',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,pgrad_correct=True)
+# add_case(prefix='2025-FGF-correction-test-02',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,zgrad_correct=True)
+
+
+# control for bug fix
+# add_case(prefix='2025-FGF-correction-test-01',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=1,grad_correct=True) 
+
+# test bug fix
+# add_case(prefix='2025-FGF-correction-test-02',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,grad_correct=True)
+# add_case(prefix='2025-FGF-correction-test-02',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=1,grad_correct=True)
+
+# test p vs z grad correction
+add_case(prefix='2025-FGF-correction-test-03',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=4)
+add_case(prefix='2025-FGF-correction-test-03',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=4,pgrad_correct=True)
+add_case(prefix='2025-FGF-correction-test-03',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=4,zgrad_correct=True)
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
@@ -109,6 +124,9 @@ def main(opts):
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
       # run_cmd('./xmlchange --id CAM_CONFIG_OPTS --append --val=\'-cosp\' ')
+      # if 'grad_correct' in opts:
+      #    if opts['grad_correct']:
+      #       run_cmd('./xmlchange --id CAM_CONFIG_OPTS --append --val \" -cppdefs \' -DUSE_FGF_CORRECTION \'  \" ')
       #-------------------------------------------------------------------------
       run_cmd('./xmlchange PIO_NETCDF_FORMAT=\"64bit_data\" ')
       run_cmd('./case.setup --reset')
@@ -127,17 +145,25 @@ def main(opts):
 
       # file.write(f' ncdata = \"{atm_init_file}\"') # no need for this since init files are set by default
 
-      file.write(' nhtfrq    = 0,-24 \n')
-      file.write(' mfilt     = 1,1 \n')
+      file.write(' nhtfrq    = 0,-3 \n')
+      file.write(' mfilt     = 1,8 \n')
+      file.write(" avgflag_pertape = 'A','I' \n")
       # file.write(" avgflag_pertape = 'A','A','I' \n")
-      file.write(" fincl1 = 'Z3','CLDLIQ','CLDICE','BUTGWSPEC','UTGWORO','UTGWSPEC'")
-      file.write(         ",'Uzm','Vzm','Wzm','THzm','VTHzm','WTHzm','UVzm','UWzm','PSzm'")
+      file.write(" fincl1 = 'Z3','CLDLIQ','CLDICE','BUTGWSPEC','UTGWORO','UTGWSPEC','FRONTGF'")
+      # file.write(         ",'Uzm','Vzm','Wzm','THzm','VTHzm','WTHzm','UVzm','UWzm','PSzm'")
       file.write("\n")
-      file.write(" fincl2 = 'PRECT','FLUT','U850','U200'")
+      file.write(" fincl2 = 'PS','PRECT','FLUT','U850','U200','U600','V600','T600','FRONTGF','UTGWSPEC' ")
       file.write('\n')
-      file.write(f' phys_grid_ctem_zm_nbas = 120 \n') # Number of basis functions used for TEM
-      file.write(f' phys_grid_ctem_za_nlat = 90 \n') # Number of latitude points for TEM
-      file.write(f' phys_grid_ctem_nfreq = -1 \n') # Frequency of TEM diagnostic calculations (neg => hours)
+      # file.write(f' phys_grid_ctem_zm_nbas = 120 \n') # Number of basis functions used for TEM
+      # file.write(f' phys_grid_ctem_za_nlat = 90 \n') # Number of latitude points for TEM
+      # file.write(f' phys_grid_ctem_nfreq = -1 \n') # Frequency of TEM diagnostic calculations (neg => hours)
+      if 'pgrad_correct' in opts:
+         if opts['pgrad_correct']:
+            file.write(f' use_fgf_pgrad_correction = .true. \n')
+      if 'zgrad_correct' in opts:
+         if opts['zgrad_correct']:
+            file.write(f' use_fgf_zgrad_correction = .true. \n')
+
       file.write('\n')
       
       file.close()
@@ -157,8 +183,8 @@ def main(opts):
       #-------------------------------------------------------------------------
       if     continue_run: run_cmd('./xmlchange CONTINUE_RUN=TRUE ')   
       if not continue_run: run_cmd('./xmlchange CONTINUE_RUN=FALSE ')
-      #-------------------------------------------------------------------------
-      # Submit the run
+   #------------------------------------------------------------------------------------------------
+   if submit :
       run_cmd('./case.submit')
    #------------------------------------------------------------------------------------------------
    # Print the case name again

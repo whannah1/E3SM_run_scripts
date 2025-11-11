@@ -5,15 +5,15 @@ generate, compare, verbose, debug_script = False, False, False, False
 #===================================================================================================
 ### Perlmutter
 # project = 'e3sm_g' # m1517 / e3sm_g
-project = 'e3sm' # e3sm / m3312 / m3305
+project = 'm4842' # e3sm / m3312 / m3305/ m4842 (SOHIP)
 output_root = '/pscratch/sd/w/whannah/e3sm_scratch/perlmutter/tests'
 #===================================================================================================
 #===================================================================================================
 
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'; generate = True # generate baselines
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'; compare  = True # compare to baselines
+# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'; compare  = True # compare to baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_BASE'                  # just run tests, no comparison
-# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'                  # just run tests, no comparison
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'                  # just run tests, no comparison
 # src_dir = '/pscratch/sd/w/whannah/tmp_e3sm_src'
 
 
@@ -29,8 +29,12 @@ master_branch_name = 'master'
 # tests = ['e3sm_mmf']
 
 tests = [ 
-        'ERP_Ld3.ne4pg2_oQU480.F2010.pm-cpu_gnu',
+        # 'ERP_Ld3.ne4pg2_oQU480.F2010.pm-cpu_gnu',
         'ERP_Ld3.ne4pg2_oQU480.F2010.pm-cpu_intel',
+        'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype0',
+        # 'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype1',
+        # 'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype4',
+        'SMS_R_Ld5.ne4_ne4.FSCM-ARM97.pm-cpu_intel.eam-scm',
         ]
 
 
