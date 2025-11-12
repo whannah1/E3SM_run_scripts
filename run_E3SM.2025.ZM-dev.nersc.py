@@ -62,14 +62,24 @@ stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00'
 # src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
 # src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
 
-src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
-src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
 
 # src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
 # src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
 
 # src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
 # src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
+
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
+
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
+src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
 
 #---------------------------------------------------------------------------------------------------
 # old cases prior to creating add_case() method
