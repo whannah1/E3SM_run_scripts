@@ -32,13 +32,16 @@ verbose      = True      # print commands
 #---------------------------------------------------------------------------------------------------
 
 tests = [ # standard test suite for ZM dev
-        'e3sm_atm_developer_intel',
-        'e3sm_atm_developer_gnu',
+        # 'e3sm_atm_developer_intel',
+        # 'e3sm_atm_developer_gnu',
         'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
-        'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
-        'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
-        'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
-        'SMS_Lh4.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_gnu.eamxx-output-preset-1--eamxx-prod',
+        # 'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu', # spio fails to build on LCRC
+        # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
+        # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
+        # 'SMS_Lh4.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_gnu.eamxx-output-preset-1--eamxx-prod',
+
+        # 'SMS_Ln5.ne30pg2_r05_IcoswISC30E3r5.F2010.chrysalis_intel.eam-wcprod_F2010',
+        # 'SMS_Ln5_P512x1.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
         ]
 
 

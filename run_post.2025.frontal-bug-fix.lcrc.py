@@ -13,8 +13,9 @@ acct = 'e3sm'
 
 # st_archive           = True
 # clear_zppy_status    = True
-check_zppy_status    = True
-# run_zppy             = True
+# check_zppy_status    = True
+run_zppy             = True
+# run_zppy_mvm           = True
 # lt_archive_create    = True
 # lt_archive_update    = True
 # lt_archive_check     = True
@@ -48,7 +49,7 @@ unified_env = '/lcrc/soft/climate/e3sm-unified/load_latest_e3sm_unified_chrysali
 
 nyr = 5
 
-add_case(prefix='2025-frnt-gw',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=0)
+# add_case(prefix='2025-frnt-gw',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=0)
 add_case(prefix='2025-frnt-gw',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=1)
 hpss_root = 'E3SM/2025-frnt-gw-bug-fix'
 
@@ -159,6 +160,27 @@ def main(opts):
       # submit the zppy job
       run_cmd(f'source {unified_env}; zppy -c {zppy_file_name}')
    #------------------------------------------------------------------------------------------------
+   if 'run_zppy_mvm' not in locals(): run_zppy_mvm = False
+   if run_zppy_mvm: # model-vs-model
+      base_name = 'E3SM.2025-frnt-gw.ne30pg2.F20TR.NN_32.bugfix_0'
+      # Clear status files that don't indicate "OK"
+      status_files = glob.glob(f'{case_root}/post/scripts/*status')
+      for file_name in status_files:
+         file_ptr = open(file_name)
+         contents = file_ptr.read().split()
+         if contents[0]!='OK': os.remove(file_name)
+
+      # dynamically create the zppy config file
+      zppy_file_name = os.getenv('HOME')+f'/E3SM/zppy_cfg/post.{case}.cfg'
+      file = open(zppy_file_name,'w')
+      file.write(get_zppy_config_mvm(case,case_root,nyr,base_name))
+      file.close()
+
+      print(f'  zppy cfg => {zppy_file_name}')
+
+      # submit the zppy job
+      run_cmd(f'source {unified_env}; zppy -c {zppy_file_name}')
+   #------------------------------------------------------------------------------------------------
    # Print the case name again
    print(f'\n  case : {clr.BOLD}{case}{clr.END} ')
 #---------------------------------------------------------------------------------------------------
@@ -169,7 +191,7 @@ def get_zppy_config(case_name,case_root,nyr):
    # grid,map_file = '180x360','/global/homes/w/whannah/maps/map_ne30pg2_to_180x360_aave.nc'
    # grid,map_file = '180x360','/global/homes/z/zender/data/maps/map_ne30pg2_to_cmip6_180x360_aave.20200201.nc'
    yr1,yr2,ts_nyr = 1985,1985+nyr-1,nyr
-   return f'''
+   config_txt = f'''
 [default]
 account = {acct}
 input = {case_root}
@@ -179,48 +201,42 @@ www = {www_path}
 machine = "{mach}"
 partition = {part}
 environment_commands = "source {unified_env}"
+'''
+#   config_txt +=  f'''
+# [climo]
+# active = True
+# walltime = "1:00:00"
+# years = "{yr1}:{yr2}:{nyr}",
 
-[climo]
-active = True
-walltime = "1:00:00"
-years = "{yr1}:{yr2}:{nyr}",
+#   [[ atm_monthly_{grid}_aave ]]
+#   input_subdir = "archive/atm/hist"
+#   input_files = "eam.h0"
+#   mapping_file = {map_file}
+#   grid = "{grid}"
+#   frequency = "monthly"
+# '''
+#   config_txt +=  f'''
+# [ts]
+# active = True
+# walltime = "0:30:00"
+# years = "{yr1}:{yr2}:{ts_nyr}",
 
-  [[ atm_monthly_{grid}_aave ]]
-  input_subdir = "archive/atm/hist"
-  input_files = "eam.h0"
-  mapping_file = {map_file}
-  grid = "{grid}"
-  frequency = "monthly"
+#   [[ atm_monthly_{grid}_aave ]]
+#   input_subdir = "archive/atm/hist"
+#   input_files = "eam.h0"
+#   mapping_file = {map_file}
+#   grid = "{grid}"
+#   frequency = "monthly"
+#   vars = "FSNTOA,FLUT,FSNT,FLNT,FSNS,FLNS,SHFLX,QFLX,TAUX,TAUY,PRECC,PRECL,PRECSC,PRECSL,TS,TREFHT,OMEGA,U,V,T,Q,RELHUM,O3,AODALL,AODDUST,AODVIS,PS,SWCF,LWCF,TMQ,TCO"
 
-[ts]
-active = True
-walltime = "0:30:00"
-years = "{yr1}:{yr2}:{ts_nyr}",
-
-  [[ atm_monthly_{grid}_aave ]]
-  input_subdir = "archive/atm/hist"
-  input_files = "eam.h0"
-  mapping_file = {map_file}
-  grid = "{grid}"
-  frequency = "monthly"
-  vars = "FSNTOA,FLUT,FSNT,FLNT,FSNS,FLNS,SHFLX,QFLX,TAUX,TAUY,PRECC,PRECL,PRECSC,PRECSL,TS,TREFHT,OMEGA,U,V,T,Q,RELHUM,O3,AODALL,AODDUST,AODVIS,PS,SWCF,LWCF,TMQ,TCO"
-
-  [[ atm_monthly_glb ]]
-  input_subdir = "archive/atm/hist"
-  input_files = "eam.h0"
-  mapping_file = "glb"
-  frequency = "monthly"
-  vars = "FSNTOA,FLUT,FSNT,FLNT,FSNS,FLNS,SHFLX,QFLX,TAUX,TAUY,PRECC,PRECL,PRECSC,PRECSL,TS,TREFHT,AODALL,AODDUST,AODVIS,PS,SWCF,LWCF,TMQ,TCO"
-
-  [[ land_monthly ]]
-  input_subdir = "archive/lnd/hist"
-  input_files = "elm.h0"
-  mapping_file = {map_file}
-  grid = "{grid}"
-  frequency = "monthly"
-  vars = "FSH,RH2M"
-  extra_vars = "landfrac"
-
+#   [[ atm_monthly_glb ]]
+#   input_subdir = "archive/atm/hist"
+#   input_files = "eam.h0"
+#   mapping_file = "glb"
+#   frequency = "monthly"
+#   vars = "FSNTOA,FLUT,FSNT,FLNT,FSNS,FLNS,SHFLX,QFLX,TAUX,TAUY,PRECC,PRECL,PRECSC,PRECSL,TS,TREFHT,AODALL,AODDUST,AODVIS,PS,SWCF,LWCF,TMQ,TCO"
+# '''
+   config_txt +=  f'''
 [e3sm_diags]
 active = True
 years = "{yr1}:{yr2}:{nyr}",
@@ -240,7 +256,16 @@ walltime = "24:00:00"
   output_format_subplot = "pdf",
 
 '''
+   return config_txt
 
+# [[ land_monthly ]]
+# input_subdir = "archive/lnd/hist"
+# input_files = "elm.h0"
+# mapping_file = {map_file}
+# grid = "{grid}"
+# frequency = "monthly"
+# vars = "FSH,RH2M"
+# extra_vars = "landfrac"
 
 # [global_time_series]
 # active = True
@@ -252,12 +277,49 @@ walltime = "24:00:00"
 # ts_years = "{yr1}-{yr2}",
 # climo_years = "{yr1}-{yr2}",
 
-# '''
+#---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
+def get_zppy_config_mvm(case_name,case_root,nyr,base_name):
+   short_name = case_name
+   yr1,yr2,ts_nyr = 1985,1985+nyr-1,nyr
+   scratch = '/lcrc/group/e3sm/ac.whannah/scratch/chrys'
+   return f'''
+[default]
+account = {acct}
+input = {case_root}
+output = {case_root}
+case = {case_name}
+www = {www_path}
+machine = "{mach}"
+partition = {part}
+environment_commands = "source {unified_env}"
+
+[e3sm_diags]
+run_type = 'model_vs_model'
+tag = 'model_vs_model'
+ref_name = '{base_name}'
+short_ref_name = 'control'
+diff_title = 'Test Model - Ref Model'
+active = True
+years = "{yr1}:{yr2}:{nyr}",
+ref_start_yr = {yr1}
+ref_final_yr = {yr2}
+walltime = "24:00:00"
+
+  [[ atm_monthly_{grid}_aave ]]
+  short_name = '{short_name}'
+  grid = '{grid}'
+  sets = 'lat_lon','zonal_mean_xy','zonal_mean_2d','polar','cosp_histogram','annual_cycle_zonal_mean','zonal_mean_2d_stratosphere'
+  vars = "FSNTOA,FLUT,FSNT,FLNT,FSNS,FLNS,SHFLX,QFLX,TAUX,TAUY,PRECC,PRECL,PRECSC,PRECSL,TS,TREFHT,OMEGA,U,V,T,Q,RELHUM,O3,AODALL,AODDUST,AODVIS,PS,SWCF,LWCF,TMQ,TCO"
+  reference_data_path = '{scratch}/{base_name}/post/atm/90x180/clim'
+  output_format_subplot = "pdf",
+
+'''
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
    for n in range(len(opt_list)):
-      print('-'*80)
+      print_line()
       main( opt_list[n] )
    print_line()
 #---------------------------------------------------------------------------------------------------

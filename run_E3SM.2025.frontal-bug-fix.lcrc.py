@@ -18,27 +18,32 @@ acct = 'e3sm'
 src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => 
 
 # clean        = True
-# newcase      = True
-# config       = True
-# build        = True
+newcase      = True
+config       = True
+build        = True
 set_opts     = True
 submit       = True
 # continue_run = True
 
 queue = 'regular' # regular / debug
 
-stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'nsteps',2,0,'0:10:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',4,8-1,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'6:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365*4,0,'12:00:00' # should work for 10+ sypd
 
 #---------------------------------------------------------------------------------------------------
 
+
+# quick test to print values
+add_case(prefix='2025-frnt-gw',grid='ne4pg2_oQU480',compset='F20TR',num_nodes=1,bugfix=0)
+
 # add_case(prefix='2025-frnt-gw',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=0)
 # add_case(prefix='2025-frnt-gw',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=1)
 
-add_case(prefix='2025-frnt-gw-01',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=0) # time step output
-add_case(prefix='2025-frnt-gw-01',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=1) # time step output
+# add_case(prefix='2025-frnt-gw-01',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=0) # time step output
+# add_case(prefix='2025-frnt-gw-01',grid='ne30pg2_r05_IcoswISC30E3r5',compset='F20TR',num_nodes=32,bugfix=1) # time step output
 
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
