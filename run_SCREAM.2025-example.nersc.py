@@ -34,7 +34,7 @@ arch = 'GPU'
 # build list of cases to run
 
 
-add_case(prefix='2025-TEST-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1024 )
+add_case(prefix='2025-TEST-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=128 )
 
 
 #---------------------------------------------------------------------------------------------------

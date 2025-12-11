@@ -70,7 +70,7 @@ grid_path = f'{home}/E3SM/vert_grid_files'
 # add_grid(f'{home}/E3SM/vert_grid_files/L72_E3SM.nc',                  n='L72',     c='black')
 # add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',         n='L128v1.0',d=0,c='red'  )
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v2.1_c20230216.nc',n='L128v2.1',d=0,c='green')
-# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v2.2_c20230216.nc',n='L128v2.2',d=1,c='blue' )
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v2.2_c20230216.nc',n='L128v2.2',d=1,c='green' )
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L276_v1.1_c20240905.nc',n='L276v1.1',d=0,c='magenta' )
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L256_v1.1_c20240905.nc',n='L256v1.1',d=0,c='cyan' )
 
@@ -78,7 +78,7 @@ add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',           n='L80 EAMv3 d
 add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',     n='L128 SCREAM default',d=0,c='red'  )
 # add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v1_c20250414.nc',n='L192v1',d=2,c='magenta' )
 # add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v2_c20250414.nc',n='L192v2',d=2,c='cyan' )
-add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc',n='L256 for SOHIP',d=1,c='green' )
+# add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc',n='L256 for SOHIP',d=1,c='green' )
 add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v4_c20250930.nc',n='L256 for SOHIP',d=1,c='magenta' )
 
 # add_grid(f'{home}/E3SM/vert_grid_files/L72_E3SM.nc',         n='L72',  c='blue')
@@ -114,7 +114,7 @@ add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v4_c20250930.nc',n='L256 for S
 fig_type = 'png'
 fig_file = os.getenv('HOME')+'/E3SM/figs_grid/vertical_grid_spacing'
 
-print_table     = False
+print_table     = True
 use_height      = True # for Y-axis, or else use pressure
 add_zoomed_plot = True
 add_refine_box  = False

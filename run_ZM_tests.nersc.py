@@ -15,7 +15,8 @@ src_dir = f'{home}/E3SM/E3SM_SRC3'; compare  = True # compare to baselines
 
 baseline_root = f'{test_root}/baselines'
 
-baseline_branch = 'zm_bridge_02'
+# baseline_branch = 'zm_bridge_02'
+baseline_branch = 'zm_cleanup_11'
 #---------------------------------------------------------------------------------------------------
 verbose      = True      # print commands
 # debug_script = True      # do not submit test - used for debugging this script
@@ -35,12 +36,12 @@ tests = [
 # 'SMS_Ln5.ne4pg2_oQU480.F2010.pm-cpu_gnu',     # use these for BFB debugging 
 # 'SMS_D_Ln5.ne4pg2_oQU480.F2010.pm-cpu_intel', # use these for BFB debugging 
 # 'SMS_D_Ln5.ne4pg2_oQU480.F2010.pm-cpu_gnu',   # use these for BFB debugging 
-'e3sm_atm_developer_intel',
+# 'e3sm_atm_developer_intel',
 'e3sm_atm_developer_gnu',
 # 'SMS_Ld32.ne30pg2_r05_oECv3.F2010.pm-cpu_intel',
 # 'SMS_Ld32.ne30pg2_r05_oECv3.F2010.pm-cpu_gnu',
-'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_intel',
-'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_gnu',
+# 'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_intel',
+# 'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_gnu',
 ]
 
 #---------------------------------------------------------------------------------------------------

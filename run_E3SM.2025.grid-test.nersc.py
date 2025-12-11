@@ -17,9 +17,8 @@ import os, datetime, subprocess as sp
 from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-acct = 'm4842' # e3sm / m4842
+acct = 'e3sm'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir=f'{top_dir}/E3SM_SRC3'
 
 # clean        = True
 # newcase      = True
@@ -32,9 +31,8 @@ queue = 'regular'  # regular / debug
 
 # stop_opt,stop_n,resub,walltime = 'nsteps',10,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'nsteps',4,2,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',2,0,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',10,1,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,10,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'4:00:00'
@@ -43,74 +41,37 @@ stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00'
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-### EAMxx-ZM bridge testing
+# src_dir=f'{top_dir}/E3SM_SRC0'; add_case(prefix='2025-grid-test-00', arch='CPU', num_nodes=8, grid='ne30pg2_r05_IcoswISC30E3r5', compset='F2010')
+# src_dir=f'{top_dir}/E3SM_SRC0'; add_case(prefix='2025-grid-test-00', arch='CPU', num_nodes=96, grid='ne32pg2_r025_RRSwISC6to18E3r5', compset='F2010')
 
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=2, compset='F2010-SCREAMv1', grid='ne32pg2_r025_RRSwISC6to18E3r5' )
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=4, compset='F2010-SCREAMv1', grid='ne32pg2_r025_RRSwISC6to18E3r5' )
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=8, compset='F2010-SCREAMv1', grid='ne32pg2_r025_RRSwISC6to18E3r5' )
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=16, compset='F2010-SCREAMv1', grid='ne32pg2_r025_RRSwISC6to18E3r5' )
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=32, compset='F2010-SCREAMv1', grid='ne32pg2_r025_RRSwISC6to18E3r5' )
 
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne4pg2_oQU480', num_tasks=96, debug=True)
+src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=32, compset='F2010-SCREAMv1', grid='ne64pg2_r025_RRSwISC6to18E3r5' )
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=64, compset='F2010-SCREAMv1', grid='ne128pg2_r025_RRSwISC6to18E3r5' )
 
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne4pg2_oQU480', num_tasks=96, zm_apply_tend=True, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_tasks=96, zm_apply_tend=True, debug=True)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', num_tasks=1, grid='ne4pg2_oQU480', compset='F2010xx-ZM', debug=True)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', num_tasks=96, grid='ne4pg2_oQU480', compset='F2010xx-ZM', debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', num_tasks= 4, grid='ne4pg2_oQU480', compset='F2010xx-ZM', debug=True)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='CPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=2)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
-
-# tests for zm_cleanup_11
-# add_case(prefix='2025-ZM-DEV-02', compset='F2010', grid='ne4pg2_oQU480', num_tasks=96, debug=True)
-add_case(prefix='2025-ZM-DEV-02', arch='GPU', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=1)
-
-#---------------------------------------------------------------------------------------------------
-# old cases prior to creating add_case() method
-
-# compset,grid,num_nodes='F2010', f'ne4pg2_oQU480', 1
-# case_list = ['E3SM','2025-ZM-DEV-00',grid,compset]
-
-# compset,grid,num_nodes='F2010', f'ne30pg2_r05_IcoswISC30E3r5', 16
-# src_dir=f'{top_dir}/E3SM_SRC0/'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_OLD',grid,compset]
-# src_dir=f'{top_dir}/E3SM_SRC1/'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_NEW',grid,compset]
-# src_dir=f'{top_dir}/E3SM_SRC1'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_NEW_REBASE',grid,compset]
-
-# EAMxx-ZM bridge testing
-# compset,grid,num_nodes='F2010-SCREAMv1', f'ne4pg2_oQU480', 1
-# compset,grid,num_nodes='F2010-SCREAMv1-MPASSI', f'ne4pg2_oQU480', 1
-# src_dir=f'{top_dir}/E3SM_SRC2'; case_list = ['E3SM','2025-ZM-DEV-01',grid,compset]
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=1, compset='F2010-SCREAMv1', grid='ne32pg2_r025_RRSwISC6to18E3r5' )
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=4, compset='F2010-SCREAMv1', grid='ne64pg2_r025_RRSwISC6to18E3r5' )
+# src_dir=f'{top_dir}/E3SM_SRC4'; add_case(prefix='2025-grid-test-00', arch='GPU', num_nodes=16, compset='F2010-SCREAMv1', grid='ne128pg2_r025_RRSwISC6to18E3r5' )
 
 
-# if debug_mode: case_list.append('debug')
 
-# case='.'.join(case_list)
+# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-grid-test-00', arch='GPU', num_tasks= 4, grid='ne4pg2_oQU480', compset='F2010xx-ZM', debug=True)
+
+
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
    grid_name = opts['grid']
    if 'ne4pg2_'   in opts['grid']: grid_name = 'ne4pg2'
    if 'ne30pg2_'  in opts['grid']: grid_name = 'ne30pg2'
+   if 'ne32pg2_'  in opts['grid']: grid_name = 'ne32pg2'
+   if 'ne64pg2_'  in opts['grid']: grid_name = 'ne64pg2'
    if 'ne120pg2_' in opts['grid']: grid_name = 'ne120pg2'
+   if 'ne128pg2_' in opts['grid']: grid_name = 'ne128pg2'
    return grid_name
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
@@ -151,10 +112,8 @@ def main(opts):
    #----------------------------------------------------------------------------
    debug_mode = False
    if 'debug' in opts: debug_mode = opts['debug']
-   if 'arch' in opts:
-      arch = opts['arch']
-   else:
-      arch = 'CPU'
+   arch = 'CPU'
+   if 'arch' in opts: arch = opts['arch']
    #----------------------------------------------------------------------------
    if 'num_nodes' in opts and 'num_tasks' in opts:
       raise ValueError('cannot specify both num_nodes and num_tasks!')
@@ -163,22 +122,14 @@ def main(opts):
    #----------------------------------------------------------------------------
    # return
    #----------------------------------------------------------------------------
-   case_root = f'/pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/{case}'
+   case_root = f'/pscratch/sd/w/whannah/e3sm_scratch/pm-gpu/{case}'
    if 'num_nodes' in opts:
       if arch=='CPU': max_mpi_per_node,atm_nthrds  = 128,1
-      if arch=='GPU': max_mpi_per_node,atm_nthrds  =   4,8
+      if arch=='GPU': max_mpi_per_node,atm_nthrds  =   4,1
       num_nodes = opts['num_nodes']
       atm_ntasks = max_mpi_per_node*num_nodes
    if 'num_tasks' in opts:
       atm_ntasks,atm_nthrds = opts['num_tasks'],1
-   #----------------------------------------------------------------------------
-   # if 'ne4pg2' in opts['grid']:
-   #    # max_mpi_per_node,atm_nthrds  = 96,1 # need this for single node ne4 tests
-   #    # max_mpi_per_node,atm_nthrds  = 90,1 # force uneven column counts
-   #    # smaller NTASK for debugging weird column swapping issue
-   #    max_mpi_per_node,atm_nthrds  = 20,1
-   # else:
-   #    max_mpi_per_node,atm_nthrds  = 128,1
    #------------------------------------------------------------------------------------------------
    # Create new case
    if newcase :
@@ -191,8 +142,10 @@ def main(opts):
       cmd += f' --res {opts["grid"]} '
       cmd += f' --pecount {atm_ntasks}x{atm_nthrds} '
       cmd += f' --project {acct} '
-      if arch=='CPU': cmd += f' --mach pm-cpu --compiler gnu'
-      if arch=='GPU': cmd += f' --mach pm-gpu --compiler gnugpu'
+      # if arch=='CPU': cmd += f' --mach aurora --compiler oneapi-ifx '
+      # if arch=='GPU': cmd += f' --mach aurora --compiler oneapi-ifxgpu '
+      if arch=='GPU': cmd += f' -mach pm-gpu -compiler gnugpu '
+      if arch=='CPU': cmd += f' -mach pm-cpu -compiler gnu '
       cmd += f' --pecount {atm_ntasks}x{atm_nthrds} '
       run_cmd(cmd)
       #----------------------------------------------------------------------------
@@ -208,15 +161,10 @@ def main(opts):
       #-------------------------------------------------------------------------
       # if 'SCREAM' in opts["compset"]: run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=zm')
       #-------------------------------------------------------------------------
-      if 'num_nodes' in opts:
-         if opts['num_nodes']==1:
-            run_cmd(f'./xmlchange --file env_mach_pes.xml NTASKS_OCN=1,NTASKS_ICE=1')
-      #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
    #------------------------------------------------------------------------------------------------
    if build : 
-      #-------------------------------------------------------------------------
       if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
       if clean : run_cmd('./case.build --clean')
       run_cmd('./case.build')
@@ -224,13 +172,6 @@ def main(opts):
    if submit :
       #-------------------------------------------------------------------------
       if 'SCREAM' in opts['compset'] or 'F2010xx' in opts['compset']:
-
-         #----------------------------------------------------------------------
-         if 'zm_apply_tend' in opts:
-            if opts['zm_apply_tend']:
-               run_cmd('./atmchange physics::zm::apply_tendencies=true')
-            else:
-               run_cmd('./atmchange physics::zm::apply_tendencies=false')
          #----------------------------------------------------------------------
          run_cmd('./atmchange physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv,horiz_winds')
          run_cmd('./atmchange physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
@@ -249,7 +190,7 @@ def main(opts):
          # add_hist_file('scream_output_2D_10dy_avg.yaml',hist_opts_2D_10dy_avg)
          # add_hist_file('scream_output_3D_1dy_avg.yaml', hist_opts_3D_1dy_avg)
 
-         # add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_2D_1dy_avg)
+         add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_2D_1dy_avg)
 
          # add_hist_file('scream_output_2D_1mo_avg.yaml', hist_opts_2D_1mo_avg)
          # add_hist_file('scream_output_3D_1mo_avg.yaml', hist_opts_3D_1mo_avg)
@@ -302,55 +243,67 @@ eam_opts = f'''
 '''
 # 'CLOUD','CLDLIQ','CLDICE'
 #---------------------------------------------------------------------------------------------------
-field_txt_2D = '''
-      - ps
-      - precip_total_surf_mass_flux
-      - precip_liq_surf_mass_flux
-      - precip_ice_surf_mass_flux
-      - LiqWaterPath
-      - IceWaterPath
-      - U_at_model_bot
-      - U_at_850hPa
-      - U_at_200hPa
-      - omega_at_500hPa
-      - zm_prec
-      - zm_snow
-      - zm_cape
-'''
-# field_txt_2D += '      - surf_sens_flux'
-# field_txt_2D += '      - surf_evap'
-# field_txt_2D += '      - surf_mom_flux'
+field_txt_2D = '\n'
+field_txt_2D += '      - ps\n'
+field_txt_2D += '      - precip_total_surf_mass_flux\n'
+field_txt_2D += '      - VapWaterPath\n'
+field_txt_2D += '      - LiqWaterPath\n'
+field_txt_2D += '      - IceWaterPath\n'
+field_txt_2D += '      - surf_sens_flux\n'
+field_txt_2D += '      - surface_upward_latent_heat_flux\n'
+field_txt_2D += '      - wind_speed_10m\n'
+field_txt_2D += '      - U_at_model_bot\n'
+field_txt_2D += '      - V_at_model_bot\n'
+field_txt_2D += '      - U_at_850hPa\n'
+field_txt_2D += '      - U_at_200hPa\n'
+field_txt_2D += '      - omega_at_500hPa\n'
+field_txt_2D += '      - SW_flux_up_at_model_top\n'
+field_txt_2D += '      - SW_flux_dn_at_model_top\n'
+field_txt_2D += '      - LW_flux_up_at_model_top\n'
+# field_txt_2D += '      - surf_evap\n'
+# field_txt_2D += '      - surf_mom_flux\n'
+# field_txt_2D += '      - horiz_winds_at_model_bot\n'
+# field_txt_2D += '      - SW_flux_dn_at_model_bot\n'
+# field_txt_2D += '      - SW_flux_up_at_model_bot\n'
+# field_txt_2D += '      - LW_flux_dn_at_model_bot\n'
+# field_txt_2D += '      - LW_flux_up_at_model_bot\n'
+# field_txt_2D += '      - SW_flux_up_at_model_top\n'
+# field_txt_2D += '      - SW_flux_dn_at_model_top\n'
+# field_txt_2D += '      - LW_flux_up_at_model_top\n'
 
-field_txt_3D = '''
-      - ps
-      - T_mid
-      - qv
-      - qc
-      - qi
-      - omega
-      - U
-'''
-# field_txt_3D+='      - rad_heating_pdel \n'
-field_txt_3D+='      - cldfrac_tot_for_analysis \n'
-field_txt_3D+='      - cldfrac_liq \n'
-field_txt_3D+='      - cldfrac_ice_for_analysis \n'
-field_txt_3D+='      - z_mid \n'
+field_txt_3D = '\n'
+field_txt_3D += '      - ps\n'
+field_txt_3D += '      - z_mid\n'
+field_txt_3D += '      - T_mid\n'
+field_txt_3D += '      - qv\n'
+field_txt_3D += '      - U\n'
+field_txt_3D += '      - V\n'
+field_txt_3D += '      - omega\n'
+# field_txt_3D += '      - qc\n'
+# field_txt_3D += '      - qr\n'
+# field_txt_3D += '      - qi\n'
+# field_txt_3D += '      - qm\n'
+# field_txt_3D += '      - nc\n'
+# field_txt_3D += '      - nr\n'
+# field_txt_3D += '      - ni\n'
+# field_txt_3D += '      - bm\n'
+# field_txt_3D += '      - RelativeHumidity\n'
+# field_txt_3D += '      - rad_heating_pdel\n'
 field_txt_3D+='      - qr \n'
 field_txt_3D+='      - qm \n'
-field_txt_3D+='      - RelativeHumidity \n'
-field_txt_3D+='      - p3_T_mid_tend \n'
-field_txt_3D+='      - shoc_T_mid_tend \n'
-field_txt_3D+='      - rrtmgp_T_mid_tend \n'
-field_txt_3D+='      - homme_T_mid_tend \n'
-field_txt_3D+='      - p3_qv_tend \n'
-field_txt_3D+='      - shoc_qv_tend \n'
-field_txt_3D+='      - homme_qv_tend \n'
-field_txt_3D+='      - shoc_horiz_winds_tend \n'
-field_txt_3D+='      - homme_horiz_winds_tend \n'
-field_txt_3D+='      - zm_T_mid_tend \n'
-field_txt_3D+='      - zm_qv_tend \n'
-field_txt_3D+='      - zm_u_tend \n'
-field_txt_3D+='      - zm_v_tend \n'
+# field_txt_3D+='      - cldfrac_tot_for_analysis \n'
+# field_txt_3D+='      - cldfrac_liq \n'
+# field_txt_3D+='      - cldfrac_ice_for_analysis \n'
+# field_txt_3D+='      - RelativeHumidity \n'
+# field_txt_3D+='      - p3_T_mid_tend \n'
+# field_txt_3D+='      - shoc_T_mid_tend \n'
+# field_txt_3D+='      - rrtmgp_T_mid_tend \n'
+# field_txt_3D+='      - homme_T_mid_tend \n'
+# field_txt_3D+='      - p3_qv_tend \n'
+# field_txt_3D+='      - shoc_qv_tend \n'
+# field_txt_3D+='      - homme_qv_tend \n'
+# field_txt_3D+='      - shoc_horiz_winds_tend \n'
+# field_txt_3D+='      - homme_horiz_winds_tend \n'
 
 
 hist_opts_2D_1dy_avg = f'''
@@ -369,22 +322,6 @@ restart:
    force_new_file: true
 '''
 
-hist_opts_2D_10dy_avg = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: average
-max_snapshots_per_file: 1
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 10
-   frequency_units: ndays
-restart:
-   force_new_file: true
-'''
-
 hist_opts_2D_1hr_inst = f'''
 %YAML 1.1
 ---
@@ -397,22 +334,6 @@ fields:
 output_control:
    frequency: 1
    frequency_units: nhours
-restart:
-   force_new_file: true
-'''
-
-hist_opts_2D_1step_inst = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: instant
-max_snapshots_per_file: 48
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: nsteps
 restart:
    force_new_file: true
 '''

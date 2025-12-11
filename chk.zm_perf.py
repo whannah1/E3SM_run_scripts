@@ -67,6 +67,8 @@ if mach=='lcrc':
                ]
 if mach=='nersc':
    test_list = [ 
+               # 'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_intel',
+               # 'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_gnu',
                'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_intel',
                'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_gnu',
                ]

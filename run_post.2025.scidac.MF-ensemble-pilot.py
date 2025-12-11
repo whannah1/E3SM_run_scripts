@@ -28,11 +28,32 @@ ncremap -g ${DST_GRID_FILE} -G ttl="Equi-Angular grid, dimensions ${DST_GRID}, c
 # generate map file
 ncremap -6 --alg_typ=aave --grd_src=$SRC_GRID_FILE --grd_dst=$DST_GRID_FILE --map=$MAP_FILE
 
+
+
+'''
+#---------------------------------------------------------------------------------------------------
+'''
+
+SRC_GRID=~/HICCUP/data_scratch/files_grid/scrip_ERA5_721x1440.nc
+DST_GRID=~/grids/90x180_scrip.nc
+MAP_FILE=~/HICCUP/data_scratch/files_map/map_721x1440_to_90x180_traave.nc
+# ncremap -6 --alg_typ=traave --grd_src=$SRC_GRID --grd_dst=$DST_GRID --map=$MAP_FILE
+
+ERA_VAR=ta
+SRC_DATA=/global/cfs/cdirs/e3sm/diagnostics/observations/Atm/time-series/ERA5/${ERA_VAR}_197901_201912.nc
+DST_DATA=/global/cfs/cdirs/m4310/whannah/E3SM/2025-SciDAC-MF-pilot/ERA5_90x180_${ERA_VAR}_197901_201912.nc
+ncremap -m $MAP_FILE -i $SRC_DATA -o $DST_DATA
 '''
 #---------------------------------------------------------------------------------------------------
 '''
 nohup python -u run_post.2025.scidac.MF-ensemble-pilot.py > run_post.2025.scidac.MF-ensemble-pilot.py.out &
 nohup python -u run_post.2025.scidac.MF-ensemble-pilot.py > run_post.2025.scidac.MF-ensemble-pilot.py.lt_archive_check.out &
+'''
+#---------------------------------------------------------------------------------------------------
+''' for long-term archiving
+ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 whannah@dtn01.nersc.gov
+nohup python -u run_post.2025.scidac.MF-ensemble-pilot.py > run_post.2025.scidac.MF-ensemble-pilot.lt_archive.out &
+2025-11-18 => login40
 '''
 #---------------------------------------------------------------------------------------------------
 import os, subprocess as sp, glob, datetime, sys
@@ -45,33 +66,34 @@ def run_cmd(cmd):
    os.system(cmd); 
    return
 #---------------------------------------------------------------------------------------------------
-chk_files,st_archive,calc_hovmoller = False,False,False
+chk_files,st_archive,calc_hovmoller,calc_climatology = False,False,False,False
 run_zppy,clear_zppy_status,check_zppy_status= False,False,False
 lt_archive_create,lt_archive_check,lt_archive_update,cp_post_to_cfs = False,False,False,False
 
 acct = 'm4310'
 
 # chk_files         = True
-st_archive        = True
+# st_archive        = True
 # clear_zppy_status = True
 # check_zppy_status = True
 # run_zppy          = True
-# calc_hovmoller    = True
 # cp_post_to_cfs    = True
+# calc_hovmoller    = True
+calc_climatology  = True
 # lt_archive_create = True
 # lt_archive_check  = True
 # lt_archive_update = True
 # delete_data       = True
 
 zstash_log_root = '/global/homes/w/whannah/E3SM/zstash_logs'
+scratch_root = '/pscratch/sd/w/whannah/e3sm_scratch/pm-cpu'
 cfs_root = '/global/cfs/cdirs/m4310/whannah/E3SM/2025-SciDAC-MF-pilot'
 hpss_root = 'E3SM/2025-SciDAC-MF-pilot'
 
 #-------------------------------------------------------------------------------
-if calc_hovmoller:
-   import xarray as xr, numpy as np
+if calc_hovmoller or calc_climatology:
    sys.path.append('/global/homes/w/whannah/Research/E3SM/code_QBO')
-   import QBO_diagnostic_methods as QBO_methods
+   import xarray as xr, numpy as np, QBO_diagnostic_methods as QBO_methods
 #---------------------------------------------------------------------------------------------------
 opt_list = []
 def add_case( **kwargs ):
@@ -82,10 +104,12 @@ def add_case( **kwargs ):
 
 nyr = 5 # starting 1995
 
-# add_case(prefix='E3SM.2025-MF0',g='ne18',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
-# add_case(prefix='E3SM.2025-MF0',g='ne22',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
-# add_case(prefix='E3SM.2025-MF0',g='ne26',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
-# add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
+add_case(case='ERA5')
+
+add_case(prefix='E3SM.2025-MF0',g='ne18',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
+add_case(prefix='E3SM.2025-MF0',g='ne22',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
+add_case(prefix='E3SM.2025-MF0',g='ne26',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
+add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
 
 add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.258, CF= 7.96, HD=1.013, HM=2.327, PS=893.9, FT=24.0591, FE=0.477, OB=0.004277, OE=0.502)
 add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.104, CF= 9.01, HD=1.449, HM=2.970, PS=617.5, FT=37.4295, FE=0.098, OB=0.005117, OE=0.267)
@@ -222,52 +246,61 @@ add_case(prefix='E3SM.2025-MF0',g='ne18',EF=0.084, CF=17.94, HD=0.324, HM=1.620,
 #    return grid
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
-   case_list = []
-   for key,val in opts.items(): 
-      if key in ['prefix']:
-         case_list.append(val)
-      # elif key in ['num_nodes']:
-      #    case_list.append(f'NN_{val}')
-      elif key in ['g']:
-         case_list.append(val)
-      elif key in ['debug']:
-         case_list.append('debug')
-      else:
-         if isinstance(val, str):
-            case_list.append(f'{key}_{val}')
+   if 'case' in opts:
+      return opts['case']
+   else:
+      case_list = []
+      for key,val in opts.items(): 
+         if key in ['prefix']:
+            case_list.append(val)
+         # elif key in ['num_nodes']:
+         #    case_list.append(f'NN_{val}')
+         elif key in ['g']:
+            case_list.append(val)
+         elif key in ['debug']:
+            case_list.append('debug')
          else:
-            fmt = 'g'
-            if key in ['EF','CF','HD','HM','PS','FT','FE','OB','OE']: fmt = '0.3f'
-            if key=='CF':fmt='05.2f'
-            if key=='PS':fmt='05.1f'
-            if key=='FT':fmt='07.4f'
-            if key=='OB':fmt='0.6f'
-            case_list.append(f'{key}_{val:{fmt}}')
-   #----------------------------------------------------------------------------
-   case = '.'.join(case_list)
-   # clean up the exponential numbers in the case name
-   for i in range(1,9+1): case = case.replace(f'e+0{i}',f'e{i}')
-   #----------------------------------------------------------------------------
-   return case
+            if isinstance(val, str):
+               case_list.append(f'{key}_{val}')
+            else:
+               fmt = 'g'
+               if key in ['EF','CF','HD','HM','PS','FT','FE','OB','OE']: fmt = '0.3f'
+               if key=='CF':fmt='05.2f'
+               if key=='PS':fmt='05.1f'
+               if key=='FT':fmt='07.4f'
+               if key=='OB':fmt='0.6f'
+               case_list.append(f'{key}_{val:{fmt}}')
+      #----------------------------------------------------------------------------
+      case = '.'.join(case_list)
+      # clean up the exponential numbers in the case name
+      for i in range(1,9+1): case = case.replace(f'e+0{i}',f'e{i}')
+      #----------------------------------------------------------------------------
+      return case
 
 #---------------------------------------------------------------------------------------------------
 def get_case_root(opts):
    case = get_case_name(opts)
-   root = f'/pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/{case}'
+   root = f'{scratch_root}/{case}'
+   return root
+#---------------------------------------------------------------------------------------------------
+def get_cfs_case_root(opts):
+   case = get_case_name(opts)
+   root = f'{cfs_root}/{case}'
    return root
 #---------------------------------------------------------------------------------------------------
 def main(opts):
    #------------------------------------------------------------------------------------------------
-   grid_short = opts['g']
-   if grid_short=='ne18': grid = 'ne18pg2_r05_IcoswISC30E3r5'; num_nodes=12; ne=18
-   if grid_short=='ne22': grid = 'ne22pg2_r05_IcoswISC30E3r5'; num_nodes=18; ne=22
-   if grid_short=='ne26': grid = 'ne26pg2_r05_IcoswISC30E3r5'; num_nodes=24; ne=26
-   if grid_short=='ne30': grid = 'ne30pg2_r05_IcoswISC30E3r5'; num_nodes=32; ne=30
+   if 'g' in opts:
+      grid_short = opts['g']
+      if grid_short=='ne18': grid = 'ne18pg2_r05_IcoswISC30E3r5'; num_nodes=12; ne=18
+      if grid_short=='ne22': grid = 'ne22pg2_r05_IcoswISC30E3r5'; num_nodes=18; ne=22
+      if grid_short=='ne26': grid = 'ne26pg2_r05_IcoswISC30E3r5'; num_nodes=24; ne=26
+      if grid_short=='ne30': grid = 'ne30pg2_r05_IcoswISC30E3r5'; num_nodes=32; ne=30
    #----------------------------------------------------------------------------
    case = get_case_name(opts)
    #------------------------------------------------------------------------------------------------
    print_line()
-   print(f'  case : {clr.BOLD}{case}{clr.END} \n')
+   print(f'  case : {clr.BOLD}{case}{clr.END}')
    #------------------------------------------------------------------------------------------------
    # return
    #------------------------------------------------------------------------------------------------
@@ -322,37 +355,6 @@ def main(opts):
       # submit the zppy job
       run_cmd(f'source {unified_env}; zppy -c {zppy_file_name}')
    #------------------------------------------------------------------------------------------------
-   if calc_hovmoller:
-      lat1,lat2 = -5,5
-      remap_lev = np.array([ 1., 2., 3., 5., 7., 10., 20., 30., 50., 70., 100., 125., 150.])
-      dst_file  = f'{case_root}/{case}.hovmoller.nc'
-      print(); print(f'  dst_file: {clr.CYAN}{dst_file}{clr.END}')
-      #-------------------------------------------------------------------------
-      # file_path = f'{case_root}/archive/atm/hist/*.eam.h0.*'
-      file_path = f'{case_root}/post/atm/90x180/ts/monthly/{nyr}yr/U_199501*'
-      file_list = sorted(glob.glob(file_path))
-      if file_list==[]: 
-         print(f'\nfile_path: {file_path}'); raise ValueError('calc_hovmoller: no files found!')
-      #-------------------------------------------------------------------------
-      # print()
-      # for f in file_list: print(f)
-      # print()
-      # exit()
-      #-------------------------------------------------------------------------
-      ds = xr.open_mfdataset(file_list)
-      data = QBO_methods.interpolate_to_pressure(ds,'U',remap_lev,'PS',interp_type=2,extrap_flag=False)
-      area = ds['area']
-      data = data.sel(lat=slice(lat1,lat2))
-      area = area.sel(lat=slice(lat1,lat2))
-      data = (data*area).sum(dim=('lon','lat')) / area.sum(dim=('lon','lat'))
-      #-------------------------------------------------------------------------
-      ds_out = xr.Dataset()
-      ds_out['U']            = data
-      ds_out['lat1']         = lat1
-      ds_out['lat2']         = lat2
-      for key,val in opts.items(): ds_out[key] = val
-      ds_out.to_netcdf(path=dst_file,mode='w')
-   #------------------------------------------------------------------------------------------------
    if lt_archive_create:
       os.chdir(f'{case_root}')
       timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d.%H%M%S')
@@ -373,12 +375,125 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    if cp_post_to_cfs:
       # os.umask(511)
-      src_dir = f'{case_root}/post/atm/90x180/ts/monthly/{nyr}yr'
-      dst_dir = f'{cfs_root}/{case}'
+      dst_dir = get_cfs_case_root(opts)
       if not os.path.exists(cfs_root): os.mkdir(cfs_root)
       if not os.path.exists(dst_dir):  os.mkdir(dst_dir)
+      src_dir = f'{case_root}/post/atm/90x180/ts/monthly/{nyr}yr'
       run_cmd(f'cp {src_dir}/U_* {dst_dir}/')
-      run_cmd(f'cp {case_root}/{case}.hovmoller.nc {dst_dir}/')
+      src_dir = f'{case_root}/post/atm/90x180/clim/{nyr}yr/'
+      run_cmd(f'cp {src_dir}/{case}_ANN_199501_199912_climo.nc {dst_dir}/')
+      # run_cmd(f'cp {case_root}/{case}.hovmoller.nc {dst_dir}/')
+   #------------------------------------------------------------------------------------------------
+   if calc_hovmoller:
+      lat1,lat2 = -5,5
+      remap_lev = np.array([ 1., 2., 3., 5., 7., 10., 20., 30., 50., 70., 100., 125., 150.])
+      dst_root = get_cfs_case_root(opts)
+      dst_file  = f'{dst_root}/QOI_{nyr}yr_hovmoller.nc'
+      #-------------------------------------------------------------------------
+      print()
+      print(f'  Calculating QBO hovmoller')
+      print(f'  dst_file: {clr.CYAN}{dst_file}{clr.END}')
+      #-------------------------------------------------------------------------
+      if case=='ERA5':
+         # obs_root,obs_file_prefix = '/global/cfs/cdirs/e3sm/diagnostics/observations/Atm/time-series/ERA5',''
+         # ERA_grid_file = '/global/cfs/projectdirs/m4842/whannah/HICCUP/files_grid/scrip_ERA5_721x1440.nc'
+         obs_root,obs_file_prefix = '/global/cfs/cdirs/m4310/whannah/E3SM/2025-SciDAC-MF-pilot','ERA5_90x180_'
+         ERA_grid_file = '/global/homes/w/whannah/grids/90x180_scrip.nc'
+         file_list = [f'{obs_root}/{obs_file_prefix}ua_197901_201912.nc']
+      else:
+         # file_path = f'{case_root}/archive/atm/hist/*.eam.h0.*'
+         file_path = f'{case_root}/post/atm/90x180/ts/monthly/{nyr}yr/U_199501*'
+         file_list = sorted(glob.glob(file_path))
+         if file_list==[]: 
+            print(f'\nfile_path: {file_path}'); raise ValueError('calc_hovmoller: no files found!')
+      #-------------------------------------------------------------------------
+      # print(); print(f for f in file_list); print(); exit()
+      #-------------------------------------------------------------------------
+      ds = xr.open_mfdataset(file_list)
+      #----------------------------------------------------------------------
+      if case=='ERA5': ds = ds.sel(time=slice('1995',f'{(1995+nyr-1)}'))
+      #-------------------------------------------------------------------------
+      # print(); print(ds); print(); exit()
+      #-------------------------------------------------------------------------
+      if case=='ERA5':
+         ds['plev'] = ds['plev']/1e2
+         ds = ds.rename({'plev':'lev'})
+         data = ds['ua'].sel(lev=remap_lev)
+         data = data.transpose('time','lev','lat','lon')
+         # ds_grid =xr.open_dataset(ERA_grid_file)
+         # area = ds_grid['grid_area'].rename({'grid_size':'ncol'})
+         # area.assign_coords(lat=data['lat'].values)
+      else:
+         data = QBO_methods.interpolate_to_pressure(ds,'U',remap_lev,'PS',interp_type=2,extrap_flag=False)
+      #-------------------------------------------------------------------------
+      area = ds['area']
+      data = data.sel(lat=slice(lat1,lat2))
+      area = area.sel(lat=slice(lat1,lat2))
+      data = (data*area).sum(dim=('lon','lat')) / area.sum(dim=('lon','lat'))
+      #-------------------------------------------------------------------------
+      ds_out = xr.Dataset()
+      ds_out['U']          = data
+      ds_out['lat1']       = lat1
+      ds_out['lat2']       = lat2
+      for key,val in opts.items(): ds_out.attrs[key] = val
+      ds_out.attrs['case'] = case
+      ds_out.to_netcdf(path=dst_file,mode='w')
+   #------------------------------------------------------------------------------------------------
+   if calc_climatology:
+      var_list = ['U','T']
+      remap_lev = np.array([ 1., 2., 3., 5., 7., 10, 20, 30, 50, 70, 100, 125, 150, 175, \
+                            200, 225, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, \
+                            750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000])
+      dst_root = get_cfs_case_root(opts)
+      dst_file  = f'{dst_root}/QOI_{nyr}yr_climatology.nc'
+      #-------------------------------------------------------------------------
+      print()
+      print(f'  Calculating zonal mean climatology')
+      print(f'  dst_file: {clr.CYAN}{dst_file}{clr.END}')
+      #-------------------------------------------------------------------------
+      ds_out = xr.Dataset()
+      for key,val in opts.items(): ds_out.attrs[key] = val
+      ds_out.attrs['case'] = case
+      #-------------------------------------------------------------------------
+      for var in var_list:
+         #----------------------------------------------------------------------
+         if case=='ERA5':
+            # obs_root,obs_file_prefix = '/global/cfs/cdirs/e3sm/diagnostics/observations/Atm/time-series/ERA5',''
+            obs_root,obs_file_prefix = '/global/cfs/cdirs/m4310/whannah/E3SM/2025-SciDAC-MF-pilot','ERA5_90x180_'
+            if var=='U': ivar='ua'; input_file = f'{obs_root}/{obs_file_prefix}ua_197901_201912.nc'
+            if var=='T': ivar='ta'; input_file = f'{obs_root}/{obs_file_prefix}ta_197901_201912.nc'
+         else:
+            input_file = f'{case_root}/post/atm/90x180/clim/{nyr}yr/{case}_ANN_199501_{(1995+nyr-1)}12_climo.nc'
+         #----------------------------------------------------------------------
+         # print(); print(input_file); print(); exit()
+         #----------------------------------------------------------------------
+         ds = xr.open_mfdataset(input_file)
+         #----------------------------------------------------------------------
+         # print(); print(ds); print(); exit()
+         #----------------------------------------------------------------------
+         if case=='ERA5': ds = ds.sel(time=slice('1995',f'{(1995+nyr-1)}'))
+         #----------------------------------------------------------------------
+         if case=='ERA5':
+            ds['plev'] = ds['plev']/1e2
+            ds = ds.rename({'plev':'lev'})
+            data = ds[ivar].sel(lev=remap_lev)
+            data = data.transpose('time','lev','lat','lon')
+         else:
+            data = QBO_methods.interpolate_to_pressure(ds,var,remap_lev,'PS',interp_type=2,extrap_flag=True)
+            data = data.mean(dim='time')
+         area = ds['area']
+         data = (data*area).sum(dim=('lon')) / area.sum(dim=('lon'))
+         #----------------------------------------------------------------------
+         # mask out antarctica
+         data = data.where( (data['lat']>-65) | (data['lev']<600) )
+         #----------------------------------------------------------------------
+         # print(); print(data); print(); exit()
+         #----------------------------------------------------------------------
+         ds_out[var] = data
+      #-------------------------------------------------------------------------
+      # print(); print(ds_out); print(); exit()
+      #-------------------------------------------------------------------------
+      ds_out.to_netcdf(path=dst_file,mode='w')
    #------------------------------------------------------------------------------------------------
    # if delete_data:
    #    file_list = []
@@ -497,6 +612,7 @@ climo_years = "{yr1}-{yr2}",
 '''
    return config_txt
 #---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
    # run_cmd(f'source {unified_env}')
@@ -508,7 +624,8 @@ if __name__ == '__main__':
          case_root = get_case_root(opts)
          hist_file_list = sorted(glob.glob(f'{case_root}/run/*.eam.h0.*'))
          last_file = hist_file_list[-1].replace(f'{case_root}/run/','')
-         print(f'  {(n+1):3}  {case_name}    {clr.GREEN}{last_file}{clr.END}')
+         num_files = len(hist_file_list)
+         print(f'  {(n+1):3}  {case_name}  num_files: {num_files:5}  {clr.GREEN}{last_file}{clr.END}')
       exit()
 
    for n in range(len(opt_list)):
