@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 import os, datetime, subprocess as sp
 #---------------------------------------------------------------------------------------------------
+''' opening permissions for Wandi
+chmod a+r /pscratch/sd/w/whannah/scream_scratch/pm-gpu/SCREAM.2025-SciDAC-00.F2010-SCREAMv1.ne256pg2.NN_384/run/output*
+chmod a+rx /pscratch/sd/w/whannah/scream_scratch/pm-gpu/SCREAM.2025-SciDAC-00.F2010-SCREAMv1.ne256pg2.NN_384/run
+chmod a+rx /pscratch/sd/w/whannah/scream_scratch/pm-gpu/SCREAM.2025-SciDAC-00.F2010-SCREAMv1.ne256pg2.NN_384
+'''
+#---------------------------------------------------------------------------------------------------
 class tcolor: END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
 #---------------------------------------------------------------------------------------------------
 def run_cmd(cmd,suppress_output=False):
@@ -22,21 +28,22 @@ src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => master @ 2025-7-1
 # clean        = True
 # newcase      = True
 # config       = True
-build        = True
+# build        = True
 submit       = True
 # continue_run = True
 
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'2:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',32,0,'2:00:00'
-queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',10,0,'2:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',10,0,'2:00:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',73,5-1,'2:00:00' # 1-year
 
 arch = 'GPU'
 
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-# add_case(prefix='2025-SciDAC-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 )
-add_case(prefix='2025-SciDAC-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 ) # special output for sfc pressure bias analysis
+add_case(prefix='2025-SciDAC-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 )
+# add_case(prefix='2025-SciDAC-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 ) # special output for sfc pressure bias analysis
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -131,6 +138,7 @@ def main(opts):
       add_hist_file(f'{case_root}/case_scripts/scream_output_2D_1hr_inst.yaml',hist_opts_2D_1hr_inst)
       # add_hist_file(f'{case_root}/case_scripts/scream_output_2D_3hr_inst.yaml',hist_opts_2D_3hr_inst)
       # add_hist_file(f'{case_root}/case_scripts/scream_output_3D_3hr_inst.yaml',hist_opts_3D_3hr_inst)
+      add_hist_file(f'{case_root}/case_scripts/scream_output_3D_3hr_inst.yaml',hist_opts_3D_6hr_inst)
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
       #-------------------------------------------------------------------------
@@ -254,6 +262,22 @@ fields:
       field_names:{field_txt_3D}
 output_control:
    frequency: 3
+   frequency_units: nhours
+restart:
+   force_new_file: true
+'''
+
+hist_opts_3D_6hr_inst = f'''
+%YAML 1.1
+---
+filename_prefix: output.scream.3D.6hr
+averaging_type: instant
+max_snapshots_per_file: 4
+fields:
+   physics_pg2:
+      field_names:{field_txt_3D}
+output_control:
+   frequency: 6
    frequency_units: nhours
 restart:
    force_new_file: true

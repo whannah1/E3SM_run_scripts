@@ -48,6 +48,8 @@ ncremap -m $MAP_FILE -i $SRC_DATA -o $DST_DATA
 '''
 nohup python -u run_post.2025.scidac.MF-ensemble-pilot.py > run_post.2025.scidac.MF-ensemble-pilot.py.out &
 nohup python -u run_post.2025.scidac.MF-ensemble-pilot.py > run_post.2025.scidac.MF-ensemble-pilot.py.lt_archive_check.out &
+
+nohup python -u run_post.2025.scidac.MF-ensemble-pilot.py > run_post.2025.scidac.MF-ensemble-pilot.py.calc_QOIout &
 '''
 #---------------------------------------------------------------------------------------------------
 ''' for long-term archiving
@@ -57,6 +59,13 @@ nohup python -u run_post.2025.scidac.MF-ensemble-pilot.py > run_post.2025.scidac
 '''
 #---------------------------------------------------------------------------------------------------
 import os, subprocess as sp, glob, datetime, sys
+#---------------------------------------------------------------------------------------------------
+# import signal
+# def signal_handler(sig, frame):
+#    # This function runs when a SIGINT signal (Ctrl+C) is received.
+#    print('\nKeyboardInterrupt received. Performing cleanup and exiting gracefully.')
+#    sys.exit(0) # Exit the program cleanly
+# signal.signal(signal.SIGINT, signal_handler)
 #---------------------------------------------------------------------------------------------------
 class clr:END,RED,GREEN,YELLOW,MAGENTA,CYAN,BOLD = '\033[0m','\033[31m','\033[32m','\033[33m','\033[35m','\033[36m','\033[1m'
 unified_env = '/global/common/software/e3sm/anaconda_envs/load_latest_e3sm_unified_pm-cpu.sh'
@@ -68,7 +77,8 @@ def run_cmd(cmd):
 #---------------------------------------------------------------------------------------------------
 chk_files,st_archive,calc_hovmoller,calc_climatology = False,False,False,False
 run_zppy,clear_zppy_status,check_zppy_status= False,False,False
-lt_archive_create,lt_archive_check,lt_archive_update,cp_post_to_cfs = False,False,False,False
+lt_archive_create,lt_archive_check,lt_archive_ls,lt_archive_update = False,False,False,False
+cp_post_to_cfs = False
 
 acct = 'm4310'
 
@@ -77,18 +87,19 @@ acct = 'm4310'
 # clear_zppy_status = True
 # check_zppy_status = True
 # run_zppy          = True
-# cp_post_to_cfs    = True
-# calc_hovmoller    = True
+cp_post_to_cfs    = True
+calc_hovmoller    = True
 calc_climatology  = True
 # lt_archive_create = True
 # lt_archive_check  = True
+# lt_archive_ls     = True; zstash_ls_str = 'archive/atm/hist/*eam.h0.2004-12.nc'
 # lt_archive_update = True
 # delete_data       = True
 
 zstash_log_root = '/global/homes/w/whannah/E3SM/zstash_logs'
 scratch_root = '/pscratch/sd/w/whannah/e3sm_scratch/pm-cpu'
 cfs_root = '/global/cfs/cdirs/m4310/whannah/E3SM/2025-SciDAC-MF-pilot'
-hpss_root = 'E3SM/2025-SciDAC-MF-pilot'
+hpss_root = '/home/w/whannah/E3SM/2025-SciDAC-MF-pilot'
 
 #-------------------------------------------------------------------------------
 if calc_hovmoller or calc_climatology:
@@ -102,16 +113,18 @@ def add_case( **kwargs ):
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
 
-nyr = 5 # starting 1995
+# nyr = 5 # starting 1995
+nyr = 10 # starting 1995
 
-add_case(case='ERA5')
+# add_case(case='ERA5')
 
-add_case(prefix='E3SM.2025-MF0',g='ne18',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
+# add_case(prefix='E3SM.2025-MF0',g='ne18',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
 add_case(prefix='E3SM.2025-MF0',g='ne22',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
 add_case(prefix='E3SM.2025-MF0',g='ne26',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
 add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.350, CF=10.00, HD=0.500, HM=2.500, PS=700.0, FT= 7.4925, FE=1.000, OB=0.002500, OE=0.375) # v3 defaults
 
 add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.258, CF= 7.96, HD=1.013, HM=2.327, PS=893.9, FT=24.0591, FE=0.477, OB=0.004277, OE=0.502)
+
 add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.104, CF= 9.01, HD=1.449, HM=2.970, PS=617.5, FT=37.4295, FE=0.098, OB=0.005117, OE=0.267)
 add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.497, CF=16.44, HD=0.727, HM=2.156, PS=693.2, FT=32.6917, FE=0.801, OB=0.006306, OE=0.239)
 add_case(prefix='E3SM.2025-MF0',g='ne30',EF=0.206, CF= 6.95, HD=1.114, HM=2.222, PS=544.0, FT=26.8732, FE=0.625, OB=0.007590, OE=0.136)
@@ -367,6 +380,12 @@ def main(opts):
       # Check the HPSS archive
       run_cmd(f'source {unified_env}; zstash check --hpss={hpss_root}/{case} 2>&1 | tee {zstash_log_root}/zstash_{case}_check_{timestamp}.log ')
    #------------------------------------------------------------------------------------------------
+   if lt_archive_ls:
+      os.chdir(f'{case_root}')
+      timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d.%H%M%S')
+      # Check the HPSS archive
+      run_cmd(f'source {unified_env}; zstash ls --hpss={hpss_root}/{case} "{zstash_ls_str}" ')
+   #------------------------------------------------------------------------------------------------
    if lt_archive_update:
       print(f'\n{clr.GREEN}cd {case_root}{clr.END}');
       os.chdir(f'{case_root}')
@@ -374,6 +393,7 @@ def main(opts):
       run_cmd(f'source {unified_env}; zstash update --hpss={hpss_root}/{case}  2>&1 | tee {zstash_log_root}/zstash_{case}_update_{timestamp}.log')
    #------------------------------------------------------------------------------------------------
    if cp_post_to_cfs:
+      if nyr not in [5,10]: raise ValueError(f'nyr={nyr} is not valid for cp_post_to_cfs')
       # os.umask(511)
       dst_dir = get_cfs_case_root(opts)
       if not os.path.exists(cfs_root): os.mkdir(cfs_root)
@@ -381,7 +401,8 @@ def main(opts):
       src_dir = f'{case_root}/post/atm/90x180/ts/monthly/{nyr}yr'
       run_cmd(f'cp {src_dir}/U_* {dst_dir}/')
       src_dir = f'{case_root}/post/atm/90x180/clim/{nyr}yr/'
-      run_cmd(f'cp {src_dir}/{case}_ANN_199501_199912_climo.nc {dst_dir}/')
+      if nyr== 5: run_cmd(f'cp {src_dir}/{case}_ANN_199501_199912_climo.nc {dst_dir}/')
+      if nyr==10: run_cmd(f'cp {src_dir}/{case}_ANN_199501_200412_climo.nc {dst_dir}/')
       # run_cmd(f'cp {case_root}/{case}.hovmoller.nc {dst_dir}/')
    #------------------------------------------------------------------------------------------------
    if calc_hovmoller:
@@ -497,25 +518,28 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    # if delete_data:
    #    file_list = []
-   #    file_list += glob.glob(f'{case_root}/post/atm/180x360/ts/monthly/10yr/*.nc')
-   #    file_list += glob.glob(f'{case_root}/post/atm/180x360/clim/monthly/10yr/*.nc')
-   #    file_list += glob.glob(f'{case_root}/post/atm/180x360/clim/10yr/*.nc')
-   #    file_list += glob.glob(f'{case_root}/post/atm/90x180/ts/monthly/10yr/*.nc')
-   #    file_list += glob.glob(f'{case_root}/post/atm/90x180/clim/monthly/10yr/*.nc')
-   #    file_list += glob.glob(f'{case_root}/post/atm/90x180/clim/10yr/*.nc')
-   #    file_list += glob.glob(f'{case_root}/post/atm/glb/ts/monthly/10yr/*.nc')
-   #    file_list += glob.glob(f'{case_root}/archive/*/hist/*.nc')
-   #    file_list += glob.glob(f'{case_root}/archive/rest/*/*.nc')
-   #    file_list += glob.glob(f'{case_root}/run/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/post/atm/180x360/ts/monthly/10yr/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/post/atm/180x360/clim/monthly/10yr/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/post/atm/180x360/clim/10yr/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/post/atm/90x180/ts/monthly/10yr/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/post/atm/90x180/clim/monthly/10yr/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/post/atm/90x180/clim/10yr/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/post/atm/glb/ts/monthly/10yr/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/archive/*/hist/*.nc')
+   #    file_list += glob.glob(f'{case_root}/archive/lnd/hist/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/archive/rest/*/*.nc')
+   #    # file_list += glob.glob(f'{case_root}/run/*.nc')
+   #    #-------------------------------------------------------------------------
    #    # if len(file_list)>10:
    #    #    print()
-   #    #    for f in file_list: print(f)
+   #    #    for f in file_list[:10]: print(f)
    #    #    print()
    #    #    exit()
-   #    if len(file_list)>0: 
-   #       print(f'  {clr.RED}deleting {(len(file_list))} files{clr.END}')
-   #       for f in file_list:
-   #          os.remove(f)
+   #    #-------------------------------------------------------------------------
+   #    # if len(file_list)>0: 
+   #    #    print(f'  {clr.RED}deleting {(len(file_list))} files{clr.END}')
+   #    #    for f in file_list:
+   #    #       os.remove(f)
    #------------------------------------------------------------------------------------------------
    # Print the case name again
    print(f'\n  case : {clr.BOLD}{case}{clr.END} ')
@@ -614,9 +638,7 @@ climo_years = "{yr1}-{yr2}",
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-
-   # run_cmd(f'source {unified_env}')
-
+   
    if chk_files:
       for n in range(len(opt_list)):
          opts = opt_list[n]
@@ -642,5 +664,6 @@ if __name__ == '__main__':
    #          plev_srcw=plev_srcw_list[n], 
    #        )
    print_line()
+   
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------

@@ -30,7 +30,6 @@ submit       = True
 queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'1:00:00'
 
 arch = 'GPU'
-num_nodes = 384
 compset = 'F2010-SCREAMv1'
 
 #---------------------------------------------------------------------------------------------------
@@ -44,15 +43,15 @@ init_file_sst = f'{init_scratch}/HICCUP.sst_noaa.2023.nc'
 
 vert_file_L256 = '/global/homes/w/whannah/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc'
 
-add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-ptgnia-v1', init_date='2023-06-13', init_hour='19' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-ptgnia-v1', init_date='2023-06-13', init_hour='19' )
 # add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-sw-ind-v1', init_date='2023-06-12', init_hour='06' )
 # add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-se-pac-v1', init_date='2023-06-12', init_hour='16' )
 # add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-sc-pac-v1', init_date='2023-06-14', init_hour='15' )
-# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-eq-ind-v1', init_date='2023-06-19', init_hour='09' )
-# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-eq-ind-v1', init_date='2023-06-21', init_hour='02' )
+add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-eq-ind-v1', init_date='2023-06-19', init_hour='09', num_nodes=420 )
+add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-eq-ind-v1', init_date='2023-06-21', init_hour='02', num_nodes=420 )
 # add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-sc-ind-v1', init_date='2023-06-21', init_hour='09' )
 
-add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-ptgnia-v1', init_date='2023-06-13', init_hour='19' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-ptgnia-v1', init_date='2023-06-13', init_hour='19' )
 # add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-sw-ind-v1', init_date='2023-06-12', init_hour='06' )
 # add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-se-pac-v1', init_date='2023-06-12', init_hour='16' )
 # add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-sc-pac-v1', init_date='2023-06-14', init_hour='15' )
@@ -119,9 +118,14 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    grid    = opts['grid']
    # compset = opts['compset']
-   # num_nodes = opts['num_nodes']
    init_date = datetime.datetime.strptime(opts['init_date']+' '+opts['init_hour'], '%Y-%m-%d %H')
    init_time_of_day = int(opts['init_hour'])*3600.
+   #------------------------------------------------------------------------------------------------
+   if 'num_nodes' in opts:
+      num_nodes = opts['num_nodes']
+   else:
+      if '256x2' in opts['grid']: num_nodes = 384
+      if '256x3' in opts['grid']: num_nodes = 512
    #------------------------------------------------------------------------------------------------
    debug_mode = False
    if 'debug' in opts: debug_mode = opts['debug']
@@ -201,6 +205,9 @@ def main(opts):
       run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_ALIGN={sst_yr}')
       run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_START={sst_yr}')
       run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_END={sst_yr+1}')
+      #-------------------------------------------------------------------------
+      sst_grid_file = '/global/cfs/cdirs/e3sm/inputdata/ocn/docn7/domain.ocn.1440x720.250319.nc'
+      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_GRID_FILENAME --val {sst_grid_file}')
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
