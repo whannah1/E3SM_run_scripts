@@ -21,56 +21,64 @@ acct = 'm4842'
 src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => whannah/2025-SOHIP (master @ 2025-7-1)
 
 # clean        = True
-newcase      = True
-config       = True
-build        = True
+# newcase      = True
+# config       = True
+# build        = True
 submit       = True
 # continue_run = True
 
-
-queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'1:30:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'1:00:00'
 
 arch = 'GPU'
+num_nodes = 384
+compset = 'F2010-SCREAMv1'
 
 #---------------------------------------------------------------------------------------------------
 # specify initialization date
 
-# init_date = datetime.datetime.strptime('2023-09-08 00', '%Y-%m-%d %H')
-init_date = datetime.datetime.strptime('2023-06-14 00', '%Y-%m-%d %H')
-
-
 init_scratch = '/global/cfs/projectdirs/m4842/whannah/HICCUP'
-init_file_sst = f'{init_scratch}/HICCUP.sst_noaa.{init_date.strftime("%Y-%m-%d")}.nc'
+init_file_sst = f'{init_scratch}/HICCUP.sst_noaa.2023.nc'
 
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
 vert_file_L256 = '/global/homes/w/whannah/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc'
 
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=192, init=init_date.strftime('%Y-%m-%d') ) # not enough nodes?
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384, init=init_date.strftime('%Y-%m-%d') )
+add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-ptgnia-v1', init_date='2023-06-13', init_hour='19' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-sw-ind-v1', init_date='2023-06-12', init_hour='06' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-se-pac-v1', init_date='2023-06-12', init_hour='16' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-sc-pac-v1', init_date='2023-06-14', init_hour='15' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-eq-ind-v1', init_date='2023-06-19', init_hour='09' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-eq-ind-v1', init_date='2023-06-21', init_hour='02' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x2-sc-ind-v1', init_date='2023-06-21', init_hour='09' )
 
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
+add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-ptgnia-v1', init_date='2023-06-13', init_hour='19' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-sw-ind-v1', init_date='2023-06-12', init_hour='06' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-se-pac-v1', init_date='2023-06-12', init_hour='16' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-sc-pac-v1', init_date='2023-06-14', init_hour='15' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-eq-ind-v1', init_date='2023-06-19', init_hour='09' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-eq-ind-v1', init_date='2023-06-21', init_hour='02' )
+# add_case(prefix='2025-SOHIP-RRM-00', grid='2025-sohip-256x3-sc-ind-v1', init_date='2023-06-21', init_hour='09' )
 
-### 512 nodes does not enough have enough memory!
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=512, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=512, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
-
-### 1024 nodes does not enough have enough memory!
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1024, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1024, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
-
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
-
+#---------------------------------------------------------------------------------------------------
+''' available init files:
+/global/cfs/cdirs/m4842/whannah/files_init/HICCUP.atm_era5.2023-06-13.19.2025-sohip-256x3-ptgnia-v1.L256.nc
+/global/cfs/cdirs/m4842/whannah/files_init/HICCUP.atm_era5.2023-06-12.06.2025-sohip-256x3-sw-ind-v1.L256.nc
+/global/cfs/cdirs/m4842/whannah/files_init/HICCUP.atm_era5.2023-06-12.16.2025-sohip-256x3-se-pac-v1.L256.nc
+/global/cfs/cdirs/m4842/whannah/files_init/HICCUP.atm_era5.2023-06-14.15.2025-sohip-256x3-sc-pac-v1.L256.nc
+/global/cfs/cdirs/m4842/whannah/files_init/HICCUP.atm_era5.2023-06-19.09.2025-sohip-256x3-eq-ind-v1.L256.nc
+/global/cfs/cdirs/m4842/whannah/files_init/HICCUP.atm_era5.2023-06-21.02.2025-sohip-256x3-eq-ind-v1.L256.nc
+/global/cfs/cdirs/m4842/whannah/files_init/HICCUP.atm_era5.2023-06-21.09.2025-sohip-256x3-sc-ind-v1.L256.nc
+'''
 #---------------------------------------------------------------------------------------------------
 # init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne256np4.L256.nc'
 def get_init_file_atm(opts):
-   global init_scratch,init_date
+   global init_scratch#,init_date
    init_file_atm = None
-   if 'ne256pg2_'  in opts['grid']: init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne256np4.L256.nc'
-   if 'ne1024pg2_' in opts['grid']: init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne1024np4.L256.nc'
+   # if 'ne256pg2_'  in opts['grid']: init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne256np4.L256.nc'
+   # if 'ne1024pg2_' in opts['grid']: init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne1024np4.L256.nc'
+   init_root = '/global/cfs/cdirs/m4842/whannah/files_init'
+   init_file_atm = f'{init_root}/HICCUP.atm_era5.{opts["init_date"]}.{opts["init_hour"]}.{opts["grid"]}.L256.nc'
    if init_file_atm is None: raise ValueError(f'ERROR: get_init_file_atm: init_file_atm not found for grid {opts["grid"]} ')
    return init_file_atm
 #---------------------------------------------------------------------------------------------------
@@ -81,25 +89,23 @@ def get_grid_name(opts):
    if 'ne120pg2_'  in opts['grid']: grid_name = 'ne120pg2'
    if 'ne256pg2_'  in opts['grid']: grid_name = 'ne256pg2'
    if 'ne1024pg2_' in opts['grid']: grid_name = 'ne1024pg2'
+   if '2025-sohip' in opts['grid']: grid_name = opts['grid'].replace('2025-sohip-','')
    return grid_name
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
-   case_list = ['SCREAM']
+   case_list = []
    for key,val in opts.items(): 
-      if key in ['prefix','compset']:
-         case_list.append(val)
-      elif key in ['grid']: 
-         case_list.append(get_grid_name(opts))
-      elif key in ['num_nodes']:
-         case_list.append(f'NN_{val}')
+      if   key in ['prefix']:    case_list.append(val)
+      elif key in ['compset']:   case_list.append(val)
+      elif key in ['grid']:      case_list.append(get_grid_name(opts))
+      elif key in ['init_date']: case_list.append(val)
+      elif key in ['init_hour']: case_list.append(val)
+      elif key in ['num_nodes']: case_list.append(f'NN_{val}')
       else:
-         if isinstance(val, str):
-            case_list.append(f'{key}_{val}')
-         else:
-            case_list.append(f'{key}_{val:g}')
+         if isinstance(val,str): case_list.append(f'{key}_{val}')
+         else:                   case_list.append(f'{key}_{val:g}')
    case = '.'.join(case_list)
-   # clean up the exponential numbers in the case name
-   for i in range(1,9+1): case = case.replace(f'e+0{i}',f'e{i}')
+   for i in range(1,9+1): case = case.replace(f'e+0{i}',f'e{i}') # clean up the exponential numbers
    return case
 #---------------------------------------------------------------------------------------------------
 def main(opts):
@@ -109,21 +115,23 @@ def main(opts):
    print(f'\n  case : {case}\n')
 
    #------------------------------------------------------------------------------------------------
-   # exit()
+   # return
+   #------------------------------------------------------------------------------------------------
+   grid    = opts['grid']
+   # compset = opts['compset']
+   # num_nodes = opts['num_nodes']
+   init_date = datetime.datetime.strptime(opts['init_date']+' '+opts['init_hour'], '%Y-%m-%d %H')
+   init_time_of_day = int(opts['init_hour'])*3600.
    #------------------------------------------------------------------------------------------------
    debug_mode = False
    if 'debug' in opts: debug_mode = opts['debug']
 
    if arch=='GPU': case_root = os.getenv('SCRATCH')+f'/scream_scratch/pm-gpu/{case}'
    if arch=='CPU': case_root = os.getenv('SCRATCH')+f'/scream_scratch/pm-cpu/{case}'
-
-   num_nodes = opts['num_nodes']
+   
    if 'CPU' in arch: max_mpi_per_node,atm_nthrds  = 128,1 ; max_task_per_node = 128
    if 'GPU' in arch: max_mpi_per_node,atm_nthrds  =   4,8 ; max_task_per_node = 32
    atm_ntasks = max_mpi_per_node*num_nodes
-
-   grid    = opts['grid']#+'_'+opts['grid']
-   compset = opts['compset']
    #------------------------------------------------------------------------------------------------
    # Create new case
    if newcase :
@@ -187,6 +195,7 @@ def main(opts):
       run_cmd(f'./atmchange initial_conditions::filename=\"{init_file_atm}\"')
       run_cmd(f'./atmchange grids_manager::vertical_coordinate_filename=\"{vert_file_L256}\"')
       run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE={init_date.strftime("%Y-%m-%d")}')
+      run_cmd(f'./xmlchange --file env_run.xml  START_TOD={init_time_of_day}')
       run_cmd(f'./atmchange orbital_year={init_date.strftime("%Y")}')
       run_cmd(f'./xmlchange --file env_run.xml  SSTICE_DATA_FILENAME={init_file_sst}')
       run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_ALIGN={sst_yr}')

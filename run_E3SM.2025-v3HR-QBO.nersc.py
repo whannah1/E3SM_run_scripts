@@ -82,13 +82,17 @@ compset ='F20TR'
 # add_case(prefix='2025-v3HR-QBO-02',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75) # 
 # add_case(prefix='2025-v3HR-QBO-02',grid='ne30pg2_r05_IcoswISC30E3r5',num_nodes=16) # 
 
+### get more output for frontogenesis function analysis
+# add_case(prefix='2025-FG',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75) # 
+# add_case(prefix='2025-FG',grid='ne30pg2_r05_IcoswISC30E3r5',num_nodes=16) # 
+
 ### try tuning frontal GWD
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='1.25D-15')
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='0.5', frontgfc='1.25D-15')
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='2.00D-14')
 # add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='5.00D-14')
 
-add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='5.00D-14',tom_sponge_start=10)
+# add_case(prefix='2025-v3HR-QBO-03',grid='ne120pg2_r025_RRSwISC6to18E3r5',num_nodes=75, effgw_cm='1.0', frontgfc='5.00D-14',tom_sponge_start=10)
 
 #---------------------------------------------------------------------------------------------------
 
@@ -245,7 +249,7 @@ def main(opts):
       # Set some run-time stuff
       if 'stop_opt' in locals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
       if 'stop_n'   in locals(): run_cmd(f'./xmlchange STOP_N={stop_n}')
-      if 'queue'    in locals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
+      if 'queue'    in locals(): run_cmd(f' ')
       if 'resub'    in locals(): run_cmd(f'./xmlchange RESUBMIT={resub}')
       if 'walltime' in locals(): run_cmd(f'./xmlchange JOB_WALLCLOCK_TIME={walltime}')
       #-------------------------------------------------------------------------
@@ -474,7 +478,6 @@ v3HR_lnd_opts = f'''
  !--- land BGC spin-up initial conditions ---, pending
  ! finidat='/pscratch/sd/w/wlin/inputdata/20231130.v3b02-icos_trigrid_top_bgc.IcoswISC30E3r5.chrysalis.fnsp.elm.r.0251-01-01-00000.nc'
  finidat='/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/initdata_map/elmi.CNPRDCTCBCTOP.r025_RRSwISC6to18E3r5.1985.nc'
-
 '''
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

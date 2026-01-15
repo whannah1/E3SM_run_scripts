@@ -61,29 +61,16 @@ login27 & login09
 
 '''
 #---------------------------------------------------------------------------------------------------
-import sys,os,subprocess as sp
-from optparse import OptionParser
-parser = OptionParser()
-parser.add_option('-n',dest='num_file',default=None,help='sets number of files to print')
-parser.add_option('--scratch',dest='scratch',default=None,help='scratch space to searchf for case')
-parser.add_option('--sub',dest='data_sub',default='run',help='subfolder for data (default=run)')
-parser.add_option('--map',dest='map_file',default=None,help='subfolder for data (default=run)')
-parser.add_option('--vert',action='store_true', dest='vert_pressure_remap', default=False,help='enable vertical interpolation to pressure levels')
-parser.add_option('--case',dest='case',default=None,help='simulation name')
-(opts, args) = parser.parse_args()
-#===============================================================================
-#===============================================================================
 home = os.getenv('HOME')
 
-scratch_dir = opts.scratch
+# scratch_dir = opts.scratch
 
 # scratch_dir = '/pscratch/sd/w/whannah/e3sm_scratch/pm-gpu'              ### Perlmutter scratch space
 # scratch_dir = '/gpfs/alpine2/atm146/proj-shared/hannah6/e3sm_scratch/'  ### OLCF Summit scratch space
 # scratch_dir = '/lcrc/group/e3sm/ac.whannah/E3SMv3_dev'                  ### Chrysalis scratch space
 
 if scratch_dir=='' :exit('ERROR: scratch directory not set!')
-#===============================================================================
-#===============================================================================
+#---------------------------------------------------------------------------------------------------
 do_h0, do_h1, do_h2, do_clm, overwrite = False, False, False, False, False
 
 # if len(sys.argv) < 2 :

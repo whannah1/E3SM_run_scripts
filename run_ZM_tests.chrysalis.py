@@ -19,36 +19,47 @@ test_root = '/lcrc/group/e3sm/ac.whannah/ZM_testing'
 # src_dir = f'{home}/E3SM/E3SM_SRC1'; compare  = True # compare to baselines
 #baseline_branch = 'zm_cleanup_09' ; baseline_root = f'{test_root}/baselines'
 
+# src_dir = f'{home}/E3SM/E3SM_SRC1'; generate = True # generate baselines
+# src_dir = f'{home}/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
+# baseline_branch = 'zm_bridge_00' ; baseline_root = f'{test_root}/baselines'
+
 # src_dir = f'{home}/E3SM/E3SM_SRC2'; generate = True # generate baselines
-#src_dir = f'{home}/E3SM/E3SM_SRC3'; compare  = True # compare to baselines
-# baseline_branch = 'zm_cleanup_10' ; baseline_root = f'{test_root}/baselines'
+src_dir = f'{home}/E3SM/E3SM_SRC3'; compare  = True # compare to baselines
+baseline_branch = 'zm_bridge_02' ; baseline_root = f'{test_root}/baselines'
 #---------------------------------------------------------------------------------------------------
 verbose      = True      # print commands
 # debug_script = True      # do not submit test - used for debugging this script
 #---------------------------------------------------------------------------------------------------
 
-# tests = [ # use these for BFB debugging 
-#        'SMS_Ln5.ne4pg2_oQU480.F2010.chrysalis_intel',
-#        'SMS_Ln5.ne4pg2_oQU480.F2010.chrysalis_gnu',
+tests = [ # standard test suite for ZM dev
+        # 'e3sm_atm_developer_intel',
+        # 'e3sm_atm_developer_gnu',
+        'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
+        # 'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu', # spio fails to build on LCRC
+        # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
+        # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
+        # 'SMS_Lh4.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_gnu.eamxx-output-preset-1--eamxx-prod',
+
+        # 'SMS_Ln5.ne30pg2_r05_IcoswISC30E3r5.F2010.chrysalis_intel.eam-wcprod_F2010',
+        # 'SMS_Ln5_P512x1.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
+        ]
+
+
+# tests = [ # use these for BFB debugging
+#        # 'SMS_Ln5.ne4pg2_oQU480.F2010.chrysalis_intel',
+#        # 'SMS_Ln5.ne4pg2_oQU480.F2010.chrysalis_gnu',
 #        # 'SMS_D_Ln5.ne4pg2_oQU480.F2010.chrysalis_intel',
-#        # 'SMS_D_Ln5.ne4pg2_oQU480.F2010.chrysalis_gnu',
+#        'SMS_D_Ln5.ne4pg2_oQU480.F2010.chrysalis_gnu',
 #        ]
 
-# tests = [ # standard test suite for ZM dev
-#         'e3sm_atm_developer_intel',
-#         'e3sm_atm_developer_gnu',
-#         'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
-#         'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
-#         'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
-#         'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
+# simple EAMxx tests
+# tests = ['SMS_Lh4.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_gnu.eamxx-output-preset-1--eamxx-prod']
+
+# src_dir = f'{home}/E3SM/E3SM_SRC0'; baseline_branch='master'; baseline_root=None
+# tests = [ # test dcpae diags problem found on gcp
+#         # 'ERP_Ld3.ne4pg2_oQU480.F2010.chrysalis_gnu.eam-condidiag_dcape',
+#         'SMS_D_Ln5.ne4pg2_oQU480.F2010.chrysalis_gnu.eam-condidiag_dcape',
 #         ]
-
-
-src_dir = f'{home}/E3SM/E3SM_SRC0'; baseline_branch='master'; baseline_root=None
-tests = [ # test dcpae diags problem found on gcp
-        # 'ERP_Ld3.ne4pg2_oQU480.F2010.chrysalis_gnu.eam-condidiag_dcape',
-        'SMS_D_Ln5.ne4pg2_oQU480.F2010.chrysalis_gnu.eam-condidiag_dcape',
-        ]
 
 
 # tests = [ # non-BFB tests - make sure to run: source  /lcrc/soft/climate/e3sm-unified/load_latest_cime_env.sh
@@ -71,7 +82,7 @@ The following tests pass on Chrysalis:
   SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu
 ```
 
-The performance of the SMS_Ld32 tests are indentical, here's on of the ZM timers from `SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel`:
+The performance of the SMS_Ld32 tests are effectively identical, here's on of the ZM timers from `SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel`:
 ```
               name                                            on  processes  threads        count      walltotal   wallmax (proc   thrd  )   wallmin (proc   thrd  )
     base: "a:zm_conv_tend"                                 -        128      256 2.360832e+06   1.579500e+04    72.009 (     1      0)    51.040 (    27      0)
@@ -134,10 +145,11 @@ for test in tests :
     # if baseline_root is not None : cmd +=f' --baseline-root {baseline_root}'
     if compiler is not None: cmd +=f' --compiler {compiler}'
     #---------------------------------------------------------------------------
-    if generate: cmd +=f' --generate --baseline-name {baseline_branch} -o '
+    if generate: cmd +=f' --generate --baseline-name {baseline_branch} --allow-baseline-overwrite '
     if compare : cmd +=f' --compare  --baseline-name {baseline_branch} '
-    if compare  and baseline_root is not None: 
-            cmd +=f' --baseline-root {baseline_root}'
+    if baseline_root is not None: cmd +=f' --baseline-root {baseline_root}'
+    # if compare  and baseline_root is not None: cmd +=f' --baseline-root {baseline_root}'
+    
     #---------------------------------------------------------------------------
     if 'ne30' in test:
         cmd +=f' --walltime 01:00:00'

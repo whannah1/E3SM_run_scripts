@@ -16,63 +16,28 @@ def add_case( **kwargs ):
 #---------------------------------------------------------------------------------------------------
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-acct = 'm4842'
-# src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => whannah/emaxx/add-p3-cld-frac-flags-merge
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => whannah/2025-SOHIP (master @ 2025-7-1)
+acct = 'm4310'
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => master @ 2025-7-1
 
 # clean        = True
-newcase      = True
-config       = True
+# newcase      = True
+# config       = True
 build        = True
 submit       = True
 # continue_run = True
 
-
-queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'1:30:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'2:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',32,0,'2:00:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',10,0,'2:00:00'
 
 arch = 'GPU'
 
 #---------------------------------------------------------------------------------------------------
-# specify initialization date
-
-# init_date = datetime.datetime.strptime('2023-09-08 00', '%Y-%m-%d %H')
-init_date = datetime.datetime.strptime('2023-06-14 00', '%Y-%m-%d %H')
-
-
-init_scratch = '/global/cfs/projectdirs/m4842/whannah/HICCUP'
-init_file_sst = f'{init_scratch}/HICCUP.sst_noaa.{init_date.strftime("%Y-%m-%d")}.nc'
-
-#---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-vert_file_L256 = '/global/homes/w/whannah/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc'
+# add_case(prefix='2025-SciDAC-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 )
+add_case(prefix='2025-SciDAC-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 ) # special output for sfc pressure bias analysis
 
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=192, init=init_date.strftime('%Y-%m-%d') ) # not enough nodes?
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384, init=init_date.strftime('%Y-%m-%d') )
-
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
-
-### 512 nodes does not enough have enough memory!
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=512, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=512, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
-
-### 1024 nodes does not enough have enough memory!
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1024, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1024, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
-
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=False )
-# add_case(prefix='2025-SOHIP-00', compset='F2010-SCREAMv1', grid='ne1024pg2_ne1024pg2', num_nodes=1536, init=init_date.strftime('%Y-%m-%d'), rfrac_fix=True )
-
-#---------------------------------------------------------------------------------------------------
-# init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne256np4.L256.nc'
-def get_init_file_atm(opts):
-   global init_scratch,init_date
-   init_file_atm = None
-   if 'ne256pg2_'  in opts['grid']: init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne256np4.L256.nc'
-   if 'ne1024pg2_' in opts['grid']: init_file_atm = f'{init_scratch}/HICCUP.atm_era5.{init_date.strftime("%Y-%m-%d")}.ne1024np4.L256.nc'
-   if init_file_atm is None: raise ValueError(f'ERROR: get_init_file_atm: init_file_atm not found for grid {opts["grid"]} ')
-   return init_file_atm
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
    grid_name = opts['grid']
@@ -129,12 +94,9 @@ def main(opts):
    if newcase :
       if os.path.isdir(case_root): exit(f'\n{tcolor.RED}This case already exists!{tcolor.END}\n')
       cmd = f'{src_dir}/cime/scripts/create_newcase'
-      cmd += f' --case {case}'
-      cmd += f' --output-root {case_root} '
-      cmd += f' --script-root {case_root}/case_scripts '
-      cmd += f' --handle-preexisting-dirs u '
-      cmd += f' --compset {compset}'
-      cmd += f' --res {grid} '
+      cmd += f' --case {case} --handle-preexisting-dirs u '
+      cmd += f' --output-root {case_root}  --script-root {case_root}/case_scripts '
+      cmd += f' --compset {compset} --res {grid} '
       cmd += f' --project {acct} '
       if arch=='GPU': cmd += f' -mach pm-gpu -compiler gnugpu '
       if arch=='CPU': cmd += f' -mach pm-cpu -compiler gnu '
@@ -151,9 +113,6 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      # run_cmd(f'./xmlchange SCREAM_CMAKE_OPTIONS="SCREAM_NUM_VERTICAL_LEV 256" ')
-      run_cmd(f'./xmlchange --append --id SCREAM_CMAKE_OPTIONS --val \" SCREAM_NUM_VERTICAL_LEV 256 \"')
-      #-------------------------------------------------------------------------
       # if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
    #------------------------------------------------------------------------------------------------
@@ -164,34 +123,16 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    if submit:
       #-------------------------------------------------------------------------
-      if 'rfrac_fix' in opts:
-         if opts['rfrac_fix']:
-            run_cmd('./atmchange set_cld_frac_r_to_one=true')
-         else:
-            run_cmd('./atmchange set_cld_frac_r_to_one=false')
-
-      #-------------------------------------------------------------------------
       hist_file_list = []
       def add_hist_file(hist_file,txt):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
       #-------------------------------------------------------------------------
-      add_hist_file(f'{case_root}/case_scripts/scream_output_2D_10min_inst.yaml',hist_opts_2D_10min_inst)
-      add_hist_file(f'{case_root}/case_scripts/scream_output_3D_10min_inst.yaml',hist_opts_3D_10min_inst)
+      add_hist_file(f'{case_root}/case_scripts/scream_output_2D_1hr_inst.yaml',hist_opts_2D_1hr_inst)
+      # add_hist_file(f'{case_root}/case_scripts/scream_output_2D_3hr_inst.yaml',hist_opts_2D_3hr_inst)
+      # add_hist_file(f'{case_root}/case_scripts/scream_output_3D_3hr_inst.yaml',hist_opts_3D_3hr_inst)
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
-      #----------------------------------------------------------------------------
-      # Specify start date and SST file for hindcast
-      sst_yr = int(init_date.strftime('%Y'))
-      init_file_atm = get_init_file_atm(opts)
-      run_cmd(f'./atmchange initial_conditions::filename=\"{init_file_atm}\"')
-      run_cmd(f'./atmchange grids_manager::vertical_coordinate_filename=\"{vert_file_L256}\"')
-      run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE={init_date.strftime("%Y-%m-%d")}')
-      run_cmd(f'./atmchange orbital_year={init_date.strftime("%Y")}')
-      run_cmd(f'./xmlchange --file env_run.xml  SSTICE_DATA_FILENAME={init_file_sst}')
-      run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_ALIGN={sst_yr}')
-      run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_START={sst_yr}')
-      run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_END={sst_yr+1}')
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
@@ -212,78 +153,112 @@ def main(opts):
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 
-hist_opts_2D_10min_inst = f'''
+# alt 2D fields for sfc pressure bias analysis
+field_txt_2D = '\n'
+field_txt_2D += '      - ps\n'
+field_txt_2D += '      - SeaLevelPressure\n'
+field_txt_2D += '      - precip_total_surf_mass_flux\n'
+field_txt_2D += '      - surf_evap\n'
+field_txt_2D += '      - VapWaterPath\n'
+field_txt_2D += '      - LiqWaterPath\n'
+field_txt_2D += '      - IceWaterPath\n'
+
+
+# field_txt_2D = '\n'
+# field_txt_2D += '      - ps\n'
+# field_txt_2D += '      - psl\n'
+# field_txt_2D += '      - precip_total_surf_mass_flux\n'
+# field_txt_2D += '      - VapWaterPath\n'
+# field_txt_2D += '      - LiqWaterPath\n'
+# field_txt_2D += '      - IceWaterPath\n'
+# field_txt_2D += '      - surf_sens_flux\n'
+# field_txt_2D += '      - surface_upward_latent_heat_flux\n'
+# field_txt_2D += '      - wind_speed_10m\n'
+# field_txt_2D += '      - U_at_model_bot\n'
+# field_txt_2D += '      - V_at_model_bot\n'
+# field_txt_2D += '      - SW_flux_up_at_model_top\n'
+# field_txt_2D += '      - SW_flux_dn_at_model_top\n'
+# field_txt_2D += '      - LW_flux_up_at_model_top\n'
+# # field_txt_2D += '      - surf_evap\n'
+# # field_txt_2D += '      - surf_mom_flux\n'
+# # field_txt_2D += '      - horiz_winds_at_model_bot\n'
+# # field_txt_2D += '      - SW_flux_dn_at_model_bot\n'
+# # field_txt_2D += '      - SW_flux_up_at_model_bot\n'
+# # field_txt_2D += '      - LW_flux_dn_at_model_bot\n'
+# # field_txt_2D += '      - LW_flux_up_at_model_bot\n'
+# # field_txt_2D += '      - SW_flux_up_at_model_top\n'
+# # field_txt_2D += '      - SW_flux_dn_at_model_top\n'
+# # field_txt_2D += '      - LW_flux_up_at_model_top\n'
+
+field_txt_3D = '\n'
+field_txt_3D += '      - ps\n'
+field_txt_3D += '      - z_mid\n'
+field_txt_3D += '      - T_mid\n'
+field_txt_3D += '      - qv\n'
+field_txt_3D += '      - U\n'
+field_txt_3D += '      - V\n'
+field_txt_3D += '      - omega\n'
+# field_txt_3D += '      - qc\n'
+# field_txt_3D += '      - qr\n'
+# field_txt_3D += '      - qi\n'
+# field_txt_3D += '      - qm\n'
+# field_txt_3D += '      - nc\n'
+# field_txt_3D += '      - nr\n'
+# field_txt_3D += '      - ni\n'
+# field_txt_3D += '      - bm\n'
+# field_txt_3D += '      - RelativeHumidity\n'
+# field_txt_3D += '      - rad_heating_pdel\n'
+
+hist_opts_2D_1hr_inst = f'''
 %YAML 1.1
 ---
-filename_prefix: output.scream.2D.10min
+filename_prefix: output.scream.2D.3hr
 averaging_type: instant
-max_snapshots_per_file: 12
+max_snapshots_per_file: 24
 fields:
    physics_pg2:
-      field_names:
-         - ps
-         - precip_total_surf_mass_flux
-         - VapWaterPath
-         - LiqWaterPath
-         - IceWaterPath
-         - surf_sens_flux
-         - surface_upward_latent_heat_flux
-         - wind_speed_10m
-         - SW_flux_up_at_model_top
-         - SW_flux_dn_at_model_top
-         - LW_flux_up_at_model_top
+      field_names:{field_txt_2D}
 output_control:
-   frequency: 10
-   frequency_units: nmins
+   frequency: 1
+   frequency_units: nhours
+restart:
+   force_new_file: true
+'''
+
+hist_opts_2D_3hr_inst = f'''
+%YAML 1.1
+---
+filename_prefix: output.scream.2D.3hr
+averaging_type: instant
+max_snapshots_per_file: 8
+fields:
+   physics_pg2:
+      field_names:{field_txt_2D}
+output_control:
+   frequency: 3
+   frequency_units: nhours
 restart:
    force_new_file: true
 '''
 
 
-#       - surf_evap
-#       - surf_mom_flux
-#       - horiz_winds_at_model_bot
-#       - SW_flux_dn_at_model_bot
-#       - SW_flux_up_at_model_bot
-#       - LW_flux_dn_at_model_bot
-#       - LW_flux_up_at_model_bot
-#       - SW_flux_up_at_model_top
-#       - SW_flux_dn_at_model_top
-#       - LW_flux_up_at_model_top
 
-
-hist_opts_3D_10min_inst = f'''
+hist_opts_3D_3hr_inst = f'''
 %YAML 1.1
 ---
-filename_prefix: output.scream.3D.10min
+filename_prefix: output.scream.3D.3hr
 averaging_type: instant
-max_snapshots_per_file: 12
+max_snapshots_per_file: 8
 fields:
    physics_pg2:
-      field_names:
-         - ps
-         - omega
-         - horiz_winds
-         - qv
-         - T_mid
-         - z_mid
+      field_names:{field_txt_3D}
 output_control:
-   frequency: 10
-   frequency_units: nmins
+   frequency: 3
+   frequency_units: nhours
 restart:
    force_new_file: true
 '''
 
-# - qc
-# - qr
-# - qi
-# - qm
-# - nc
-# - nr
-# - ni
-# - bm
-# - RelativeHumidity
-# - rad_heating_pdel
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------

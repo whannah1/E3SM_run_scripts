@@ -70,10 +70,13 @@ top_dir.append( home+'/E3SM/scratch-llnl1' )
 top_dir.append( home+'/E3SM/scratch-llnl2' )
 top_dir.append( '/pscratch/sd/w/whannah/E3SMv3_dev' )
 top_dir.append( home+'/E3SM/scratch/tests' )
-top_dir.append( home+'/SCREAM/scratch' )
-top_dir.append( home+'/SCREAM/scratch_pm-gpu' )
-top_dir.append( home+'/SCREAM/scratch_pm-cpu' )
+# top_dir.append( home+'/SCREAM/scratch' )
+# top_dir.append( home+'/SCREAM/scratch_pm-gpu' )
+# top_dir.append( home+'/SCREAM/scratch_pm-cpu' )
 top_dir.append( home+'/E3SM/scratch-summit')
+top_dir.append( home+'/E3SM/scratch-scream')
+top_dir.append( home+'/E3SM/scratch_scream_pm-cpu')
+top_dir.append( home+'/E3SM/scratch_scream_pm-gpu')
 # top_dir.append( home+'/E3SM/scratch/tests/baselines' )
 
 # make sure list of top dir's don't end with "/"
@@ -114,6 +117,7 @@ for tdir in dirs :
         case = tdir
         case = case.replace(top_dir_tmp+'/','')
         if '/' in case: continue
+        
         # if test_case in case: print(f'  {case}  {top_dir_tmp:40}  {tdir}')
     
         is_test_flag = False
@@ -121,11 +125,13 @@ for tdir in dirs :
 
         if ('E3SM' in case 
             or 'SCREAM' in case 
+            or 'DP.' in case 
             or 'ELM_spinup' in case 
             or 'INCITE' in case 
             or 'DPSCREAM' in case 
             or '.v3alpha' in case
             or 'v3.F2010' in case 
+            or 'SOHIP' in case 
             or is_test_flag
             or opts.alt_search_str in case) and 'old_' not in case :
 

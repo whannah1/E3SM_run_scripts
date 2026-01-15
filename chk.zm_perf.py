@@ -33,6 +33,15 @@ def run_cmd(cmd,verbose=False,suppress_output=False,execute=True):
    else:
       return
 #---------------------------------------------------------------------------------------------------
+mach = None
+if os.path.exists('/lcrc/group/e3sm/ac.whannah'):   mach='lcrc'
+if os.path.exists('/pscratch/sd/w/whannah'):        mach='nersc'
+
+if mach is None: raise ValueError('Unable to detect machine!')
+
+if mach=='lcrc':  test_root = '/lcrc/group/e3sm/ac.whannah/ZM_testing'
+if mach=='nersc': test_root = '/pscratch/sd/w/whannah/e3sm_scratch/ZM_testing'
+#---------------------------------------------------------------------------------------------------
 # command line options
 
 parser = OptionParser()
@@ -49,14 +58,20 @@ parser.add_option('-b',action='store_true', dest='show_base', default=False,help
 (opts, args) = parser.parse_args()
 #---------------------------------------------------------------------------------------------------
 
-test_root = '/lcrc/group/e3sm/ac.whannah/ZM_testing'
-
-test_list = [ 
-            'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
-            'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
-            'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
-            'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
-            ]
+if mach=='lcrc':
+   test_list = [ 
+               'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_intel',
+               'SMS_Ld32.ne30pg2_r05_oECv3.F2010.chrysalis_gnu',
+               # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_intel',
+               # 'SMS_Ld32.ne4pg2_oQU480.F2010.chrysalis_gnu',
+               ]
+if mach=='nersc':
+   test_list = [ 
+               # 'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_intel',
+               # 'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_gnu',
+               'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_intel',
+               'SMS_Ld32.ne4pg2_oQU480.F2010.pm-cpu_gnu',
+               ]
 
 #---------------------------------------------------------------------------------------------------
 # Define timing file parameters to be parsed
@@ -76,7 +91,9 @@ param_list.append('ATM Run Time')
 # param_list.append('ICE Run Time:')
 # param_list.append('CPL:ATM_RUN')
 
-param_list.append('a:zm_conv_tend')
+param_list.append('a_i:zm_convr')
+param_list.append('a:zm_convr')
+# param_list.append('a:zm_conv_tend')
 # param_list.append('a:zm_convr')
 # param_list.append('a:zm_conv_evap')
 # param_list.append('a:radiation')

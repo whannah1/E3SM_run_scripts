@@ -141,7 +141,8 @@ res.mpCenterLonF          = 30
 
 # res.mpProjection = 'Robinson'
 # res.mpProjection          = "Satellite"
-res.mpProjection          = "Orthographic"
+# res.mpProjection          = "Orthographic"
+
 #res.mpCenterLonF          = -20
 #res.mpCenterLatF          = 40
 res.mpOutlineBoundarySets = 'NoBoundaries'
@@ -260,7 +261,7 @@ ngl.panel(wks,plot,layout,pres); ngl.end()
 # trim white space
 fig_file = f'{fig_file}.{fig_type}'
 os.system(f'convert -trim +repage {fig_file}   {fig_file}')
-fig_file = fig_file.replace(os.getenv('HOME')+'/E3SM/','')
+# fig_file = fig_file.replace(os.getenv('HOME')+'/E3SM/','')
 print(f'\n{fig_file}\n')
 
 #-------------------------------------------------------------------------------
