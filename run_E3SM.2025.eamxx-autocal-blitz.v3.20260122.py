@@ -9,150 +9,156 @@ from optparse import OptionParser
 # parser.add_option("-u", "--user",action="store", type="string", dest="user")
 # (opts, args) = parser.parse_args()
 #---------------------------------------------------------------------------------------------------
+''' ne30 grid for history map files
+NE=30
+GRID_ROOT=/lus/flare/projects/E3SM_Dec/whannah/files_grid
+GenerateCSMesh --alt --res ${NE} --file ${GRID_ROOT}/ne${NE}.g
+GenerateVolumetricMesh --in ${GRID_ROOT}/ne${NE}.g --out ${GRID_ROOT}/ne${NE}pg2.g --np 2 --uniform
+ConvertMeshToSCRIP --in ${GRID_ROOT}/ne${NE}pg2.g --out ${GRID_ROOT}/ne${NE}pg2_scrip.nc
+'''
+#---------------------------------------------------------------------------------------------------
+''' history map files
+NE=128
+GRID_ROOT=/lus/flare/projects/E3SM_Dec/whannah/files_grid
+SRC_GRID=${GRID_ROOT}/ne${NE}pg2_scrip.nc
+DST_GRID=${GRID_ROOT}/ne30pg2_scrip.nc
+MAP_FILE=${DIN_LOC_ROOT}/atm/scream/maps/map_ne${NE}pg2_to_ne30pg2_traave.20260128.nc
+ncremap --alg_typ=traave --grd_src=${SRC_GRID} --grd_dst=${DST_GRID} --map=${MAP_FILE}
+'''
+#---------------------------------------------------------------------------------------------------
 class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
 def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
 #---------------------------------------------------------------------------------------------------
-opt_list,exe_list = [],[]
+ens_opt_list,exe_opt_list = [],[]
 def add_case( exe=False, **kwargs):
+   global cnt
    case_opts = {}
-   for k, val in kwargs.items(): case_opts[k] = val
-   if exe:
-      exe_list.append(case_opts)
-   else:
-      opt_list.append(case_opts)
+   for key,val in kwargs.items(): case_opts[key] = val
+   if     exe: exe_opt_list.append(case_opts)
+   if not exe: ens_opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
-clean_exe,create_exe,config_exe,build_exe,print_case_list = False,False,False,False,False
-newcase,config,set_params,set_timestep,set_output,set_runopt,submit,continue_run = False,False,False,False,False,False,False,False
-
-# clean_exe    = True
-# create_exe   = True
-# config_exe   = True
-# build_exe    = True
-
-# print_case_list = True
-
-# newcase        = True # create the case via create_newcase
-# config         = True # configure the case via case.setup
-# set_params     = True # set tuning parameter values
-set_timestep   = True
-# set_output     = True # set history output specs
-# set_runopt     = True # update run-time parameters - including run length
-submit         = True # only runs case.submit
-# continue_run   = True
-
-# disable_bfb = False
-
-# num_case = 1 # uncomment to override and use small number of cases for testing
-
-acct = 'E3SM_Dec'
-src_dir = '/lus/flare/projects/E3SM_Dec/whannah/e3sm_src' # branch => whannah/2025-eamxx-autocal-blitz
-
-# queue = 'prod' # debug / prod / 
-
-# stop_opt,stop_n,resub,walltime = 'nsteps',6,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',5,0,'2:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',183,0,'24:00:00' # 1/2 year
-
-exe_prefix = '2025-EACB-01'
-
-# prefix = '2025-EACB' # initial tests
-# prefix = '2025-EACB-01' # stability investigation
-
+def set_tuning_params(LHS_parameter_values):
+   tuning_params = {}
+   tuning_params['thl2tune']                               = LHS_parameter_values[0]
+   tuning_params['qw2tune']                                = LHS_parameter_values[1]
+   tuning_params['length_fac']                             = LHS_parameter_values[2]
+   tuning_params['c_diag_3rd_mom']                         = LHS_parameter_values[3]
+   tuning_params['coeff_kh']                               = LHS_parameter_values[4]
+   tuning_params['coeff_km']                               = LHS_parameter_values[5]
+   tuning_params['lambda_low']                             = LHS_parameter_values[6]
+   tuning_params['lambda_high']                            = LHS_parameter_values[7]
+   tuning_params['spa_ccn_to_nc_factor']                   = LHS_parameter_values[8]
+   tuning_params['cldliq_to_ice_collection_factor']        = LHS_parameter_values[9]
+   tuning_params['rain_to_ice_collection_factor']          = LHS_parameter_values[10]
+   tuning_params['accretion_prefactor']                    = LHS_parameter_values[11]
+   tuning_params['deposition_nucleation_exponent']         = LHS_parameter_values[12]
+   tuning_params['max_total_ni']                           = LHS_parameter_values[13]
+   tuning_params['ice_sedimentation_factor']               = LHS_parameter_values[14]
+   tuning_params['rain_selfcollection_breakup_diameter']   = LHS_parameter_values[15]
+   tuning_params['autoconversion_prefactor']               = LHS_parameter_values[16] # added Nov 2025
+   tuning_params['autoconversion_qc_exponent']             = LHS_parameter_values[17] # added Nov 2025
+   tuning_params['autoconversion_radius']                  = LHS_parameter_values[18] # added Nov 2025
+   return tuning_params
 #---------------------------------------------------------------------------------------------------
 # load JSON file with parameter values
-# with open('/lus/flare/projects/E3SM_Dec/whannah/LH_sampling_base10_original.json', 'r') as file:
-with open('/lus/flare/projects/E3SM_Dec/whannah/LH_sampling_base10_update-2025-11.json', 'r') as file:
+with open('/lus/flare/projects/E3SM_Dec/prod/ppe-20251106/normranked_LH_sampling_base10.json', 'r') as file:
    LHS_parameter_values = json.load(file)
    num_param = len(LHS_parameter_values)
    if 'num_case' not in globals(): num_case  = len(LHS_parameter_values)
 #---------------------------------------------------------------------------------------------------
-# add_case(exe=True, prefix=prefix,grid='ne256',num_nodes=64)
-# add_case(exe=True, prefix=prefix,grid='ne256',num_nodes=32)
-# add_case(exe=True, prefix=prefix,grid='ne128',num_nodes=16)
-# add_case(exe=True, prefix=prefix,grid='ne64', num_nodes=8)
-# add_case(exe=True, prefix=prefix,grid='ne32', num_nodes=4)
+clean_exe,create_exe,config_exe,build_exe,print_case_list = False,False,False,False,False
+newcase,config,set_params,set_timestep,set_output,set_runopt,submit,continue_run = False,False,False,False,False,False,False,False
+
+create_exe   = True
+config_exe   = True
+build_exe    = True
+# clean_exe    = True
+
+# print_case_list = True
+
+newcase        = True # create the case via create_newcase
+config         = True # configure the case via case.setup
+set_params     = True # set tuning parameter values
+set_timestep   = True # set time step parameters according to grid
+set_output     = True # set history output specs
+set_runopt     = True # update run-time parameters - including run length
+submit         = True # only runs case.submit
+# continue_run   = True
+
+# disable_bfb = False
+# num_case = 1 # uncomment to override and use small number of cases for testing
+
+acct = 'E3SM_Dec'
+queue = 'prod' # debug / prod
+
+# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',122,3,'06:00:00' # 122*3=366 model-days
+stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'04:00:00' # 73*5=365 model-days
+# stop_opt,stop_n,resub,walltime = 'nyears',1,0,'24:00:00' # 1 myear in 24 wall-hrs
+
+# prefix = '2025-EACB-v3'
+prefix = '2025-EACB-v4' # alt time step settings - see set_timestep section
+
+src_dir = '/lus/flare/projects/E3SM_Dec/whannah/e3sm_src' # branch => whannah/2025-eamxx-autocal-blitz
+# src_dir = '/lus/flare/projects/E3SM_Dec/prod/ppe-20251106/E3SM-20251219' # branch => whannah/2025-eamxx-autocal-blitz
+
+ens_case_root = '/lus/flare/projects/E3SM_Dec/whannah/scratch'
+# ens_case_root = '/lus/flare/projects/E3SM_Dec/prod/ppe-20251106/casedirs20251223'
+
 #---------------------------------------------------------------------------------------------------
+# num_case = 1 ; print(f'\n{clr.RED}WARNING - num_case has been reset to {num_case} for testing  - WARNING{clr.END}\n')
+# case_beg,case_end = 0,num_case
+# case_beg,case_end = 0,32
+case_beg,case_end = 0,1
+
+if (case_end-case_beg+1)<num_case:
+   print(f'\n{clr.RED}WARNING - only running cases {case_beg}-{(case_end-1)} - WARNING{clr.END}\n')
+#---------------------------------------------------------------------------------------------------
+# add_case(exe=True,prefix=prefix,grid='ne256',num_nodes=128)
+# add_case(exe=True,prefix=prefix,grid='ne128',num_nodes=32)
+# add_case(exe=True,prefix=prefix,grid='ne64', num_nodes=16)
+add_case(exe=True,prefix=prefix,grid='ne32', num_nodes=4)
+#---------------------------------------------------------------------------------------------------
+cnt_beg = 111
+cnt = 0
 # for c in range(num_case):
-for c in [34-1]: # focus on this case for stability investigation
-   tuning_params = {}
-   tuning_params['thl2tune']                               = LHS_parameter_values[c][0]
-   tuning_params['qw2tune']                                = LHS_parameter_values[c][1]
-   tuning_params['length_fac']                             = LHS_parameter_values[c][2]
-   tuning_params['c_diag_3rd_mom']                         = LHS_parameter_values[c][3]
-   tuning_params['coeff_kh']                               = LHS_parameter_values[c][4]
-   tuning_params['coeff_km']                               = LHS_parameter_values[c][5]
-   tuning_params['lambda_low']                             = LHS_parameter_values[c][6]
-   tuning_params['lambda_high']                            = LHS_parameter_values[c][7]
-   tuning_params['spa_ccn_to_nc_factor']                   = LHS_parameter_values[c][8]
-   tuning_params['cldliq_to_ice_collection_factor']        = LHS_parameter_values[c][9]
-   tuning_params['rain_to_ice_collection_factor']          = LHS_parameter_values[c][10]
-   tuning_params['accretion_prefactor']                    = LHS_parameter_values[c][11]
-   tuning_params['deposition_nucleation_exponent']         = LHS_parameter_values[c][12]
-   tuning_params['max_total_ni']                           = LHS_parameter_values[c][13]
-   tuning_params['ice_sedimentation_factor']               = LHS_parameter_values[c][14]
-   tuning_params['rain_selfcollection_breakup_diameter']   = LHS_parameter_values[c][15]
-   # added Nov 2025
-   tuning_params['autoconversion_qc_exponent']             = LHS_parameter_values[c][16]
-   tuning_params['autoconversion_prefactor']               = LHS_parameter_values[c][17]
-   tuning_params['autoconversion_radius']                  = LHS_parameter_values[c][18]
-
-   # add_case(prefix='2025-EACB-01',grid='ne256',num_nodes=64,NCPL=  72,tuning_params=tuning_params) # dt_phys = 20.0 min - stability investigation
-   # add_case(prefix='2025-EACB-01',grid='ne256',num_nodes=64,NCPL= 144,tuning_params=tuning_params) # dt_phys = 10.0 min - stability investigation
-   # add_case(prefix='2025-EACB-01',grid='ne256',num_nodes=64,NCPL= 288,tuning_params=tuning_params) # dt_phys =  5.0 min - stability investigation
-   # add_case(prefix='2025-EACB-01',grid='ne256',num_nodes=64,NCPL= 576,tuning_params=tuning_params) # dt_phys =  2.5 min - stability investigation
-   # add_case(prefix='2025-EACB-01',grid='ne256',num_nodes=64,NCPL=1440,tuning_params=tuning_params) # dt_phys =  0.5 min - stability investigation
-
-   # new group to check perf of new timestep config
-
-   add_case(prefix='2025-EACB-02',grid='ne256',num_nodes=64,NCPL=120,tuning_params=tuning_params) # 12-min
-   add_case(prefix='2025-EACB-02',grid='ne256',num_nodes=64,NCPL=144,tuning_params=tuning_params) # 10-min
-   add_case(prefix='2025-EACB-02',grid='ne256',num_nodes=64,NCPL=240,tuning_params=tuning_params) #  6-min
-   add_case(prefix='2025-EACB-02',grid='ne256',num_nodes=64,NCPL=288,tuning_params=tuning_params) #  5-min
-
-   # add_case(prefix='2025-EACB',grid='ne256',num_nodes=64,nyr=1,tuning_params=tuning_params)
-   # add_case(prefix='2025-EACB',grid='ne128',num_nodes=32,nyr=1,tuning_params=tuning_params)
-   # add_case(prefix='2025-EACB',grid='ne64', num_nodes=16,nyr=1,tuning_params=tuning_params)
-   # add_case(prefix='2025-EACB',grid='ne32', num_nodes=8, nyr=1,tuning_params=tuning_params)
-
-   ### these node counts were found to be insufficient
-   ### add_case(prefix='2025-EACB',grid='ne256',num_nodes=32,nyr=1,tuning_params=tuning_params)
-   ### add_case(prefix='2025-EACB',grid='ne128',num_nodes=16,nyr=1,tuning_params=tuning_params)
-   ### add_case(prefix='2025-EACB',grid='ne64', num_nodes=8, nyr=1,tuning_params=tuning_params)
-   ### add_case(prefix='2025-EACB',grid='ne32', num_nodes=4, nyr=1,tuning_params=tuning_params)
-
+for c in range(case_beg,case_end):
+   tuning_params = set_tuning_params(LHS_parameter_values[c])
+   # add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne256',num_nodes=128,tuning_params=tuning_params)
+   # add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne128',num_nodes=32, tuning_params=tuning_params)
+   # add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne64', num_nodes=16, tuning_params=tuning_params)
+   add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne32', num_nodes=4,  tuning_params=tuning_params)
+   cnt += 1
 
 #---------------------------------------------------------------------------------------------------
 # commmon settings for all runs
-RUN_START_DATE = '2017-12-27'
+RUN_START_DATE = '2019-08-01'
 din_loc_root   = '/lus/flare/projects/E3SMinput/data'
-lnd_init_file  = f'{din_loc_root}/lnd/clm2/initdata_map/elmi.2025-EACB.ne256.NN_64.nyr_1.d3115dc4f7d8.elm.r.2017-12-27-03600.64bit.v2.nc'
-lnd_data_file  = f'{din_loc_root}/lnd/clm2/surfdata_map/surfdata_0.25x0.25_simyr2010_c240206_TOP.nc'
-lnd_luse_file  = f'{din_loc_root}/lnd/clm2/surfdata_map/landuse.timeseries_r025_CMIP7_HIST_simyr1850-2024_c250723.nc'
+lnd_init_file, lnd_data_file, lnd_luse_file  = None, None, None
 #---------------------------------------------------------------------------------------------------
-def get_case_root(case): return f'/lus/flare/projects/E3SM_Dec/whannah/scratch/{case}'
+def get_case_root(case): return f'{ens_case_root}/{case}'
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts,exe=False):
-   loc_prefix = opts['prefix']
-   if exe: loc_prefix = exe_prefix
    case_list = []
-   for key,val in opts.items(): 
+   loc_prefix = opts['prefix']
+   loc_prefix += '.000' if exe else '.'+opts['member']
+   for key,val in opts.items():
       if key in ['prefix']:            case_list.append(loc_prefix)
       if key in ['grid']:              case_list.append(val)
-      if key in ['NCPL'] and not exe:  case_list.append(f'NCPL_{val}')
       if key=='num_nodes':             case_list.append(f'NN_{val}')
-      if key=='nyr' and not exe:       case_list.append(f'nyr_{val}')
+      # if key=='nyr' and not exe:       case_list.append(f'nyr_{val}')
    case = '.'.join(case_list)
    if exe:
       case = f'{case}.EXE'
    else:
-      # param_str = json.dumps(opts['tuning_params'].values()) # keys and values
       param_str = '_'.join( [str(val) for val in opts['tuning_params'].values()] ) # only use values
       suffix_hash = hashlib.md5(param_str.encode('utf-8')).hexdigest()
       case = f'{case}.{suffix_hash[:12]}' # truncate the hash to 12 characters
    return case
 #---------------------------------------------------------------------------------------------------
-def get_compset(): return 'F20TR-SCREAMv1'
+# def get_compset(): return 'F20TR-SCREAMv1' # we can't use this until we have new files for flanduse_timeseries
+def get_compset(): return 'F2010-SCREAMv1'
 #---------------------------------------------------------------------------------------------------
 def get_pe_layout(opts):
    num_nodes = opts['num_nodes']
@@ -162,22 +168,44 @@ def get_pe_layout(opts):
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
    grid_short,grid = opts['grid'],None
-   if grid_short=='ne256': grid = 'ne256pg2_r025_RRSwISC6to18E3r5'
-   if grid_short=='ne128': grid = 'ne128pg2_r025_RRSwISC6to18E3r5'
-   if grid_short=='ne64' : grid = 'ne64pg2_r025_RRSwISC6to18E3r5'
-   if grid_short=='ne32' : grid = 'ne32pg2_r025_RRSwISC6to18E3r5'
+   # if grid_short=='ne256': grid = 'ne256pg2_r025_RRSwISC6to18E3r5'
+   # if grid_short=='ne128': grid = 'ne128pg2_r025_RRSwISC6to18E3r5'
+   # if grid_short=='ne64' : grid = 'ne64pg2_r025_RRSwISC6to18E3r5'
+   # if grid_short=='ne32' : grid = 'ne32pg2_r025_RRSwISC6to18E3r5'
+   if grid_short=='ne256': grid = 'ne256pg2_ne256pg2'
+   if grid_short=='ne128': grid = 'ne128pg2_ne128pg2'
+   if grid_short=='ne64' : grid = 'ne64pg2_ne64pg2'
+   if grid_short=='ne32' : grid = 'ne32pg2_ne32pg2'
    if grid is None: raise ValueError('grid cannot be None!')
    return grid
 #---------------------------------------------------------------------------------------------------
 def get_atm_init_file(opts):
+   global din_loc_root
    atm_init_root = '/lus/flare/projects/E3SM_Dec/whannah/HICCUP'
    grid_short,atm_init_file = opts['grid'],None
-   if grid_short=='ne256': atm_init_file = f'{atm_init_root}/HICCUP.atm_era5.2017-12-27.ne256np4.L128.nc'
+   # if grid_short=='ne256': atm_init_file = f'{atm_init_root}/HICCUP.atm_era5.2017-12-27.ne256np4.L128.nc'
+   if grid_short=='ne256': atm_init_file = f'{din_loc_root}/atm/scream/init/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.nc'
    if grid_short=='ne128': atm_init_file = None
    if grid_short=='ne64' : atm_init_file = None
    if grid_short=='ne32' : atm_init_file = None
-   if atm_init_file is None: raise ValueError('atm_init_file cannot be None!')
+   # if atm_init_file is None: raise ValueError('atm_init_file cannot be None!')
    return atm_init_file
+#---------------------------------------------------------------------------------------------------
+def get_lnd_init_data_file(opts):
+   global din_loc_root
+   grid_short,atm_init_file = opts['grid'],None
+   lnd_init_file = None
+   if grid_short=='ne256': lnd_init_file = f'{din_loc_root}/lnd/clm2/initdata/20230522.I2010CRUELM.ne256pg2.elm.r.2013-08-01-00000.nc'
+   if grid_short=='ne128': lnd_init_file = f'{din_loc_root}/lnd/clm2/initdata_map/ne128pg2.elm.r.2013-08-01-00000.64bit.nc'
+   if grid_short=='ne64' : lnd_init_file = f'{din_loc_root}/lnd/clm2/initdata_map/ne64pg2.elm.r.2013-08-01-00000.64bit.nc'
+   if grid_short=='ne32' : lnd_init_file = f'{din_loc_root}/lnd/clm2/initdata_map/ne32pg2.elm.r.2013-08-01-00000.64bit.nc'
+   lnd_data_file = None
+   if grid_short=='ne256': lnd_data_file = f'{din_loc_root}/lnd/clm2/surfdata_map/surfdata_ne256pg2_simyr2010_c230207.nc'
+   if grid_short=='ne128': lnd_data_file = f'{din_loc_root}/lnd/clm2/surfdata_map/surfdata_ne128pg2_simyr2010_c260116.nc'
+   if grid_short=='ne64' : lnd_data_file = f'{din_loc_root}/lnd/clm2/surfdata_map/surfdata_ne64pg2_simyr2010_c260116.nc'
+   if grid_short=='ne32' : lnd_data_file = f'{din_loc_root}/lnd/clm2/surfdata_map/surfdata_ne32pg2_simyr2010_c260116.nc'
+   # if lnd_init_file is None: raise ValueError('lnd_init_file cannot be None!')
+   return lnd_init_file,lnd_data_file
 #---------------------------------------------------------------------------------------------------
 def create_ens_exe(opts):
    case = get_case_name(opts,exe=True); case_root = get_case_root(case)
@@ -199,7 +227,7 @@ def create_ens_exe(opts):
    #----------------------------------------------------------------------------
    if config_exe:
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld,RUNDIR={case_root}/run ')
-      write_lnd_nl_opts()
+      write_lnd_nl_opts(opts)
       run_cmd('./case.setup --reset')
    #----------------------------------------------------------------------------
    if build_exe:
@@ -220,7 +248,6 @@ def run_ens_member(opts):
    print(  f'  case_root: {case_root.replace(case,"")}')
    print(  f'  exe_root : {exe_root}')
    #----------------------------------------------------------------------------
-   # if 'ac89952b256d' in case: exit()
    # return
    #------------------------------------------------------------------------------------------------
    if newcase :
@@ -238,7 +265,7 @@ def run_ens_member(opts):
    if config :
       run_cmd(f'./xmlchange EXEROOT={exe_root}/bld,RUNDIR={case_root}/run ')
       run_cmd('./xmlchange PIO_NETCDF_FORMAT=\"64bit_data\" ')
-      write_lnd_nl_opts()
+      write_lnd_nl_opts(opts)
       run_cmd('./case.setup --reset')
       run_cmd(f'./xmlchange BUILD_COMPLETE=TRUE ')
    #------------------------------------------------------------------------------------------------
@@ -275,55 +302,46 @@ def run_ens_member(opts):
       ctl_nl::semi_lagrange_trajectory_nsubstep: 0
       '''
       #------------------------------------------------------------------------------------------------
-      # New timestep setting for stability investigation
-
-      if 'NCPL' in opts:
-         ncpl = opts['NCPL']
-         run_cmd(f'./xmlchange ATM_NCPL={ncpl}')
-      
-      if opts['prefix']=='2025-EACB-01':
+      # New timestep for v2/v3 ensemble
+      if opts['prefix']=='2025-EACB-v3':
+         run_cmd(f'./xmlchange ATM_NCPL=120') # 12-min
          run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
-         run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=1')
-         run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=5')
-         run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=5')
-         run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
-         if ncpl==1440:
-            run_cmd(f'./xmlchange ATM_NCPL=1440')
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
-            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=1')
-            run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=1')
-            run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=1')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
+         run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
+         run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=12')
+         run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=12')
+         run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=2')
       #------------------------------------------------------------------------------------------------
-      if opts['prefix']=='2025-EACB-02':
-         ncpl = opts['NCPL']
-         run_cmd(f'./xmlchange ATM_NCPL={ncpl}')
-         # run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
-         # run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
-         if ncpl==120: # 12-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
+      # use resolution specific time step settings for 2025-EACB-v4
+      if opts['prefix']=='2025-EACB-v4':
+         if opts['grid']=='ne256':
+            run_cmd(f'./xmlchange ATM_NCPL=120')            # 12-min
+            run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')  #  0.5-min
             run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
             run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=12')
             run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=12')
             run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=2')
-         if ncpl==144: # 10-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
-            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
-            run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=10')
-            run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=10')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=2')
-         if ncpl==240: # 6-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
+         if opts['grid']=='ne128':
+            run_cmd(f'./xmlchange ATM_NCPL=120')            # 12-min
+            run_cmd(f'./atmchange -b ctl_nl::se_tstep=120') #  2-min
             run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
             run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=6')
             run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=6')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=2')
-         if ncpl==288: # 5-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
-            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=1')
+            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
+         if opts['grid']=='ne64' :
+            run_cmd(f'./xmlchange ATM_NCPL=96')             # 15-min
+            run_cmd(f'./atmchange -b ctl_nl::se_tstep=180') #  3-min
+            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
             run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=5')
             run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=5')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=2')
+            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
+         if opts['grid']=='ne32' :
+            run_cmd(f'./xmlchange ATM_NCPL=72')             # 20-min
+            run_cmd(f'./atmchange -b ctl_nl::se_tstep=300') #  5-min
+            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
+            run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=4')
+            run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=4')
+            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
+
    #------------------------------------------------------------------------------------------------
    if set_output :
       #-------------------------------------------------------------------------
@@ -337,32 +355,36 @@ def run_ens_member(opts):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
       #-------------------------------------------------------------------------
-      add_hist_file('1ma_ne30pg2.yaml',      hist_opts_1ma_ne30pg2)
+      add_hist_file('1ma_ne30pg2.yaml',      set_hist_map(hist_opts_1ma_ne30pg2,opts))
+      add_hist_file('3ha_ne30pg2.yaml',      set_hist_map(hist_opts_3ha_ne30pg2,opts))
       add_hist_file('51hi.yaml',             hist_opts_51hi)
-      add_hist_file('3ha_ne30pg2.yaml',      hist_opts_3ha_ne30pg2)
-      # add_hist_file('output.2D.5min.yaml',   hist_opts_2D_5min_inst)
-      # add_hist_file('output.2D.10min.yaml',  hist_opts_2D_10min_inst)
-      # add_hist_file('output.2D.20min.inst.yaml',  hist_opts_2D_20min_inst)
-      # add_hist_file('output.2D.20min.mean.yaml',  hist_opts_2D_20min_mean)
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
    #------------------------------------------------------------------------------------------------
    if set_runopt :
       #-------------------------------------------------------------------------
-      write_lnd_nl_opts()
+      write_lnd_nl_opts(opts)
       #-------------------------------------------------------------------------
       if not continue_run: run_cmd(f'./xmlchange --file env_run.xml RUN_STARTDATE={RUN_START_DATE}')
       run_cmd(f'./xmlchange CCSM_CO2_PPMV=407.0') # 2018
-      run_cmd(f'./atmchange initial_conditions::filename=\"{get_atm_init_file(opts)}\"')
+      atm_init_file = get_atm_init_file(opts)
+      if atm_init_file is not None: run_cmd(f'./atmchange initial_conditions::filename=\"{atm_init_file}\"')
       # run_cmd(f'./atmchange orbital_year=2018')
       #-------------------------------------------------------------------------
       # SST data
-      sst_data_root = '/lus/flare/projects/E3SM_Dec/whannah/HICCUP'
-      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_DATA_FILENAME --val {sst_data_root}/HICCUP.sst_noaa.2017-2018.nc')
-      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_GRID_FILENAME --val {din_loc_root}/ocn/docn7/domain.ocn.0.25x0.25.c20190221.nc')
-      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_ALIGN --val 2017')
-      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_START --val 2017')
-      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_END --val 2018')
+      # sst_data_root = '/lus/flare/projects/E3SM_Dec/whannah/HICCUP'
+      # run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_DATA_FILENAME --val {sst_data_root}/HICCUP.sst_noaa.2017-2018.nc')
+      # run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_GRID_FILENAME --val {din_loc_root}/ocn/docn7/domain.ocn.0.25x0.25.c20190221.nc')
+      # run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_ALIGN --val 2017')
+      # run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_START --val 2017')
+      # run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_END --val 2018')
+      #-------------------------------------------------------------------------
+      # SST data for Cess2 period
+      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_DATA_FILENAME --val "{din_loc_root}/atm/cam/sst/sst_ostia_ukmo-l4_ghrsst_3600x7200_20190731_20210309_c20240506.nc"')
+      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_GRID_FILENAME --val "{din_loc_root}/ocn/docn7/domain.ocn.3600x7200.230522.nc"')
+      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_ALIGN --val 2019')
+      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_START --val 2019')
+      run_cmd(f'./xmlchange --file env_run.xml --id SSTICE_YEAR_END --val 2021')
       #-------------------------------------------------------------------------
       # COSP - currently doesn't work
       run_cmd(f'./atmchange physics::atm_procs_list="mac_aero_mic,rrtmgp,cosp"')
@@ -388,6 +410,15 @@ def run_ens_member(opts):
    # Print the case name again
    print(f'\n  case : {case}\n')
 #---------------------------------------------------------------------------------------------------
+def set_hist_map(hist_opts,opts):
+   map_file = None
+   if opts['grid']=='ne32' : map_file = '${DIN_LOC_ROOT}/atm/scream/maps/map_ne32pg2_to_ne30pg2_traave.20260128.nc'
+   if opts['grid']=='ne64' : map_file = '${DIN_LOC_ROOT}/atm/scream/maps/map_ne64pg2_to_ne30pg2_traave.20260128.nc'
+   if opts['grid']=='ne128': map_file = '${DIN_LOC_ROOT}/atm/scream/maps/map_ne128pg2_to_ne30pg2_traave.20260128.nc'
+   if opts['grid']=='ne256': map_file = '${DIN_LOC_ROOT}/atm/scream/maps/map_ne256pg2_to_ne30pg2_traave.20240206.nc'
+   if map_file is not None:
+      hist_opts += f'horiz_remap_file: {map_file}\n'
+   return hist_opts
 #---------------------------------------------------------------------------------------------------
 hist_opts_1ma_ne30pg2 = '''
 averaging_type: average
@@ -472,7 +503,6 @@ fields:
       - isccp_cldtot
 max_snapshots_per_file: 1
 filename_prefix: 1ma_ne30pg2
-horiz_remap_file: ${DIN_LOC_ROOT}/atm/scream/maps/map_ne256pg2_to_ne30pg2_traave.20240206.nc
 iotype: pnetcdf
 output_control:
    frequency: 1
@@ -480,6 +510,8 @@ output_control:
 restart:
    force_new_file: true
 '''
+
+# horiz_remap_file: ${DIN_LOC_ROOT}/atm/scream/maps/map_ne256pg2_to_ne30pg2_traave.20240206.nc
 
 hist_opts_51hi = '''
 averaging_type: instant
@@ -515,7 +547,6 @@ fields:
       - LW_flux_up_at_model_top
 max_snapshots_per_file: 40
 filename_prefix: 3ha_ne30pg2
-horiz_remap_file: ${DIN_LOC_ROOT}/atm/scream/maps/map_ne256pg2_to_ne30pg2_traave.20240206.nc
 iotype: pnetcdf
 output_control:
    frequency: 3
@@ -524,150 +555,10 @@ restart:
    force_new_file: true
 '''
 
-# # new stream for stability investigation
-# hist_opts_2D_5min_inst = '''
-# filename_prefix: output.2D.5min
-# averaging_type: instant
-# max_snapshots_per_file: 12
-# fields:
-#    physics_pg2:
-#       field_names:
-#       - ps
-#       - SeaLevelPressure
-#       - precip_total_surf_mass_flux
-#       - VapWaterPath
-#       - IceWaterPath
-#       - LiqWaterPath
-#       - RainWaterPath
-#       - U_at_850hPa
-#       - U_at_model_bot
-#       - omega_at_500hPa
-#       - omega_at_700hPa
-#       - omega_at_850hPa
-#       - LW_flux_up_at_model_top
-# iotype: pnetcdf
-# output_control:
-#    frequency: 5
-#    frequency_units: nmins
-# restart:
-#    force_new_file: true
-# '''
-
-
-#---------------------------------------------------------------------------------------------------
-# new streams for stability investigation
-fields_for_stability_investigation = '''
-      - ps
-      - SeaLevelPressure
-      - precip_total_surf_mass_flux
-      - VapWaterPath
-      - IceWaterPath
-      - LiqWaterPath
-      - RainWaterPath
-      - U_at_850hPa
-      - U_at_model_bot
-      - omega_at_500hPa
-      - omega_at_700hPa
-      - omega_at_850hPa
-      - LW_flux_up_at_model_top
-'''
-
-hist_opts_2D_10min_inst = f'''
-filename_prefix: output.2D.10min
-averaging_type: instant
-max_snapshots_per_file: 6
-fields:
-   physics_pg2:
-      field_names: {fields_for_stability_investigation}
-iotype: pnetcdf
-output_control:
-   frequency: 10
-   frequency_units: nmins
-restart:
-   force_new_file: true
-'''
-
-hist_opts_2D_20min_inst = f'''
-filename_prefix: output.2D.20min.inst
-averaging_type: instant
-max_snapshots_per_file: 3
-fields:
-   physics_pg2:
-      field_names: {fields_for_stability_investigation}
-iotype: pnetcdf
-output_control:
-   frequency: 20
-   frequency_units: nmins
-restart:
-   force_new_file: true
-'''
-
-hist_opts_2D_20min_mean = f'''
-filename_prefix: output.2D.20min.mean
-averaging_type: average
-max_snapshots_per_file: 3
-fields:
-   physics_pg2:
-      field_names: {fields_for_stability_investigation}
-iotype: pnetcdf
-output_control:
-   frequency: 20
-   frequency_units: nmins
-restart:
-   force_new_file: true
-'''
-#---------------------------------------------------------------------------------------------------
-'''
-NOTE The original output specs below didn't really make sense,
-so I merged them into the 5-day output stream of 3-hourly averages above
-'''
-
-# hist_opts_3ha_ne30pg2 = '''
-# averaging_type: average
-# fields:
-#   physics_pg2:
-#     field_names:
-#     - precip_total_surf_mass_flux
-# max_snapshots_per_file: 56
-# filename_prefix: 3ha_ne30pg2
 # horiz_remap_file: ${DIN_LOC_ROOT}/atm/scream/maps/map_ne256pg2_to_ne30pg2_traave.20240206.nc
-# iotype: pnetcdf
-# output_control:
-#   frequency: 3
-#   frequency_units: nhours
-# restart:
-#   force_new_file: true
-# '''
-
-# hist_opts_1da_ne30pg2 = '''
-# averaging_type: average
-# fields:
-#   physics_pg2:
-#     field_names:
-#     - precip_total_surf_mass_flux
-#     - U_at_850hPa
-#     - V_at_850hPa
-#     - LW_flux_up_at_model_top
-# max_snapshots_per_file: 7
-# filename_prefix: 1da_ne30pg2
-# horiz_remap_file: ${DIN_LOC_ROOT}/atm/scream/maps/map_ne256pg2_to_ne30pg2_traave.20240206.nc
-# iotype: pnetcdf
-# output_control:
-#   frequency: 3
-#   frequency_units: nhours
-# restart:
-#   force_new_file: true
-# '''
 
 #---------------------------------------------------------------------------------------------------
-# def write_atm_nl_opts(opts):
-#    file=open('user_nl_eam','w')
-#    file.write(get_atm_nl_opts(opts))
-#    file.close()
-#    return
-
-#---------------------------------------------------------------------------------------------------
-def get_lnd_nl_opts():
+def get_lnd_nl_opts(opts):
    global lnd_luse_file, lnd_data_file, lnd_init_file
    lnd_opts = f'''
  ! -- Reduce the size of land outputs since we dont need them --
@@ -676,6 +567,7 @@ def get_lnd_nl_opts():
  hist_nhtfrq = 0
  hist_avgflag_pertape = 'A'
 '''
+   lnd_init_file,lnd_data_file = get_lnd_init_data_file(opts)
    if lnd_luse_file is not None: lnd_opts += f' flanduse_timeseries = \'{lnd_luse_file}\' \n'
    if lnd_data_file is not None: lnd_opts += f' fsurdat             = \'{lnd_data_file}\' \n'
    if lnd_init_file is not None: lnd_opts += f' finidat             = \'{lnd_init_file}\' \n'
@@ -683,30 +575,30 @@ def get_lnd_nl_opts():
    # lnd_opts += f' check_finidat_year_consistency = .false. \n'
    return lnd_opts
 
-def write_lnd_nl_opts():
+def write_lnd_nl_opts(opts):
    file=open('user_nl_elm','w')
-   file.write(get_lnd_nl_opts())
+   file.write(get_lnd_nl_opts(opts))
    file.close()
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
       if any([create_exe,config_exe,build_exe]):
-         for n in range(len(exe_list)):
-            create_ens_exe(exe_list[n])
+         for n in range(len(exe_opt_list)):
+            create_ens_exe(exe_opt_list[n])
 
       if print_case_list:
          print()
-         for n in range(len(opt_list)):
-            print(get_case_name(opt_list[n]))
+         for n in range(len(ens_opt_list)):
+            print(get_case_name(ens_opt_list[n]))
          print()
          exit()
 
       if any([newcase,config,set_params,set_output,set_runopt,submit]):
 
-         for n in range(len(opt_list)):
+         for n in range(len(ens_opt_list)):
             print('-'*80)
-            print(f'case #: {n+1:3} of {len(opt_list)}')
-            run_ens_member( opt_list[n] )
+            print(f'case #: {n+1:3} of {len(ens_opt_list)}')
+            run_ens_member( ens_opt_list[n] )
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------

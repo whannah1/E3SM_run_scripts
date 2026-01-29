@@ -1,27 +1,14 @@
 #!/usr/bin/env python3
-
-# conda create --name base++ -c conda-forge natsort
-# conda activate base++
-
+#---------------------------------------------------------------------------------------------------
 import sys, os, fileinput, re, subprocess as sp, glob
-from optparse import OptionParser
-import importlib
-natsort_spec = None
-# natsort_spec = importlib.util.find_spec("natsort")
-natsort_found = natsort_spec is not None
-if natsort_found: from natsort import natsorted, ns
-# print(natsort_found)
-# exit()
-#-------------------------------------------------------------------------------
-# Set up terminal colors
-#-------------------------------------------------------------------------------
-class bcolor:
-   ENDC    = '\033[0m';  BLACK  = '\033[30m'; RED   = '\033[31m'  
-   GREEN   = '\033[32m'; YELLOW = '\033[33m'; BLUE  = '\033[34m'
-   MAGENTA = '\033[35m'; CYAN   = '\033[36m'; WHITE = '\033[37m'
-#-------------------------------------------------------------------------------
+import chk_methods
+host = chk_methods.get_host()
+home = chk_methods.home
+tclr = chk_methods.tclr
+natsort_found = chk_methods.natsort_found
+#---------------------------------------------------------------------------------------------------
 # command line options
-#-------------------------------------------------------------------------------
+from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-n',dest='num_file',default=-1,help='number of files to print')
 parser.add_option("--all",action="store_true", dest="show_all", default=False,help="ahow all component timers")
@@ -29,65 +16,19 @@ parser.add_option('--params', dest='params', default=None,help='Comma separated 
 parser.add_option("--partial",action="store_true", dest="allow_partial_match", default=False,help="allow partial matches of input search strings")
 parser.add_option("--alt",action="store_true", dest="predefined_case", default=False,help="let predefined cases override input arguments")
 (opts, args) = parser.parse_args()
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
 # define list of cases
-#-------------------------------------------------------------------------------
-
-top_dir_list = []
-top_dir_list.append( os.getenv('HOME')+'/E3SM/Cases' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch_v3' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch_pm-cpu' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch_pm-gpu' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch-llnl' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch-llnl1' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch-llnl2' )
-top_dir_list.append( os.getenv('HOME')+'/E3SM/scratch-frontier-proj' )
-top_dir_list.append( os.getenv('HOME')+'/SCREAM/scratch' )
-top_dir_list.append( os.getenv('HOME')+'/SCREAM/scratch_pm-cpu' )
-top_dir_list.append( os.getenv('HOME')+'/SCREAM/scratch_pm-gpu' )
+scratch_path_list = chk_methods.get_scratch_path_list()
 
 #-------------------------------------------------------------------------------
 
 if opts.predefined_case:
 
-   print(f'{bcolor.RED}WARNING{bcolor.ENDC} - overriding input arguments - {bcolor.RED}WARNING{bcolor.ENDC}')
+   print(f'{tclr.RED}WARNING{tclr.END} - overriding input arguments - {tclr.RED}WARNING{tclr.END}')
 
    case_list = []
 
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_100.dyn_fac_12.rmp_fac_2.trc_fac_12.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_100.dyn_fac_12.rmp_fac_2.trc_fac_6.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_75.dyn_fac_8.rmp_fac_2.trc_fac_8.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_75.dyn_fac_8.rmp_fac_2.trc_fac_4.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_75.dyn_fac_9.rmp_fac_1.trc_fac_9.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_75.dyn_fac_10.rmp_fac_1.trc_fac_5.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_60.dyn_fac_6.rmp_fac_3.trc_fac_6.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_60.dyn_fac_6.rmp_fac_2.trc_fac_6.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_60.dyn_fac_6.rmp_fac_3.trc_fac_6.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_60.dyn_fac_6.rmp_fac_2.trc_fac_6.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_60.dyn_fac_7.rmp_fac_1.trc_fac_7.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_60.dyn_fac_8.rmp_fac_2.trc_fac_8.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne30pg2.dt_phy_60.dyn_fac_8.rmp_fac_2.trc_fac_4.trc_ss_1')
-
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_100.dyn_fac_12.rmp_fac_2.trc_fac_6.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_100.dyn_fac_12.rmp_fac_2.trc_fac_12.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_75.dyn_fac_10.rmp_fac_1.trc_fac_5.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_75.dyn_fac_9.rmp_fac_1.trc_fac_9.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_75.dyn_fac_8.rmp_fac_2.trc_fac_8.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_75.dyn_fac_8.rmp_fac_2.trc_fac_4.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_60.dyn_fac_8.rmp_fac_2.trc_fac_4.trc_ss_1')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_60.dyn_fac_8.rmp_fac_2.trc_fac_8.trc_ss_2')
-   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne256pg2.dt_phy_60.dyn_fac_7.rmp_fac_1.trc_fac_7.trc_ss_2')
-
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_100.dyn_fac_12.rmp_fac_2.trc_fac_6.trc_ss_1')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_100.dyn_fac_12.rmp_fac_2.trc_fac_12.trc_ss_2')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_75.dyn_fac_10.rmp_fac_1.trc_fac_5.trc_ss_1')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_75.dyn_fac_9.rmp_fac_1.trc_fac_9.trc_ss_2')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_75.dyn_fac_8.rmp_fac_2.trc_fac_8.trc_ss_2')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_75.dyn_fac_8.rmp_fac_2.trc_fac_4.trc_ss_1')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_60.dyn_fac_8.rmp_fac_2.trc_fac_4.trc_ss_1')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_60.dyn_fac_8.rmp_fac_2.trc_fac_8.trc_ss_2')
-   case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_60.dyn_fac_7.rmp_fac_1.trc_fac_7.trc_ss_2')
+   # case_list.append('SCREAM.2025-DT-00.F2010-SCREAMv1.ne1024pg2.dt_phy_100.dyn_fac_12.rmp_fac_2.trc_fac_6.trc_ss_1')
 
    alt_format = True
 
@@ -98,7 +39,7 @@ else:
    case_list = []
    path_list = []
 
-   for top_dir in top_dir_list:
+   for top_dir in scratch_path_list:
 
       dirs = glob.glob( top_dir+'/*' )
       ndir = len(dirs)
@@ -146,17 +87,14 @@ else:
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-
 # path_list = [None]*len(case_list)
 # for c,case in enumerate(case_list):
 #    path_list[c] = f'/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/{case}/case_scripts/timing'
-
+#-------------------------------------------------------------------------------
 # print()
 # for c in case_list: print(c)
 # print()
 # exit()
-
-
 #-------------------------------------------------------------------------------
 # Define timing file parameters to be parsed
 #-------------------------------------------------------------------------------
@@ -248,7 +186,7 @@ for param in param_list :
       
       # if 'RGMA-timing' in case: timing_dir = timing_dir.replace('/Cases/','/Cases/RGMA_timing/')
       
-      case_name_fmt = bcolor.CYAN+f'{case:{max_case_len}}'+bcolor.ENDC
+      case_name_fmt = tclr.CYN+f'{case:{max_case_len}}'+tclr.END
 
       # check that the timing files exist
       timing_file_path = f'{timing_dir}/*'
@@ -278,18 +216,40 @@ for param in param_list :
 
       #-------------------------------------------------------------------------
       # Clean up message but don't print yet
-
+      # print()
+      # print(msg[0])
+      # print()
+      # print(msg[0].split(':')[0])
+      # print()
       for m in range(len(msg)): 
          line = msg[m]
-         line = line.replace(timing_dir+'/','')
-         line = line.replace(f'e3sm_timing.{case}.','e3sm_timing        ')
-         # line = line.replace('e3sm_timing_stats.'  ,'e3sm_timing_stats  ')
-         if 'e3sm_timing_stats' in line: line = line[40:]
-         line = line.replace(f'e3sm_timing      ','')
-         # line = line[23:] # drop job number string
-         # Add case name
-         if line!='': line = case_name_fmt+line
+
+         # line = line.replace(timing_dir+'/','')
+         # line = line.replace(f'e3sm_timing.{case}.','e3sm_timing        ')
+         # # line = line.replace('e3sm_timing_stats.'  ,'e3sm_timing_stats  ')
+         # if 'e3sm_timing_stats' in line: line = line[40:]
+         # line = line.replace(f'e3sm_timing      ','')
+         # # line = line[23:] # drop job number string
+         # # Add case name
+         # if line!='': line = case_name_fmt+line
+         # msg[m] = line
+
+
+         # line = line.replace(timing_dir+'/','')
+         # line = line.replace(f'e3sm_timing.{case}.','e3sm_timing        ')
+         # # line = line.replace('e3sm_timing_stats.'  ,'e3sm_timing_stats  ')
+         # if 'e3sm_timing_stats' in line: line = line[40:]
+         # line = line.replace(f'e3sm_timing      ','')
+         # # line = line[23:] # drop job number string
+
+         
+         file_str = line.split(':')[0]
+         # print(f'file_str: {file_str}')
+         if file_str!='':
+            line = line.replace(f'{file_str}:','') # remove file name completely
+         if line!='': line = case_name_fmt+line    # Add case name
          msg[m] = line
+
          
       # # don't show file or case
       # for m in range(len(msg)): 
@@ -320,10 +280,22 @@ for param in param_list :
          n2 = hline.find('wallmax')      +3*2
          n3 = hline.find('wallmin')      +3*3
       else:
-         line = msg[0]
-         n1 = line.replace(':','', 1).find(':')+2
+         # line = msg[0]
+         # n1 = line.replace(':','', 1).find(':')+2
+         # num_in_list = re.findall(r'\d+\.\d+', line[n1:])
+         # n2 = line.find(num_in_list[0])+len(num_in_list[0])
+
+         line = msg[0] 
+         n1 = line.find(':')+2
          num_in_list = re.findall(r'\d+\.\d+', line[n1:])
          n2 = line.find(num_in_list[0])+len(num_in_list[0])
+
+         # print(line)
+         # print(f'n1: {n1}')
+         # print(f'n2: {n2}')
+         # print(line[n1:n2])
+         # # print(line[n2:])
+         # exit()
 
       #-------------------------------------------------------------------------
       # print the timing data
@@ -334,20 +306,20 @@ for param in param_list :
          if line=='': continue
          if is_stat_param(param):
             line = line[:n1] \
-                 +bcolor.MAGENTA +line[n1:n2] +bcolor.CYAN +line[n2:n3] \
-                 +bcolor.GREEN   +line[n3:] +bcolor.ENDC
+                 +tclr.MGN +line[n1:n2] +tclr.CYN +line[n2:n3] \
+                 +tclr.GRN +line[n3:]   +tclr.END
             # # Get rid of some dead space
             # line = line.replace('        ','')
          else:
             # line = line[:n1] \
-            #      +bcolor.GREEN +line[n1:n2]+bcolor.ENDC \
+            #      +tclr.GRN +line[n1:n2]+tclr.END \
             #      +line[n2:]
             tstr = line[n2:]
             tn1 = tstr.find('seconds/mday')+len('seconds/mday')
             tn2 = tstr.find('myears/wday')
             tn3 = tstr.find('myears/wday')+len('myears/wday')
-            line = line[:n1] + bcolor.GREEN + tstr[tn1:tn2] + bcolor.ENDC + tstr[tn2:tn3]
-            # line = line[:n1] + bcolor.GREEN + tstr[tn1:tn2] + bcolor.ENDC + 'sypd'
+            line = line[:n1] + tclr.GRN + tstr[tn1:tn2] + tclr.END + tstr[tn2:tn3]
+            # line = line[:n1] + tclr.GRN + tstr[tn1:tn2] + tclr.END + 'sypd'
 
             # calculate average/mean of total throughput
             if param in avg_param_list:
@@ -362,11 +334,11 @@ for param in param_list :
             
             
             # Print conversion to min and hours for specific params
-            offset = len(bcolor.GREEN)
+            offset = len(tclr.GRN)
             if param=='Run Time    :' and line[n1+offset:n2+offset]!='' :
                sec = float( line[n1+offset:n2+offset] )
-               line = line+'  ('+bcolor.GREEN+f'{sec/60:.2f}'     +bcolor.ENDC+' min)'
-               line = line+'  ('+bcolor.GREEN+f'{sec/60/60:.2f}'  +bcolor.ENDC+' hour)'
+               line = line+'  ('+tclr.GRN+f'{sec/60:.2f}'     +tclr.END+' min)'
+               line = line+'  ('+tclr.GRN+f'{sec/60/60:.2f}'  +tclr.END+' hour)'
          line = line.replace(': ','') # drop the extra colon
          # print the line divider
          # if case_cnt==1: print('-'*100)
@@ -386,7 +358,7 @@ for param in param_list :
             line = line.replace(stat_file[-21:],'')
             # line = line.replace(' '*40,'')
             line = line.replace(' '*32,'')
-            line = line+bcolor.ENDC
+            line = line+tclr.END
             # print(line)
             # exit()
 
@@ -394,7 +366,7 @@ for param in param_list :
          print(line)
 
       if param in avg_param_list and num_file>1:
-         avg_throughput = bcolor.GREEN+f'{avg_throughput:.2f}'+bcolor.ENDC
+         avg_throughput = tclr.GRN+f'{avg_throughput:.2f}'+tclr.END
          if param=='Throughput'   : print(f'    Average Throughput: {avg_throughput} sypd')
          if param=='Cost'         : print(f'    Average Cost: {avg_throughput} pe-hrs/simulated_year')
          if param=='TOT Run Time:': print(f'    Average {param}: {avg_throughput} sypd')

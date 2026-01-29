@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-#===================================================================================================
-#  Nov, 2017 - Walter Hannah - Lawrence Livermore National Lab
-#  This script checks the output logs of current E3SM cases (i.e. debug mode, compset, misc flags, etc.)
-#===================================================================================================
+#---------------------------------------------------------------------------------------------------
 import os, fileinput, glob, subprocess as sp
-home,host,opsys = os.getenv('HOME'),os.getenv('HOST'),os.getenv('os')
-if host==None : host = os.getenv('host')
-if host==None : host = sp.check_output(["dnsdomainname"],universal_newlines=True).strip()
-
+import chk_methods
+host = chk_methods.get_host()
+home = chk_methods.home
+tclr = chk_methods.tclr
+#---------------------------------------------------------------------------------------------------
 from optparse import OptionParser
 parser = OptionParser()
-
 parser.add_option('--no-indent',action='store_false', dest='indent_flag', default=True,help='do not indent long variables')
 parser.add_option("--all",action="store_true", dest="use_all_logs", default=False,help="check all available logs")
 parser.add_option("--nstep",action="store_true", dest="nstep_only", default=False,help="only print nstep values")
@@ -18,66 +15,19 @@ parser.add_option("--partial",action="store_true", dest="allow_partial_match", d
 # parser.add_option('-n',dest='num_file',default=5,help='sets number of files to print')
 parser.add_option('-n',dest='num_line',default='10',help='sets number of lines to print')
 parser.add_option('--alt',dest='alt_search_str',default='E3SM',help='Sets search string (i.e. "E3SM") to use when searching case name')
-
 (opts, args) = parser.parse_args()
 num_file = 1
-
-### specify string lengths for nice formatting
+#---------------------------------------------------------------------------------------------------
+# specify string lengths for nice formatting
 indent_len  = 40
 xmlfile_len = 15
 param_len   = 20
 total_len   = indent_len + xmlfile_len + param_len
-
-### use multiple lines for variables with long values
+# use multiple lines for variables with long values
 status_len_limit = 80
+#---------------------------------------------------------------------------------------------------
 
-
-# Set up terminal colors
-class bcolor:
-    ENDC     = '\033[0m'
-    BLACK    = '\033[30m'
-    RED      = '\033[31m'
-    GREEN    = '\033[32m'
-    YELLOW   = '\033[33m'
-    BLUE     = '\033[34m'
-    MAGENTA  = '\033[35m'
-    CYAN     = '\033[36m'
-    WHITE    = '\033[37m'
-    BOLD     = '\033[1m'
-    ULINEON  = '\033[4m'
-    ULINEOFF = '\033[24m'
-
-# workdir = os.getenv('MEMBERWORK')
-# workdir = '/lustre/atlas/scratch/hannah6/'
-
-if 'edison' in host : host = 'edison'
-if 'cori'   in host : host = 'cori-knl'
-if 'blogin' in host : host = 'anvil'
-if 'summit' in host : host = 'summit'
-#===================================================================================================
-#===================================================================================================
-
-top_dir = [ home+'/E3SM/scratch' ] 
-top_dir.append( home+'/E3SM/scratch2' )
-top_dir.append( home+'/E3SM/scratch_v3' )
-top_dir.append( home+'/E3SM/scratch-frontier' )
-top_dir.append( home+'/E3SM/scratch-frontier-proj' )
-top_dir.append( home+'/E3SM/scratch-crusher' )
-top_dir.append( home+'/E3SM/scratch_pm' )
-top_dir.append( home+'/E3SM/scratch_pm-gpu' )
-top_dir.append( home+'/E3SM/scratch_pm-cpu' )
-top_dir.append( home+'/E3SM/scratch-llnl1' )
-top_dir.append( home+'/E3SM/scratch-llnl2' )
-top_dir.append( '/pscratch/sd/w/whannah/E3SMv3_dev' )
-top_dir.append( home+'/E3SM/scratch/tests' )
-# top_dir.append( home+'/SCREAM/scratch' )
-# top_dir.append( home+'/SCREAM/scratch_pm-gpu' )
-# top_dir.append( home+'/SCREAM/scratch_pm-cpu' )
-top_dir.append( home+'/E3SM/scratch-summit')
-top_dir.append( home+'/E3SM/scratch-scream')
-top_dir.append( home+'/E3SM/scratch_scream_pm-cpu')
-top_dir.append( home+'/E3SM/scratch_scream_pm-gpu')
-# top_dir.append( home+'/E3SM/scratch/tests/baselines' )
+top_dir = chk_methods.get_scratch_path_list()
 
 # make sure list of top dir's don't end with "/"
 for t,top_dir_tmp in enumerate(top_dir) :
@@ -88,8 +38,6 @@ for top_dir_tmp in top_dir :
     dirs = dirs + glob.glob(f'{top_dir_tmp}/*')
 
 ndir = len(dirs)
-
-# exit(dirs)
 
 if len(args) < 1 :
     # exit('\nERROR: no search string provided!\n')
@@ -105,10 +53,8 @@ if len(args) < 1 :
 else :
     search_strings = args
 
-#===================================================================================================
+#---------------------------------------------------------------------------------------------------
 # Loop through case directories
-#===================================================================================================
-# test_case = 'E3SM.MMF-PHYS-TEST.GNUGPU.ne30pg2_ne30pg2.F-MMFXX.RADNX_4.EXP.BVT.00'
 
 cnt = 0
 for tdir in dirs :
@@ -132,6 +78,7 @@ for tdir in dirs :
             or '.v3alpha' in case
             or 'v3.F2010' in case 
             or 'SOHIP' in case 
+            or '2025-EACB' in case 
             or is_test_flag
             or opts.alt_search_str in case) and 'old_' not in case :
 
@@ -157,12 +104,12 @@ for tdir in dirs :
                 
                 ### print case name
                 case_str = case.ljust(indent_len)
-                case_str = bcolor.ULINEON+case_str+bcolor.ULINEOFF
-                case_str = bcolor.BOLD   +case_str+bcolor.ENDC
+                case_str = tclr.ULN+case_str+tclr.ULNOFF
+                case_str = tclr.BLD   +case_str+tclr.END
                 print('\n'+case_str+'\n')
 
                 if len( glob.glob(tdir+'/run/e3sm.log*') )==0: 
-                    print(bcolor.RED+'  NO LOG FILES???'+bcolor.ENDC)
+                    print(tclr.RED+'  NO LOG FILES???'+tclr.END)
                     continue
 
                 ### Get the names of all e3sm logs
@@ -177,7 +124,7 @@ for tdir in dirs :
 
                 # print(file_list)
                 if '.gz' in file_list: 
-                    print(bcolor.GREEN+'  LOG FILES ZIPPED'+bcolor.ENDC+f'  {file_list}')
+                    print(tclr.GREEN+'  LOG FILES ZIPPED'+tclr.END+f'  {file_list}')
                     continue
 
                 if opts.use_all_logs :
@@ -192,6 +139,7 @@ for tdir in dirs :
                         cmd = cmd+' '+file_list.replace('e3sm','atm_0001')
                     else:
                         cmd = cmd+' '+file_list.replace('e3sm','atm')
+                    cmd = cmd+' '+file_list.replace('e3sm','homme_atm')
 
                     ### only atm log
                     # cmd = 'tail -n '+opts.num_line+' '+file_list.replace('e3sm','atm')
@@ -234,30 +182,19 @@ for tdir in dirs :
                             msg = msg + nstep_msg.rstrip().split('\n')
 
 
-                ### color the output and print
+                # color the output and print
                 for line in msg:
-                    if 'atm.log'  in line : line = bcolor.MAGENTA + line + bcolor.ENDC
-                    if 'lnd.log'  in line : line = bcolor.GREEN   + line + bcolor.ENDC
-                    if 'e3sm.log' in line : line = bcolor.CYAN    + line + bcolor.ENDC
-                    if 'ocn.log'  in line : line = bcolor.BLUE    + line + bcolor.ENDC
-                    if '==>'      in line : line = bcolor.YELLOW  + line + bcolor.ENDC
-                    if 'ERROR'    in line : line = bcolor.RED     + line + bcolor.ENDC
+                    if 'atm.log'        in line : line = tclr.MGN + line + tclr.END
+                    if 'homme_atm.log'  in line : line = tclr.MGN + line + tclr.END
+                    if 'lnd.log'        in line : line = tclr.GRN + line + tclr.END
+                    if 'e3sm.log'       in line : line = tclr.CYN + line + tclr.END
+                    if 'ocn.log'        in line : line = tclr.BLU + line + tclr.END
+                    if '==>'            in line : line = tclr.YLW + line + tclr.END
+                    if 'ERROR'          in line : line = tclr.RED + line + tclr.END
                     print('  '+line)
 
                 #-------------------------------------------------------
                 #-------------------------------------------------------
                 cnt = cnt+1
 
-# if os.getenv('NERSC_HOST') is None:
-#     dnsdomainname = sp.check_output(["dnsdomainname"],universal_newlines=True).strip()
-#     # print(dnsdomainname)
-#     if dnsdomainname=='frontier.olcf.ornl.gov':
-#         os.system('echo ; ~/custom_qjob_slurm.py')
-#     else:
-#         os.system('echo ; ~/custom_qjob.py')
-# else:
-#     os.system('echo ; ~/custom_qstat.nersc.py')
-
-
-#===================================================================================================
-#===================================================================================================
+#---------------------------------------------------------------------------------------------------
