@@ -76,10 +76,15 @@ grid_path = f'{home}/E3SM/vert_grid_files'
 
 add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',           n='L80 EAMv3 default',d=0, c='blue')
 add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',     n='L128 SCREAM default',d=0,c='red'  )
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.0_c20251112.nc',n='L128 v3.0',d=0,c='magenta'  )
+add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc',n='L128 v3.1',d=0,c='cyan'  )
+add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L218_v3.1_c20251112.nc',n='L218 v3.1',d=0,c='green'  )
+
 # add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v1_c20250414.nc',n='L192v1',d=2,c='magenta' )
 # add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L192_v2_c20250414.nc',n='L192v2',d=2,c='cyan' )
 # add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v3_c20250414.nc',n='L256 for SOHIP',d=1,c='green' )
-add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v4_c20250930.nc',n='L256 for SOHIP',d=1,c='magenta' )
+# add_grid(f'{home}/E3SM/vert_grid_files/SOHIP_L256_v4_c20250930.nc',n='L256 for SOHIP',d=1,c='magenta' )
+# add_grid(f'{home}/E3SM_grid_support/2025-SOHIP-RRM/SOHIP_L256_v4_c20250930.nc',n='L256 for SOHIP',d=1,c='magenta' )
 
 # add_grid(f'{home}/E3SM/vert_grid_files/L72_E3SM.nc',         n='L72',  c='blue')
 # add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',n='L128', c='red')

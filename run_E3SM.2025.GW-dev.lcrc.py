@@ -15,14 +15,13 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'e3sm'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-# src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => 
-# src_dir  = f'{top_dir}/E3SM_SRC/2/' # branch => whannah/eam/zm-bridge-00
+src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/create-gwd-atm-proc
 
 # clean        = True
-newcase      = True
-config       = True
+# newcase      = True
+# config       = True
 build        = True
-submit       = True
+# submit       = True
 # continue_run = True
 
 # debug_mode = False
@@ -35,54 +34,11 @@ stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
 #---------------------------------------------------------------------------------------------------
-# build list of cases to run
+### EAMxx GWD process testing
 
-### testing clean-up branches
+add_case(prefix='2025-GW-DEV-00', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True)
 
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne4pg2_oQU480', num_nodes=1)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_tasks=1, debug=True)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=1, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=2, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=4, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=8, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_oECv3', num_nodes=16, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=32, debug=True)
-
-### EAMxx-ZM bridge testing
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010-SCREAMv1-MPASSI',    grid='ne4pg2_oQU480', num_nodes=1)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, debug=True)
-
-src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_tasks=96, debug=True)
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_tasks=1, debug=True)
-
-# src_dir=f'{top_dir}/E3SM_SRC3'; add_case(prefix='2025-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, debug=True)
-
-
-
-
-#---------------------------------------------------------------------------------------------------
-# old cases prior to creating add_case() method
-
-# compset,grid,num_nodes='F2010', f'ne4pg2_oQU480', 1
-# case_list = ['E3SM','2025-ZM-DEV-00',grid,compset]
-
-# compset,grid,num_nodes='F2010', f'ne30pg2_r05_IcoswISC30E3r5', 16
-# src_dir=f'{top_dir}/E3SM_SRC0/'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_OLD',grid,compset]
-# src_dir=f'{top_dir}/E3SM_SRC1/'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_NEW',grid,compset]
-# src_dir=f'{top_dir}/E3SM_SRC1'; case_list=['E3SM','2025-ZM-DEV-02','MCSP_NEW_REBASE',grid,compset]
-
-# EAMxx-ZM bridge testing
-# compset,grid,num_nodes='F2010-SCREAMv1', f'ne4pg2_oQU480', 1
-# compset,grid,num_nodes='F2010-SCREAMv1-MPASSI', f'ne4pg2_oQU480', 1
-# src_dir=f'{top_dir}/E3SM_SRC2'; case_list = ['E3SM','2025-ZM-DEV-01',grid,compset]
-
-
-# if debug_mode: case_list.append('debug')
-
-# case='.'.join(case_list)
+# add_case(prefix='2025-GW-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, debug=True)
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -99,16 +55,11 @@ def get_case_name(opts):
    if 'debug' in opts: debug_mode = opts['debug']
    case_list = ['E3SM']
    for key,val in opts.items(): 
-      if key in ['prefix','compset','arch']:
-         case_list.append(val)
-      elif key in ['grid']: 
-         case_list.append(get_grid_name(opts))
-      elif key in ['debug']: 
-         continue
-      elif key in ['num_nodes']:
-         case_list.append(f'NN_{val}')
-      elif key in ['num_tasks']:
-         case_list.append(f'NT_{val}')
+      if key in ['prefix','compset','arch']: case_list.append(val)
+      elif key in ['grid']:      case_list.append(get_grid_name(opts))
+      elif key in ['debug']:     continue
+      elif key in ['num_nodes']: case_list.append(f'NN_{val}')
+      elif key in ['num_tasks']: case_list.append(f'NT_{val}')
       else:
          if isinstance(val, str):
             case_list.append(f'{key}_{val}')
@@ -125,7 +76,13 @@ def main(opts):
    case = get_case_name(opts)
 
    print(f'\n  case : {case}\n')
-
+   #------------------------------------------------------------------------------------------------
+   print(f' clean        : {clean}')
+   print(f' newcase      : {newcase}')
+   print(f' config       : {config}')
+   print(f' build        : {build}')
+   print(f' submit       : {submit}')
+   print(f' continue_run : {continue_run}')
    #------------------------------------------------------------------------------------------------
    if 'num_nodes' in opts and 'num_tasks' in opts:
       raise ValueError('cannot specify both num_nodes and num_tasks!')
@@ -171,7 +128,9 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      # if 'SCREAM' in opts["compset"]: run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=zm')
+      if 'use_gw' in opts:
+         if opts['use_gw']:
+            run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=gw')
       #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
