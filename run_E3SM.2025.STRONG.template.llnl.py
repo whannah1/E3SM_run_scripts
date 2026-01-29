@@ -12,14 +12,22 @@ def add_case( **kwargs ):
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
 ''' Notes
-
+# use the python code below to generate a repeatable random list of N-digit seeds
+import random
+# seed_value, list_length, beg_range, end_range = 42**4, 100, 111111, 999999 # 6-digits
+seed_value, list_length, beg_range, end_range = 42**4, 20, 1111111111, 9999999999 # 10-digits
+random.seed(seed_value)
+numbers = [random.randint(beg_range, end_range) for _ in range(list_length)]
+msg = ','.join([f'{n}' for n in numbers])
+print(f'[{msg}]')
 '''
 #---------------------------------------------------------------------------------------------------
 project = 'strong'
+
 # code_root = '/usr/workspace/pochedls/E3SM/E3SM_code/' # branch => maint-3.0
 # case_root = '/p/vast1/strong/E3SMv3/boost'
 
-code_root = '/g/g19/hannah6/E3SM/E3SM_SRC0'
+code_root = '/g/g19/hannah6/E3SM/E3SM_SRC0' # branch => maint-3.0
 case_root = '/p/vast1/strong/hannah6'
 
 newcase      = True
@@ -30,39 +38,55 @@ submit       = True
 
 # just_print_names = True
 
-queue = 'pdebug' # pbatch / pdebug
+queue = 'pbatch' # pbatch / pdebug
 
-stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',12,0,'2:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'1:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',10,0,'2:00:00'
 
 #---------------------------------------------------------------------------------------------------
-# build list of runs here
+# build list of cases to run here
 
-add_case(prefix='v3.2026-STRONG-ENS-TEST-00',start='2018-07-04',seed=113355)
-add_case(prefix='v3.2026-STRONG-ENS-TEST-00',start='2018-07-04',seed=224466)
+# 100-member ensemble - 10x 10-member groups - see note above about seed generation
+seed_list = []
+seed_list.append([657436,991774,752652,865571,371983,760555,792284,320604,449950,849177])
+# seed_list.append([258978,773386,651874,640932,684441,687381,643581,130599,749925,543874])
+# seed_list.append([571019,963478,478521,492507,359151,639398,795102,298493,599426,991255])
+# seed_list.append([619322,139636,752668,516289,427102,690067,468749,333239,923269,992421])
+# seed_list.append([306396,821757,674627,307092,319063,710388,407972,757449,892463,933301])
+# seed_list.append([613169,969665,872240,417521,606625,688025,867822,828159,450835,422685])
+# seed_list.append([395040,610684,236176,397581,896944,432866,750592,170713,579395,236632])
+# seed_list.append([986843,885856,810017,662027,604866,919413,729468,799647,828634,983775])
+# seed_list.append([657687,879132,747550,725593,463899,305734,328788,818711,197505,471236])
+# seed_list.append([398486,921584,524617,616309,194260,215141,244813,821378,763770,797368])
+
+# loop through seeds to create cases
+for sd in seed_list:
+   add_case(prefix='v3.2026-STRONG-ENS-00',start='2018-07-04',seed=sd)
+
 
 #---------------------------------------------------------------------------------------------------
 # common settings across all runs
 compset     = 'WCYCLSSP245'
 grid        = 'ne30pg2_r05_IcoswISC30E3r5'
 num_nodes   = 12
-ref_date    = '0001-08-12'
-ref_case    = 'v3.LR.historical_0121'
-ref_dir     = f'/p/vast1/strong/E3SMv3/restarts/v3.LR.historical_0121.2018-07-16/archive/rest/2018-07-04-00000'
 #---------------------------------------------------------------------------------------------------
 if 'just_print_names' not in globals(): just_print_names = False
-if 'newcase'      not in globals(): newcase      = False
-if 'config'       not in globals(): config       = False
-if 'build'        not in globals(): build        = False
-if 'submit'       not in globals(): submit       = False
-if 'continue_run' not in globals(): continue_run = False
+if 'newcase'          not in globals(): newcase      = False
+if 'config'           not in globals(): config       = False
+if 'build'            not in globals(): build        = False
+if 'submit'           not in globals(): submit       = False
+if 'continue_run'     not in globals(): continue_run = False
 #---------------------------------------------------------------------------------------------------
 def main(opts):
    global compset, grid, num_nodes
-   global ref_date, ref_case, ref_dir
    #----------------------------------------------------------------------------
    if 'seed'   not in opts: raise ValueError('ERROR - RNG seed not provided!')
    if 'start'  not in opts: raise ValueError('ERROR - start date not provided!')
+   #----------------------------------------------------------------------------
+   ref_case = 'v3.LR.historical_0121'
+   ref_root = '/p/vast1/strong/E3SMv3/restarts'
+   ref_date = opts["start"]
+   ref_dir = f'{ref_root}/{ref_case}_with_eami/archive/rest/{ref_date}-00000'
    #----------------------------------------------------------------------------
    case_list = []
    for key,val in opts.items(): 
@@ -80,7 +104,7 @@ def main(opts):
    #----------------------------------------------------------------------------
    print(f'\n  case : {case}\n')
    #----------------------------------------------------------------------------
-   max_mpi_per_node,atm_nthrds  = 112,2
+   max_mpi_per_node,atm_nthrds  = 112,1
    atm_ntasks = max_mpi_per_node*num_nodes
    #------------------------------------------------------------------------------------------------
    if newcase :
@@ -97,18 +121,21 @@ def main(opts):
    os.chdir(f'{case_root}/{case}/case_scripts')
    #------------------------------------------------------------------------------------------------
    if config :
-      run_cmd(f'./xmlchange EXEROOT={case_root}/{case}/bld, RUNDIR={case_root}/{case}/run  ')
-      run_cmd('./xmlchange PIO_NETCDF_FORMAT=\"64bit_data\" ')
+      run_cmd(f'./xmlchange EXEROOT={case_root}/{case}/bld')
+      run_cmd(f'./xmlchange RUNDIR={case_root}/{case}/run')
+      run_cmd(f'./xmlchange PIO_NETCDF_FORMAT=\"64bit_data\" ')
+      run_cmd(f'./xmlchange MAX_MPITASKS_PER_NODE={max_mpi_per_node}')
+      run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={(max_mpi_per_node*atm_nthrds)}')
       #-------------------------------------------------------------------------
       # setup things for branch/hybrid run
       run_cmd(f'./xmlchange RUN_TYPE=hybrid')
+      run_cmd(f'./xmlchange RUN_STARTDATE={opts["start"]}')
       run_cmd(f'./xmlchange GET_REFCASE=True')
       run_cmd(f'./xmlchange RUN_REFDIR="{ref_dir}"')
       run_cmd(f'./xmlchange RUN_REFCASE="{ref_case}"')
       run_cmd(f'./xmlchange RUN_REFDATE="{ref_date}"')
-      run_cmd(f'./xmlchange RUN_STARTDATE={opts["start"]}')
       #-------------------------------------------------------------------------
-      # # copy data files if GET_REFCASE=FALSE
+      # # commands to pre-stage data files if GET_REFCASE=FALSE
       # scratch = '/pscratch/sd/w/whannah/e3sm_scratch/pm-cpu'
       # run_cmd(f'cp {scratch}/{ref_case}/run/*{ref_date}* {case_root}/{case}/run/')
       # run_cmd(f'cp {scratch}/{ref_case}/run/rpointer* {case_root}/{case}/run/')
@@ -121,9 +148,10 @@ def main(opts):
    if submit :
       #-------------------------------------------------------------------------
       write_atm_nl_opts(opts)
-      write_lnd_nl_opts()
+      write_lnd_nl_opts(opts)
       #-------------------------------------------------------------------------
-      # if not continue_run: run_cmd(f'./xmlchange --file env_run.xml RUN_STARTDATE={opts["start"]}')
+      run_cmd(f'cp /p/vast1/strong/E3SMv3/case_scripts/user_nl_eam {case_root}/{case}/user_nl_eam')
+      run_cmd(f'cp /p/vast1/strong/E3SMv3/case_scripts/user_nl_elm {case_root}/{case}/user_nl_elm')
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       if 'stop_opt' in globals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
@@ -143,6 +171,7 @@ def main(opts):
    # Print the case name again
    print(f'\n  case : {case}\n')
 #---------------------------------------------------------------------------------------------------
+# 2D variable list
 hist_var_2D  = "'PS','PSL','PRECT'"
 hist_var_2D += ",'TS','TREFHT','QREFHT'"
 hist_var_2D += ",'LHFLX','SHFLX'"                        # surface fluxes
@@ -160,18 +189,16 @@ hist_var_2D += ",'Z500','OMEGA500'"                      # 500mb
 hist_var_2D += ",'Z300'"                                 # 300mb
 hist_var_2D += ",'AODALL', 'AODDUST', 'AODVIS'"          # aerosol optical depths
 
-# NOTE - if you use a 3D stream on a different time frequency
-# be sure to include PS and Z3 to help with vertical interpolation
-hist_var_3D = "'PS''T','Z3','Q','RELHUM','U','V','OMEGA','O3'"
+# # 3D variable list - include PS for vertical remapping
+# hist_var_3D = "'PS','T','Z3','Q','RELHUM','U','V','OMEGA','O3'"
 
 #---------------------------------------------------------------------------------------------------
 def get_atm_nl_opts(opts):
+   global hist_var_2D
    return f'''
  cosp_lite = .false.
  inithist = 'NONE'
-
  empty_htapes = .true.
-
  avgflag_pertape = 'A','A'
  nhtfrq = 0,-1
  mfilt  = 1,24
@@ -202,7 +229,7 @@ def write_atm_nl_opts(opts):
    return
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
-def get_lnd_nl_opts():
+def get_lnd_nl_opts(opts):
    return '''
  flanduse_timeseries = "${DIN_LOC_ROOT}/lnd/clm2/surfdata_map/landuse.timeseries_0.5x0.5_hist_simyr1850-2015_c240308.nc"
 
@@ -243,14 +270,14 @@ def get_lnd_nl_opts():
                'wlim_m','WOODC_LOSS','WTGQ'
  hist_fincl1 = 'SNOWDP','COL_FIRE_CLOSS','NPOOL','PPOOL','TOTPRODC'
  hist_fincl2 = 'H2OSNO', 'FSNO', 'QRUNOFF', 'QSNOMELT', 'FSNO_EFF', 'SNORDSL', 'SNOW', 'FSDS', 'FSR', 'FLDS', 'FIRE', 'FIRA'
- hist_mfilt = 1,365
- hist_nhtfrq = 0,-24
+ hist_nhtfrq = 0,-1
+ hist_mfilt = 1,24
  hist_avgflag_pertape = 'A','A'
 '''
 #---------------------------------------------------------------------------------------------------
-def write_lnd_nl_opts():
+def write_lnd_nl_opts(opts):
    file=open('user_nl_elm','w')
-   file.write(get_lnd_nl_opts())
+   file.write(get_lnd_nl_opts(opts))
    file.close()
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------

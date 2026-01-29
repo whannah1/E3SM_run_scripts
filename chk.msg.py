@@ -26,7 +26,6 @@ total_len   = indent_len + xmlfile_len + param_len
 # use multiple lines for variables with long values
 status_len_limit = 80
 #---------------------------------------------------------------------------------------------------
-
 top_dir = chk_methods.get_scratch_path_list()
 
 # make sure list of top dir's don't end with "/"
@@ -76,7 +75,7 @@ for tdir in dirs :
             or 'INCITE' in case 
             or 'DPSCREAM' in case 
             or '.v3alpha' in case
-            or 'v3.F2010' in case 
+            or case[:3]=='v3.'
             or 'SOHIP' in case 
             or '2025-EACB' in case 
             or is_test_flag

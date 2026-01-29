@@ -17,7 +17,7 @@ parser.add_option("--partial",action="store_true", dest="allow_partial_match", d
 parser.add_option("--alt",action="store_true", dest="predefined_case", default=False,help="let predefined cases override input arguments")
 (opts, args) = parser.parse_args()
 #---------------------------------------------------------------------------------------------------
-# define list of cases
+
 scratch_path_list = chk_methods.get_scratch_path_list()
 
 #-------------------------------------------------------------------------------
