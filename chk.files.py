@@ -23,6 +23,7 @@ if len(args) < 1 : exit('\nERROR: no search string provided!\n')
 
 search_string_list = args
 
+
 # specify string lengths for nice formatting
 indent_len  = 40
 xmlfile_len = 15
@@ -49,22 +50,22 @@ cnt = 0
 # loop through case directories
 
 if opts.alt_search is not None:
-    search_string_list = [opts.alt_search]
+    case_search_list = [opts.alt_search]
 else:
-    search_string_list = []
-    search_string_list.append('E3SM')
-    search_string_list.append('v3.F2010')
-
-avoid_string_list = []
-avoid_string_list.append('timing')
-avoid_string_list.append('old_')
+    case_search_list = []
+    case_search_list.append('E3SM')
+    case_search_list.append('v3.F2010')
+    
+case_avoid_list = []
+case_avoid_list.append('timing')
+case_avoid_list.append('old_')
 
 for tdir in dirs :
     case = tdir
     for top in scratch_path_list: 
         case = case.replace(top+'/','')
-    if      any(s     in case for s in search_string_list) \
-        and all(a not in case for a in avoid_string_list):
+    if      any(s     in case for s in case_search_list) \
+        and all(a not in case for a in case_avoid_list):
         found = True
         
         if search_string_list : 

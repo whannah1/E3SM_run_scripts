@@ -123,7 +123,7 @@ for tdir in dirs :
 
                 # print(file_list)
                 if '.gz' in file_list: 
-                    print(tclr.GREEN+'  LOG FILES ZIPPED'+tclr.END+f'  {file_list}')
+                    print(tclr.GRN+'  LOG FILES ZIPPED'+tclr.END+f'  {file_list}')
                     continue
 
                 if opts.use_all_logs :

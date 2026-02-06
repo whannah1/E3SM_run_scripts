@@ -69,12 +69,12 @@ with open('/lus/flare/projects/E3SM_Dec/prod/ppe-20251106/normranked_LH_sampling
 clean_exe,create_exe,config_exe,build_exe,print_case_list = False,False,False,False,False
 newcase,config,set_params,set_timestep,set_output,set_runopt,submit,continue_run = False,False,False,False,False,False,False,False
 
-create_exe   = True
-config_exe   = True
-build_exe    = True
+# create_exe   = True
+# config_exe   = True
+# build_exe    = True
 # clean_exe    = True
 
-# print_case_list = True
+print_case_list = True
 
 newcase        = True # create the case via create_newcase
 config         = True # configure the case via case.setup
@@ -110,26 +110,30 @@ ens_case_root = '/lus/flare/projects/E3SM_Dec/whannah/scratch'
 # num_case = 1 ; print(f'\n{clr.RED}WARNING - num_case has been reset to {num_case} for testing  - WARNING{clr.END}\n')
 # case_beg,case_end = 0,num_case
 # case_beg,case_end = 0,32
-case_beg,case_end = 0,1
+# case_beg,case_end = 0,1
+case_beg,case_end = 1,32
+
+# case_beg,case_end = 0,4
+case_beg,case_end = 1,4
 
 if (case_end-case_beg+1)<num_case:
-   print(f'\n{clr.RED}WARNING - only running cases {case_beg}-{(case_end-1)} - WARNING{clr.END}\n')
+   print(f'\n{clr.RED}WARNING - running subset of cases => {case_beg}-{(case_end-1)} - WARNING{clr.END}\n')
 #---------------------------------------------------------------------------------------------------
 # add_case(exe=True,prefix=prefix,grid='ne256',num_nodes=128)
 # add_case(exe=True,prefix=prefix,grid='ne128',num_nodes=32)
 # add_case(exe=True,prefix=prefix,grid='ne64', num_nodes=16)
-add_case(exe=True,prefix=prefix,grid='ne32', num_nodes=4)
+# add_case(exe=True,prefix=prefix,grid='ne32', num_nodes=4)
 #---------------------------------------------------------------------------------------------------
 cnt_beg = 111
-cnt = 0
+# cnt = 0
 # for c in range(num_case):
 for c in range(case_beg,case_end):
    tuning_params = set_tuning_params(LHS_parameter_values[c])
-   # add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne256',num_nodes=128,tuning_params=tuning_params)
-   # add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne128',num_nodes=32, tuning_params=tuning_params)
-   # add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne64', num_nodes=16, tuning_params=tuning_params)
-   add_case(prefix=prefix,member=f'{(cnt_beg+cnt):03}',grid='ne32', num_nodes=4,  tuning_params=tuning_params)
-   cnt += 1
+   # add_case(prefix=prefix,member=f'{(cnt_beg+c):03}',grid='ne256',num_nodes=128,tuning_params=tuning_params)
+   # add_case(prefix=prefix,member=f'{(cnt_beg+c):03}',grid='ne128',num_nodes=32, tuning_params=tuning_params)
+   # add_case(prefix=prefix,member=f'{(cnt_beg+c):03}',grid='ne64', num_nodes=16, tuning_params=tuning_params)
+   add_case(prefix=prefix,member=f'{(cnt_beg+c):03}',grid='ne32', num_nodes=4,  tuning_params=tuning_params)
+   # cnt += 1
 
 #---------------------------------------------------------------------------------------------------
 # commmon settings for all runs
