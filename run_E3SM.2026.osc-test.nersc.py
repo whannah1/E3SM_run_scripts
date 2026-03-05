@@ -23,15 +23,16 @@ acct = 'm4842' # e3sm / m4842 (sohip)
 src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
 
 # clean        = True
-newcase      = True
-config       = True
+# newcase      = True
+# config       = True
 build        = True
 submit       = True
 # continue_run = True
 
 queue = 'regular'
 
-stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',10,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'4:00:00'
@@ -45,13 +46,16 @@ stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:00:00'
 # add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 )
 
 # add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32 ) # dt_phys=10-min
-add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=64 )
-add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128 )
 
 # add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=120 ) # dt_phys=12-min
 # add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=144 ) # dt_phys=10-min
 # add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=240 ) # dt_phys= 6-min
 # add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=288 ) # dt_phys= 5-min
+
+
+# test new composable diags
+add_case(prefix='2026-osc-test-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, debug=True )
+# add_case(prefix='2026-osc-test-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32 ) # default dt_phys=10-min
 
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
@@ -248,18 +252,24 @@ field_txt_2D = '''
       - surface_upward_latent_heat_flux
       - surf_mom_flux
 '''
-field_txt_2D += '      - T_2m_atm_backtend\n'
-field_txt_2D += '      - wind_speed_10m_atm_backtend\n'
-# field_txt_2D += '      - surf_sens_flux_atm_backtend\n'
-field_txt_2D += '      - T_2m_atm_backtend2\n'
-field_txt_2D += '      - wind_speed_10m_atm_backtend2\n'
-# field_txt_2D += '      - surf_sens_flux_atm_backtend2\n'
-field_txt_2D += '      - T_2m_atm_backtend2_product\n'
-field_txt_2D += '      - wind_speed_10m_atm_backtend2_product\n'
-# field_txt_2D += '      - surf_sens_flux_atm_backtend2_product\n'
-field_txt_2D += '      - T_2m_nf1.0_mac2_atm_osc_intermittency\n'
-field_txt_2D += '      - wind_speed_10m_nf2.0_mac2_atm_osc_intermittency\n'
-# field_txt_2D += '      - surf_sens_flux_nf100.0_mac2_atm_osc_intermittency\n'
+
+# field_txt_2D += '      - T_2m_atm_backtend\n'
+# field_txt_2D += '      - wind_speed_10m_atm_backtend\n'
+# # field_txt_2D += '      - surf_sens_flux_atm_backtend\n'
+# field_txt_2D += '      - T_2m_atm_backtend2\n'
+# field_txt_2D += '      - wind_speed_10m_atm_backtend2\n'
+# # field_txt_2D += '      - surf_sens_flux_atm_backtend2\n'
+# field_txt_2D += '      - T_2m_atm_backtend2_product\n'
+# field_txt_2D += '      - wind_speed_10m_atm_backtend2_product\n'
+# # field_txt_2D += '      - surf_sens_flux_atm_backtend2_product\n'
+# field_txt_2D += '      - T_2m_nf1.0_mac2_atm_osc_intermittency\n'
+# field_txt_2D += '      - wind_speed_10m_nf2.0_mac2_atm_osc_intermittency\n'
+# # field_txt_2D += '      - surf_sens_flux_nf100.0_mac2_atm_osc_intermittency\n'
+
+for tmp_diag_var in ['T_2m','surf_sens_flux','wind_speed_10m']:
+   field_txt_2D += f'      - {tmp_diag_var}_bt1:=:{tmp_diag_var}_minus_{tmp_diag_var}_prev_over_dt\n'
+   field_txt_2D += f'      - {tmp_diag_var}_bt2:={tmp_diag_var}_bt1_minus_{tmp_diag_var}_bt1_prev\n'
+   field_txt_2D += f'      - {tmp_diag_var}_btp:={tmp_diag_var}_bt1_times_{tmp_diag_var}_bt2\n'
 
 # - precip_liq_surf_mass_flux
 # - precip_ice_surf_mass_flux
