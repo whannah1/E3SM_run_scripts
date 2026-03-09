@@ -20,46 +20,29 @@ from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'm4842' # e3sm / m4842 (sohip)
-# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
 
 # clean        = True
-newcase      = True
-config       = True
-build        = True
+# newcase      = True
+# config       = True
+# build        = True
 submit       = True
 # continue_run = True
 
 queue = 'regular'
 
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue = 'debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',10,0,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue = 'debug'
+stop_opt,stop_n,resub,walltime = 'ndays',10,0,'2:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',10,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'4:00:00'
 
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-
-# add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1 ) # dt_phys=10-min
-
-# add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 )
-
-# add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32 ) # dt_phys=10-min
-
-# add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=120 ) # dt_phys=12-min
-# add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=144 ) # dt_phys=10-min
-# add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=240 ) # dt_phys= 6-min
-# add_case(prefix='2026-osc-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, NCPL=288 ) # dt_phys= 5-min
-
-
-# test new composable diags
-# add_case(prefix='2026-osc-test-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, debug=True )
-# add_case(prefix='2026-osc-test-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32 ) # default dt_phys=10-min
-
-# diag BFB test
-add_case(prefix='2026-osc-test-02a', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 ) # default dt_phys=10-min
-add_case(prefix='2026-osc-test-02b', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 ) # default dt_phys=10-min
+# splitform test with new osc diags
+# add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, theta_advect_form=1 ) # default dt_phys=10-min
+add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, theta_advect_form=2 ) # default dt_phys=10-min
 
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
@@ -107,11 +90,6 @@ def main(opts):
    case = get_case_name(opts)
 
    print(f'\n  case : {case}\n')
-
-   print(' '*4+f'{clr.RED}WARNING - custom src_dir per case!!!{clr.END}')
-   if opts['prefix']=='2026-osc-test-02a': src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'
-   if opts['prefix']=='2026-osc-test-02b': src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
-   print(' '*4+f'{clr.RED}WARNING - custom src_dir per case!!!{clr.END}')
 
    #----------------------------------------------------------------------------
    debug_mode = False
@@ -171,6 +149,12 @@ def main(opts):
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
+
+      if 'theta_advect_form' in opts:
+         taf = opts['theta_advect_form']
+         run_cmd(f'./atmchange -b ctl_nl::theta_advect_form={taf}')
+         if taf==1: run_cmd(f'./atmchange -b ctl_nl::pgrad_correction=1')
+         if taf==2: run_cmd(f'./atmchange -b ctl_nl::pgrad_correction=0')
       #-------------------------------------------------------------------------
       if 'NCPL' in opts:
          ncpl = opts['NCPL']
@@ -212,21 +196,7 @@ def main(opts):
       #----------------------------------------------------------------------
       # add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_1step_inst)
 
-      if opts['prefix']=='2026-osc-test-02a':
-         add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_test1)
-      if opts['prefix']=='2026-osc-test-02b':
-         add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_test2)
-
-      # add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_2D_1dy_avg)
-      # add_hist_file('scream_output_2D_1dy_max.yaml', hist_opts_2D_1dy_max)
-      # add_hist_file('scream_output_2D_1dy_min.yaml', hist_opts_2D_1dy_min)
-
-      # add_hist_file('scream_output_2D_1hr_avg.yaml', hist_opts_2D_1hr_avg)
-      # add_hist_file('scream_output_2D_1hr_max.yaml', hist_opts_2D_1hr_max)
-
-      # add_hist_file('scream_output_3D_1dy_avg.yaml', hist_opts_3D_1dy_avg)
-      # add_hist_file('scream_output_2D_1mo_avg.yaml', hist_opts_2D_1mo_avg)
-      # add_hist_file('scream_output_3D_1mo_avg.yaml', hist_opts_3D_1mo_avg)
+      add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_2D_1dy_avg)
 
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
@@ -248,116 +218,31 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    # Print the case name again
    print(f'\n  case : {case}\n') 
-
-   # print()
-   # print(clr.RED+'WARNING - history output is disabled!'+clr.END)
-   # print(clr.RED+'WARNING - restart output is disabled!'+clr.END)
-   # print()
-#---------------------------------------------------------------------------------------------------
-hist_opts_test1 = f'''
-filename_prefix: output.scream.2D
-averaging_type: average
-max_snapshots_per_file: 1
-fields:
-  physics_pg2:
-    field_names:
-    - ps
-    - T_2m_atm_backtend2_product
-output_control:
-  frequency: 1
-  frequency_units: ndays
-restart:
-  force_new_file: false
-'''
-
-hist_opts_test2 = f'''
-filename_prefix: output.scream.2D
-averaging_type: average
-max_snapshots_per_file: 1
-fields:
-  physics_pg2:
-    aliases:
-    - T_2m_bt1:=T_2m_minus_T_2m_prev
-    field_names:
-    - ps
-    - T_2m_atm_backtend2_product:=T_2m_bt1_times_T_2m_bt1_prev
-output_control:
-  frequency: 1
-  frequency_units: ndays
-restart:
-  force_new_file: false
-'''
 #---------------------------------------------------------------------------------------------------
 field_txt_2D = '''
       - ps
       - precip_total_surf_mass_flux
       - LiqWaterPath
       - IceWaterPath
+      - T_2m
       - wind_speed_10m
       - U_at_model_bot
       - V_at_model_bot
+      - qv_at_model_bot
       - surf_sens_flux
       - surface_upward_latent_heat_flux
       - surf_mom_flux
+      - T_at_850hPa
+      - qv_at_850hPa
+      - U_at_850hPa
 '''
-
-# field_txt_2D += '      - T_2m_atm_backtend\n'
-# field_txt_2D += '      - wind_speed_10m_atm_backtend\n'
-# # field_txt_2D += '      - surf_sens_flux_atm_backtend\n'
-# field_txt_2D += '      - T_2m_atm_backtend2\n'
-# field_txt_2D += '      - wind_speed_10m_atm_backtend2\n'
-# # field_txt_2D += '      - surf_sens_flux_atm_backtend2\n'
-# field_txt_2D += '      - T_2m_atm_backtend2_product\n'
-# field_txt_2D += '      - wind_speed_10m_atm_backtend2_product\n'
-# # field_txt_2D += '      - surf_sens_flux_atm_backtend2_product\n'
-# field_txt_2D += '      - T_2m_nf1.0_mac2_atm_osc_intermittency\n'
-# field_txt_2D += '      - wind_speed_10m_nf2.0_mac2_atm_osc_intermittency\n'
-# # field_txt_2D += '      - surf_sens_flux_nf100.0_mac2_atm_osc_intermittency\n'
 
 alias_txt_2D = '''
 '''
-
-for tmp_diag_var in ['T_2m','surf_sens_flux','wind_speed_10m']:
+for tmp_diag_var in ['T_2m','surf_sens_flux','wind_speed_10m','T_at_850hPa','qv_at_850hPa','qv_at_model_bot','U_at_850hPa']:
    alias_txt_2D += f'      - {tmp_diag_var}_bt1:={tmp_diag_var}_minus_{tmp_diag_var}_prev\n'
-   field_txt_2D += f'      - {tmp_diag_var}_bt2:={tmp_diag_var}_bt1_minus_{tmp_diag_var}_bt1_prev\n'
+   # field_txt_2D += f'      - {tmp_diag_var}_bt2:={tmp_diag_var}_bt1_minus_{tmp_diag_var}_bt1_prev\n'
    field_txt_2D += f'      - {tmp_diag_var}_btp:={tmp_diag_var}_bt1_times_{tmp_diag_var}_bt1_prev\n'
-
-# - precip_liq_surf_mass_flux
-# - precip_ice_surf_mass_flux
-# field_txt_2D += '      - U_at_850hPa'
-# field_txt_2D += '      - U_at_200hPa'
-# field_txt_2D += '      - omega_at_500hPa'
-
-field_txt_3D = '''
-      - ps
-      - T_mid
-      - qv
-      - qc
-      - qi
-      - omega
-      - U
-'''
-# field_txt_3D+='      - rad_heating_pdel \n'
-field_txt_3D+='      - cldfrac_tot_for_analysis \n'
-field_txt_3D+='      - cldfrac_liq \n'
-field_txt_3D+='      - cldfrac_ice_for_analysis \n'
-field_txt_3D+='      - z_mid \n'
-field_txt_3D+='      - qr \n'
-field_txt_3D+='      - qm \n'
-field_txt_3D+='      - RelativeHumidity \n'
-field_txt_3D+='      - p3_T_mid_tend \n'
-field_txt_3D+='      - shoc_T_mid_tend \n'
-field_txt_3D+='      - rrtmgp_T_mid_tend \n'
-field_txt_3D+='      - homme_T_mid_tend \n'
-field_txt_3D+='      - p3_qv_tend \n'
-field_txt_3D+='      - shoc_qv_tend \n'
-field_txt_3D+='      - homme_qv_tend \n'
-field_txt_3D+='      - shoc_horiz_winds_tend \n'
-field_txt_3D+='      - homme_horiz_winds_tend \n'
-field_txt_3D+='      - zm_T_mid_tend \n'
-field_txt_3D+='      - zm_qv_tend \n'
-field_txt_3D+='      - zm_u_tend \n'
-field_txt_3D+='      - zm_v_tend \n'
 
 
 hist_opts_2D_1dy_avg = f'''
@@ -376,139 +261,6 @@ output_control:
 restart:
    force_new_file: false
 '''
-
-hist_opts_2D_1dy_max = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: max
-max_snapshots_per_file: 1
-fields:
-   physics_pg2:
-      aliases:{alias_txt_2D}
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: ndays
-restart:
-   force_new_file: false
-'''
-
-hist_opts_2D_1dy_min = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: min
-max_snapshots_per_file: 1
-fields:
-   physics_pg2:
-      aliases:{alias_txt_2D}
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: ndays
-restart:
-   force_new_file: false
-'''
-
-hist_opts_2D_1hr_avg = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: average
-max_snapshots_per_file: 24
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: nhours
-restart:
-   force_new_file: false
-'''
-
-hist_opts_2D_1hr_max = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: max
-max_snapshots_per_file: 24
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: nhours
-restart:
-   force_new_file: false
-'''
-
-hist_opts_2D_1step_inst = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: instant
-max_snapshots_per_file: 48
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: nsteps
-restart:
-   force_new_file: false
-'''
-
-hist_opts_3D_1dy_avg = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.3D
-averaging_type: average
-max_snapshots_per_file: 1
-fields:
-   physics_pg2:
-      field_names:{field_txt_3D}
-output_control:
-   frequency: 1
-   frequency_units: ndays
-restart:
-   force_new_file: false
-'''
-
-# monthly mean output
-
-hist_opts_2D_1mo_avg = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-averaging_type: average
-max_snapshots_per_file: 1
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: nmonths
-restart:
-   force_new_file: false
-'''
-
-hist_opts_3D_1mo_avg = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.3D
-averaging_type: average
-max_snapshots_per_file: 1
-fields:
-   physics_pg2:
-      field_names:{field_txt_3D}
-output_control:
-   frequency: 1
-   frequency_units: nmonths
-restart:
-   force_new_file: false
-'''
-
 
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

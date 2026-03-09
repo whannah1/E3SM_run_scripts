@@ -22,14 +22,14 @@ src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/scidac-2025-mu
 # config       = True
 # build        = True
 submit       = True
-continue_run = True
+# continue_run = True
 
 queue = 'regular' # regular / debug
 
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',4,8-1,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,4-1,'1:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'6:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',365,5-1,'6:00:00'
 
 #---------------------------------------------------------------------------------------------------
 ### model top sensitivity tests
@@ -37,15 +37,15 @@ stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'6:00:00'
 prfx = '2026-model-top-test-00'
 grid = 'ne30pg2_r05_IcoswISC30E3r5'
 
-add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8)
-# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=55)
-# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=50)
-# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=45)
-# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=40)
-# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=35)
-add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=30)
-# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=25)
-# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=20)
+# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8)
+add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=55)
+add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=50)
+add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=45)
+add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=40)
+add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=35)
+# add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=30)
+add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=25)
+add_case(prefix=prfx,grid=grid,compset='F20TR',num_nodes=8,top_km=20)
 
 #---------------------------------------------------------------------------------------------------
 def get_atm_init_file(opts):
