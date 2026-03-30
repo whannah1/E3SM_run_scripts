@@ -29,20 +29,20 @@ ncremap --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
 #---------------------------------------------------------------------------------------------------
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-# acct = 'e3sm'
-acct = 'm4310' # switching to this since e3sm hours are too low and scidac hours are too high
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # master @ Sep 24 2025
+acct = 'e3sm' # e3sm / m4310 (scidac)
+# src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # master @ Sep 24 2025
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # whannah/eamxx/composable-diag-update-splitform
 
 # clean        = True
 # newcase      = True
 # config       = True
 # build        = True
 submit       = True
-# continue_run = True
+continue_run = True
 
-# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:30:00'
-# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'4:00:00'
-queue,stop_opt,stop_n,resub,walltime = 'regular','nhours',4,6-1,'12:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',5,0,'0:30:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',20,0,'4:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','nhours',4,6-1,'12:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',6,0,'12:00:00'
 
 compset = 'FIOP-SCREAMv1-DP'
@@ -90,8 +90,69 @@ init_L144 = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/screami_ne30np4L128_20
 # add_case(prefix='2026-GATE-IDEAL-01',num_nodes=128,ne=333,lx=200,dt= 4,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  dx_dyn ~ 200m
 # add_case(prefix='2026-GATE-IDEAL-01',num_nodes=128,ne=333,lx=200,dt= 4,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  dx_dyn ~ 200m
 
-add_case(prefix='2026-GATE-IDEAL-01',num_nodes=256,ne=333,lx=200,dt= 4,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  dx_dyn ~ 200m
+# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=256,ne=333,lx=200,dt= 4,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  dx_dyn ~ 200m
 # add_case(prefix='2026-GATE-IDEAL-01',num_nodes=256,ne=333,lx=200,dt= 4,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  dx_dyn ~ 200m
+
+
+
+kwargs_L128_v31_cntrl = {}
+kwargs_L128_v31_cntrl['vgrid_nlev'] = 128
+kwargs_L128_v31_cntrl['vgrid_name'] = 'L128v3.1'
+kwargs_L128_v31_cntrl['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112.nc'
+# kwargs_L128_v31_cntrl['init_file']  = '/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1.nc'
+
+kwargs_L128_v31_pbias = {}
+kwargs_L128_v31_pbias['vgrid_nlev'] = 128
+kwargs_L128_v31_pbias['vgrid_name'] = 'L128v3.1_pbias'
+kwargs_L128_v31_pbias['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_p-bias.nc'
+# kwargs_L128_v31_pbias['init_file']  = '/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_p-bias.nc'
+
+kwargs_L128_v31_alpha2 = {}
+kwargs_L128_v31_alpha2['vgrid_nlev'] = 128
+kwargs_L128_v31_alpha2['vgrid_name'] = 'L128v3.1_alpha2'
+kwargs_L128_v31_alpha2['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha2.nc'
+
+kwargs_L128_v31_alpha3 = {}
+kwargs_L128_v31_alpha3['vgrid_nlev'] = 128
+kwargs_L128_v31_alpha3['vgrid_name'] = 'L128v3.1_alpha3'
+kwargs_L128_v31_alpha3['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha3.nc'
+
+prefix = '2026-GATE-IDEAL-02'
+
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_cntrl)
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_pbias)
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_alpha2)
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_alpha3)
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_cntrl, qi2qc=True)
+
+grid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_300.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_400', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_400.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_500.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_600', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_600.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_700.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_800', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_800.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_990', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_990.nc')
+
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_500.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_700.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc')
+
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_300.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.0_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_300.nc')
+
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_3.0_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_3_pm_300.nc')
+
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_400', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_400.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_500.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_600', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_600.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_700.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_800', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_800.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_900.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_990', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_990.nc')
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
@@ -112,10 +173,10 @@ def main(opts):
    # print(f'nu_top   : {nu_top}')
    # return
    #----------------------------------------------------------------------------
-   vgrid_name = opts['vgrid_name']
-   vgrid_file = opts['vgrid_file']
-   vgrid_nlev = opts['vgrid_nlev']
-   init_file  = opts['init_file']
+   # vgrid_name = opts['vgrid_name']
+   # vgrid_file = opts['vgrid_file']
+   # vgrid_nlev = opts['vgrid_nlev']
+   # init_file  = opts['init_file']
    #print(f'init_file: {init_file}')
    #exit()
    #----------------------------------------------------------------------------
@@ -205,9 +266,13 @@ def main(opts):
       din_loc_root = xmlquery('DIN_LOC_ROOT')
       #-------------------------------------------------------------------------
       # change vertical levels
-      run_cmd(f'./xmlchange SCREAM_CMAKE_OPTIONS="SCREAM_NUM_VERTICAL_LEV {vgrid_nlev} SCREAM_NP 4 SCREAM_NUM_TRACERS 10"')
+      if 'vgrid_nlev' in opts:
+         vgrid_nlev = opts['vgrid_nlev']
+         run_cmd(f'./xmlchange SCREAM_CMAKE_OPTIONS="SCREAM_NUM_VERTICAL_LEV {vgrid_nlev} SCREAM_NP 4 SCREAM_NUM_TRACERS 10"')
       #-------------------------------------------------------------------------
-      if init_file is not None: run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
+      if 'init_file' in opts and opts['init_file'] is not None:
+         init_file = opts['init_file']
+         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
       #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
@@ -260,7 +325,9 @@ def main(opts):
       run_cmd(f'./atmchange -b physics::rrtmgp::compute_tendencies=T_mid')
       run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid,qv')
       #-------------------------------------------------------------------------
-      run_cmd(f'./atmchange -b vertical_coordinate_filename={vgrid_file} ')
+      if 'vgrid_file' in opts:
+         vgrid_file = opts['vgrid_file']
+         run_cmd(f'./atmchange -b vertical_coordinate_filename={vgrid_file} ')
       #-------------------------------------------------------------------------
       # p3_eci => cldliq_to_ice_collection_factor
       # p3_eri => rain_to_ice_collection_factor
@@ -280,11 +347,14 @@ def main(opts):
       #-------------------------------------------------------------------------
       add_hist_file('scream_output_1D_1hr_mean.yaml',get_hist_opts_1D_1hr(opts))
       add_hist_file('scream_output_2D_1hr_mean.yaml',get_hist_opts_2D_1hr(opts))
+      add_hist_file('scream_output_2D_1hr_inst.yaml',get_hist_opts_2D_1hr_inst(opts))
+      add_hist_file('scream_output_3D_1hr_inst.yaml',get_hist_opts_3D_1hr_inst(opts))
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
       #-------------------------------------------------------------------------
-      if init_file is not None: 
-         run_cmd(f'./atmchange initial_conditions::filename=\"{init_file}\"')
+      if 'init_file' in opts and opts['init_file'] is not None:
+         init_file = opts['init_file']
+         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
       #-------------------------------------------------------------------------
       # write_atm_namelist(ne,domain_len,dtime)
       #-------------------------------------------------------------------------
@@ -348,25 +418,20 @@ default_field_txt_2D = '''
       - SW_flux_dn_at_model_top
       - LW_flux_up_at_model_top
 '''
-# field_txt_3D = '''
-#       - ps
-#       - omega
-#       - horiz_winds
-#       - qv
-#       - qc
-#       - qr
-#       - qi
-#       - qm
-#       - nc
-#       - nr
-#       - ni
-#       - bm
-#       - T_mid
-#       - z_mid
-#       - RelativeHumidity
-#       - rad_heating_pdel
-#       - P3_qr2qv_evap
-# '''
+
+field_txt_3D = '''
+      - ps
+      - omega
+      - U
+      - V
+      - qv
+      - qc
+      - qr
+      - qi
+      - T_mid
+      - z_mid
+      - RelativeHumidity
+'''
 
 default_field_txt_1D = '''
       - ps
@@ -453,6 +518,42 @@ output_control:
 restart:
    force_new_file: false
 '''
+
+
+def get_hist_opts_2D_1hr_inst(opts):
+   return f'''
+%YAML 1.1
+---
+filename_prefix: output.scream.2D.1hr
+averaging_type: instant
+max_snapshots_per_file: 24
+fields:
+   physics_pg2:
+      field_names:{get_field_txt_2D(opts)}
+output_control:
+   frequency: 1
+   frequency_units: nhours
+Restart:
+   force_new_file: false
+'''
+
+def get_hist_opts_3D_1hr_inst(opts):
+   return f'''
+%YAML 1.1
+---
+filename_prefix: output.scream.3D.1hr
+averaging_type: instant
+max_snapshots_per_file: 24
+fields:
+   physics_pg2:
+      field_names:{field_txt_3D}
+output_control:
+   frequency: 1
+   frequency_units: nhours
+Restart:
+   force_new_file: false
+'''
+
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------

@@ -54,9 +54,11 @@ output_root = os.getenv('HOME')+"/maps/" # path where mapping file will be place
 # add_grid(NE= 9,LX=int(600e3))
 # add_grid(NE= 5,LX=int(600e3))
 
-add_grid(NE= 22,LX=int(200e3))
-add_grid(NE= 66,LX=int(200e3))
-add_grid(NE=333,LX=int(200e3))
+# add_grid(NE= 22,LX=int(200e3))
+# add_grid(NE= 66,LX=int(200e3))
+# add_grid(NE=333,LX=int(200e3))
+
+add_grid(NE=67,LX=int(600e3))
 
 # formatted_date = '20251217'
 

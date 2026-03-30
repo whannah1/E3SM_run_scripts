@@ -17,9 +17,10 @@ def add_case( **kwargs ):
 #---------------------------------------------------------------------------------------------------
 import os, datetime, subprocess as sp
 from shutil import copy2
+home = os.getenv('HOME')
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-acct = 'm4842' # e3sm / m4842 (sohip)
+acct = 'e3sm' # e3sm / m4842 (sohip) / m4310 (scidac)
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
 
 # clean        = True
@@ -31,9 +32,10 @@ submit       = True
 
 queue = 'regular'
 
-# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue = 'debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',10,0,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',10,0,'0:30:00'; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',10,0,'2:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',10,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'4:00:00'
 
@@ -57,9 +59,29 @@ stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue = 'debug'
 # add_case(prefix='2026-osc-test-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, debug=True )
 # add_case(prefix='2026-osc-test-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32 ) # default dt_phys=10-min
 
-# diag BFB test
-add_case(prefix='2026-osc-test-02a', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 ) # default dt_phys=10-min
-add_case(prefix='2026-osc-test-02b', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 ) # default dt_phys=10-min
+# # diag BFB test
+# add_case(prefix='2026-osc-test-02a', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 ) # default dt_phys=10-min
+# add_case(prefix='2026-osc-test-02b', arch='GPU', compset='F2010-SCREAMv1', grid='ne30', num_nodes=4 ) # default dt_phys=10-min
+
+# implicit flux test
+
+# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'; use_new_diags = False
+# add_case(prefix='2026-osc-test-03', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, imp_flux=True, debug=True )
+# add_case(prefix='2026-osc-test-03', arch='CPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, imp_flux=True, debug=True  )
+
+# test temp branch for diags => quantheory/implicit-momentum-flux-eamxx-rebase-new-diag
+src_dir = f'{home}/E3SM/E3SM_SRC0'
+# use_new_diags = False
+# add_case(prefix='2026-osc-test-04', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, imp_flux=True, debug=True )
+# add_case(prefix='2026-osc-test-04', arch='CPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, imp_flux=True, debug=True )
+# use_new_diags = True
+# add_case(prefix='2026-osc-test-04d', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, imp_flux=True, debug=True )
+# add_case(prefix='2026-osc-test-04d', arch='CPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, imp_flux=True, debug=True )
+
+
+use_new_diags = True
+src_dir = f'{home}/E3SM/E3SM_SRC2'; add_case(prefix='2026-osc-test-03', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32 )
+# src_dir = f'{home}/E3SM/E3SM_SRC0'; add_case(prefix='2026-osc-test-03', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, imp_flux=True )
 
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
@@ -108,10 +130,10 @@ def main(opts):
 
    print(f'\n  case : {case}\n')
 
-   print(' '*4+f'{clr.RED}WARNING - custom src_dir per case!!!{clr.END}')
-   if opts['prefix']=='2026-osc-test-02a': src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'
-   if opts['prefix']=='2026-osc-test-02b': src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
-   print(' '*4+f'{clr.RED}WARNING - custom src_dir per case!!!{clr.END}')
+   # print(' '*4+f'{clr.RED}WARNING - custom src_dir per case!!!{clr.END}')
+   # if opts['prefix']=='2026-osc-test-02a': src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'
+   # if opts['prefix']=='2026-osc-test-02b': src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
+   # print(' '*4+f'{clr.RED}WARNING - custom src_dir per case!!!{clr.END}')
 
    #----------------------------------------------------------------------------
    debug_mode = False
@@ -129,6 +151,7 @@ def main(opts):
    if 'num_nodes' in opts:
       if arch=='GPU': max_mpi_per_node,atm_nthrds =   4,1
       if arch=='CPU': max_mpi_per_node,atm_nthrds = 128,1
+      if arch=='CPU' and opts['grid']=='ne4': max_mpi_per_node,atm_nthrds = 96,1
       atm_ntasks = max_mpi_per_node*opts['num_nodes']
    if 'num_tasks' in opts:
       atm_ntasks,atm_nthrds = opts['num_tasks'],1
@@ -161,6 +184,10 @@ def main(opts):
    if config : 
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
+      #-------------------------------------------------------------------------
+      if opts.get('imp_flux'):
+         run_cmd('./xmlchange ATM_FLUX_INTEGRATION_METHOD=implicit_stress')
+         run_cmd('./xmlchange ATM_SUPPLIES_GUSTINESS=TRUE')
       #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
@@ -212,12 +239,12 @@ def main(opts):
       #----------------------------------------------------------------------
       # add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_1step_inst)
 
-      if opts['prefix']=='2026-osc-test-02a':
-         add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_test1)
-      if opts['prefix']=='2026-osc-test-02b':
-         add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_test2)
+      # if opts['prefix']=='2026-osc-test-02a':
+      #    add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_test1)
+      # if opts['prefix']=='2026-osc-test-02b':
+      #    add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_test2)
 
-      # add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_2D_1dy_avg)
+      add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_2D_1dy_avg)
       # add_hist_file('scream_output_2D_1dy_max.yaml', hist_opts_2D_1dy_max)
       # add_hist_file('scream_output_2D_1dy_min.yaml', hist_opts_2D_1dy_min)
 
@@ -314,13 +341,14 @@ field_txt_2D = '''
 # field_txt_2D += '      - wind_speed_10m_nf2.0_mac2_atm_osc_intermittency\n'
 # # field_txt_2D += '      - surf_sens_flux_nf100.0_mac2_atm_osc_intermittency\n'
 
-alias_txt_2D = '''
-'''
-
-for tmp_diag_var in ['T_2m','surf_sens_flux','wind_speed_10m']:
-   alias_txt_2D += f'      - {tmp_diag_var}_bt1:={tmp_diag_var}_minus_{tmp_diag_var}_prev\n'
-   field_txt_2D += f'      - {tmp_diag_var}_bt2:={tmp_diag_var}_bt1_minus_{tmp_diag_var}_bt1_prev\n'
-   field_txt_2D += f'      - {tmp_diag_var}_btp:={tmp_diag_var}_bt1_times_{tmp_diag_var}_bt1_prev\n'
+if use_new_diags:
+   alias_txt_2D = '\n      aliases:\n'
+   for tmp_diag_var in ['T_2m','surf_sens_flux','wind_speed_10m']:
+      alias_txt_2D += f'      - {tmp_diag_var}_bt1:={tmp_diag_var}_minus_{tmp_diag_var}_prev\n'
+      field_txt_2D += f'      - {tmp_diag_var}_bt2:={tmp_diag_var}_bt1_minus_{tmp_diag_var}_bt1_prev\n'
+      field_txt_2D += f'      - {tmp_diag_var}_btp:={tmp_diag_var}_bt1_times_{tmp_diag_var}_bt1_prev\n'
+else:
+   alias_txt_2D = ''
 
 # - precip_liq_surf_mass_flux
 # - precip_ice_surf_mass_flux
@@ -367,8 +395,7 @@ filename_prefix: output.scream.2D
 averaging_type: average
 max_snapshots_per_file: 1
 fields:
-   physics_pg2:
-      aliases:{alias_txt_2D}
+   physics_pg2:{alias_txt_2D}
       field_names:{field_txt_2D}
 output_control:
    frequency: 1
@@ -384,8 +411,7 @@ filename_prefix: output.scream.2D
 averaging_type: max
 max_snapshots_per_file: 1
 fields:
-   physics_pg2:
-      aliases:{alias_txt_2D}
+   physics_pg2:{alias_txt_2D}
       field_names:{field_txt_2D}
 output_control:
    frequency: 1
@@ -401,8 +427,7 @@ filename_prefix: output.scream.2D
 averaging_type: min
 max_snapshots_per_file: 1
 fields:
-   physics_pg2:
-      aliases:{alias_txt_2D}
+   physics_pg2:{alias_txt_2D}
       field_names:{field_txt_2D}
 output_control:
    frequency: 1

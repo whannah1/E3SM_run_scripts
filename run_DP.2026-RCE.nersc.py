@@ -22,8 +22,8 @@ def add_case( **kwargs ):
 #---------------------------------------------------------------------------------------------------
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-acct = 'e3sm'
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC3' # whannah/2026-ZM-test / master @ Jan 15 2026
+acct = 'e3sm' # e3sm / m4310 (scidac)
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # whannah/eamxx/composable-diag-update-splitform
 
 # clean        = True
 newcase      = True
@@ -33,9 +33,11 @@ submit       = True
 # continue_run = True
 
 # queue,stop_opt,stop_n,resub,walltime = 'debug','nsteps',3,0,'0:05:00'
-# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'1:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:30:00'
 # queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',10,0,'0:30:00'
-queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',10,1,'2:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',60,0,'4:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',60,0,'6:00:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',61,0,'6:00:00'
 
 # arch = 'GPU'
 
@@ -54,7 +56,7 @@ horiz_remap_root = '/global/homes/w/whannah/maps'
 
 # add_case(prefix='DP.2026-RCE-00', num_nodes=4, ne= 67, lx=600, dt=60, arch='CPU', enable_zm=True ) # dx =  2.99 /  4.48 (np4/pg2)
 # add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=60, arch='CPU', enable_zm=True ) # dx =  5.88 /  8.82 (np4/pg2)
-add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 17, lx=600, dt=60, arch='CPU', enable_zm=True ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 17, lx=600, dt=60, arch='CPU', enable_zm=True ) # dx = 11.76 / 17.65 (np4/pg2)
 # add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  9, lx=600, dt=60, arch='CPU', enable_zm=True ) # dx = 22.22 / 33.33 (np4/pg2)
 # add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  5, lx=600, dt=60, arch='CPU', enable_zm=True ) # dx = 40.00 / 60.00 (np4/pg2)
 
@@ -63,6 +65,23 @@ add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 17, lx=600, dt=60, arch='CPU'
 # add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 17, lx=600, dt=60, arch='CPU', enable_zm=True, tau=14400 )
 # add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  9, lx=600, dt=60, arch='CPU', enable_zm=True, tau=14400 )
 # add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  5, lx=600, dt=60, arch='CPU', enable_zm=True, tau=14400 )
+
+
+vgrid_cntrl = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc'
+vgrid_pbias = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_p-bias.nc'
+vgrid_tbias = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_t-bias.nc'
+vgrid_alpha3 = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_alpha3.nc'
+
+# add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_cntrl',vgrid_file=vgrid_cntrl)
+# add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_pbias',vgrid_file=vgrid_pbias)
+# add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_tbias',vgrid_file=vgrid_tbias)
+add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_alpha3',vgrid_file=vgrid_alpha3)
+
+# add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_cntrl',vgrid_file=vgrid_cntrl, qi2qc=True)
+
+# add_case(prefix='DP.2026-RCE-01', num_nodes=1, ne=22, lx=200, dt=60, vgrid_name='L128_cntrl',vgrid_file=vgrid_cntrl)
+# add_case(prefix='DP.2026-RCE-01', num_nodes=1, ne=22, lx=200, dt=60, vgrid_name='L128_pbias',vgrid_file=vgrid_pbias)
+# add_case(prefix='DP.2026-RCE-01', num_nodes=1, ne=22, lx=200, dt=60, vgrid_name='L128_tbias',vgrid_file=vgrid_tbias)
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
@@ -73,6 +92,7 @@ def main(opts):
    num_nodes   = opts['num_nodes']
    ne          = opts['ne']
    dtime       = opts['dt']
+   vgrid_file  = opts['vgrid_file'] if 'vgrid_file' in opts else None
    #----------------------------------------------------------------------------
    # optional arguments that still need a value
    arch        = 'GPU'
@@ -86,6 +106,8 @@ def main(opts):
       elif key in ['grid']:            case_list.append(val.split('_')[0])
       elif key in ['num_nodes']:       case_list.append(f'NN_{val:02}')
       elif key in ['ne']:              case_list.append(f'ne_{val:03}')
+      elif key in ['vgrid_name']:      case_list.append(f'{val}')
+      elif key in ['vgrid_file']:      continue
       elif key in ['debug']:           case_list.append('debug')
       else:
          if isinstance(val, str):
@@ -103,7 +125,8 @@ def main(opts):
    # return
    #----------------------------------------------------------------------------
    #----------------------------------------------------------------------------
-   horiz_remap_file_1D = f'{horiz_remap_root}/map_dpxx_x{domain_len}m_y{domain_len}m_nex{ne}_ney{ne}_to_1x1.20250926.nc'
+   # horiz_remap_file_1D = f'{horiz_remap_root}/map_dpxx_x{domain_len}m_y{domain_len}m_nex{ne}_ney{ne}_to_1x1.20250926.nc'
+   horiz_remap_file_1D = f'{horiz_remap_root}/map_dpxx_x{domain_len}m_y{domain_len}m_nex{ne}_ney{ne}_to_1x1.nc'
    if not os.path.exists(horiz_remap_file_1D): raise OSError(f'horiz_remap_file is missing: {horiz_remap_file_1D}')
    opts['horiz_remap_file_1D'] = horiz_remap_file_1D
    #----------------------------------------------------------------------------
@@ -202,13 +225,15 @@ def main(opts):
          run_cmd('./atmchange physics::zm::apply_tendencies=true')
          run_cmd(f'./atmchange physics::zm::compute_tendencies=T_mid,qv')
       #-------------------------------------------------------------------------
+      if 'qi2qc' in opts and opts['qi2qc']: run_cmd(f'./atmchange use_qi2qc=true ')
+      #-------------------------------------------------------------------------
       # Allow for the computation of tendencies for output purposes
       run_cmd(f'./atmchange physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv')
       run_cmd(f'./atmchange physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
       run_cmd(f'./atmchange physics::rrtmgp::compute_tendencies=T_mid')
       run_cmd(f'./atmchange homme::compute_tendencies=T_mid,qv')
       #-------------------------------------------------------------------------
-      # if vgrid_file is not None: run_cmd(f'./atmchange vertical_coordinate_filename={vgrid_file} ')
+      if vgrid_file is not None: run_cmd(f'./atmchange vertical_coordinate_filename={vgrid_file} ')
       #-------------------------------------------------------------------------
       # p3_eci => cldliq_to_ice_collection_factor
       # p3_eri => rain_to_ice_collection_factor
@@ -223,7 +248,7 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    if submit : 
       #-------------------------------------------------------------------------
-      run_cmd(f'./atmchange p3::set_cld_frac_r_to_one=true ')
+      # run_cmd(f'./atmchange p3::set_cld_frac_r_to_one=true ')
       #-------------------------------------------------------------------------
       hist_file_list = []
       def add_hist_file(hist_file,txt):

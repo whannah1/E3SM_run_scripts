@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 import os, datetime, subprocess as sp
 #---------------------------------------------------------------------------------------------------
-''' opening permissions for Wandi
-chmod a+r /pscratch/sd/w/whannah/scream_scratch/pm-gpu/SCREAM.2025-SciDAC-00.F2010-SCREAMv1.ne256pg2.NN_384/run/output*
-chmod a+rx /pscratch/sd/w/whannah/scream_scratch/pm-gpu/SCREAM.2025-SciDAC-00.F2010-SCREAMv1.ne256pg2.NN_384/run
-chmod a+rx /pscratch/sd/w/whannah/scream_scratch/pm-gpu/SCREAM.2025-SciDAC-00.F2010-SCREAMv1.ne256pg2.NN_384
-'''
-#---------------------------------------------------------------------------------------------------
 class tcolor: END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
 #---------------------------------------------------------------------------------------------------
 def run_cmd(cmd,suppress_output=False):
@@ -23,16 +17,16 @@ def add_case( **kwargs ):
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'm4310'
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => master @ 2025-7-1
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => master @ 2026-3-10
 
-clean        = True
-# newcase      = True
+# clean        = True
+newcase      = True
 config       = True
 build        = True
-# submit       = True
+submit       = True
 # continue_run = True
 
-# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'2:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'1:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',32,0,'2:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',10,0,'2:00:00'
 queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',73,5*2-1,'2:00:00' # 1-year
@@ -42,9 +36,22 @@ arch = 'GPU'
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-add_case(prefix='2025-SciDAC-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 )
-# add_case(prefix='2025-SciDAC-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384 ) # special output for sfc pressure bias analysis
+add_case(prefix='2026-SciDAC-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384, vgrid_name='L128v0' )
 
+kwargs = {}
+kwargs['vgrid_file'] = '/global/cfs/cdirs/m4310/whannah/files_vert/SCREAM_L128_v3.1_c20251112.nc'
+kwargs['init_file']  = '/global/cfs/cdirs/m4310/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1.nc'
+add_case(prefix='2026-SciDAC-00', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=384, vgrid_name='L128v3.1', **kwargs)
+
+#---------------------------------------------------------------------------------------------------
+'''
+IC_SRC=/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne256np4L128_ifs-20200120_20220914.nc
+IC_DST=/global/cfs/cdirs/m4310/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1.nc
+VG_DST=/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc
+ncremap -7 --vrt_fl=${VG_DST} --ps_nm=ps --in_fl=${IC_SRC} --out_fl=${IC_DST}
+ncatted -O -a _FillValue,.*,m,f,1.0e36 ${IC_DST} ${IC_DST}.tmp
+ncks -O --fl_fmt=64bit_data ${IC_DST}.tmp ${IC_DST}
+'''
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
    grid_name = opts['grid']
@@ -58,12 +65,12 @@ def get_grid_name(opts):
 def get_case_name(opts):
    case_list = ['SCREAM']
    for key,val in opts.items(): 
-      if key in ['prefix','compset']:
-         case_list.append(val)
-      elif key in ['grid']: 
-         case_list.append(get_grid_name(opts))
-      elif key in ['num_nodes']:
-         case_list.append(f'NN_{val}')
+      if   key in ['prefix','compset']:case_list.append(val)
+      elif key in ['grid']:            case_list.append(val.split('_')[0])
+      elif key in ['num_nodes']:       continue#case_list.append(f'NN_{val:02}')
+      elif key in ['vgrid_name']:      case_list.append(f'{val}')
+      elif key in ['vgrid_file']:      continue
+      elif key in ['debug']:           case_list.append('debug')
       else:
          if isinstance(val, str):
             case_list.append(f'{key}_{val}')
@@ -81,7 +88,7 @@ def main(opts):
    print(f'\n  case : {case}\n')
 
    #------------------------------------------------------------------------------------------------
-   # exit()
+   # return
    #------------------------------------------------------------------------------------------------
    debug_mode = False
    if 'debug' in opts: debug_mode = opts['debug']
@@ -122,6 +129,14 @@ def main(opts):
       #-------------------------------------------------------------------------
       # if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
+      #-------------------------------------------------------------------------
+      vgrid_file = opts['vgrid_file'] if 'vgrid_file' in opts else None
+      if vgrid_file is not None:
+         run_cmd(f'./atmchange vertical_coordinate_filename={vgrid_file} ')
+      #-------------------------------------------------------------------------
+      init_file = opts['init_file'] if 'init_file' in opts else None
+      if init_file is not None:
+         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
    #------------------------------------------------------------------------------------------------
    if build : 
       if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
@@ -135,10 +150,10 @@ def main(opts):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
       #-------------------------------------------------------------------------
-      add_hist_file(f'{case_root}/case_scripts/scream_output_2D_1hr_inst.yaml',hist_opts_2D_1hr_inst)
-      # add_hist_file(f'{case_root}/case_scripts/scream_output_2D_3hr_inst.yaml',hist_opts_2D_3hr_inst)
-      # add_hist_file(f'{case_root}/case_scripts/scream_output_3D_3hr_inst.yaml',hist_opts_3D_3hr_inst)
-      add_hist_file(f'{case_root}/case_scripts/scream_output_3D_3hr_inst.yaml',hist_opts_3D_6hr_inst)
+      add_hist_file('scream_output_2D_3hr_inst.yaml',hist_opts_2D_3hr_inst)
+      add_hist_file('scream_output_3D_3hr_inst.yaml',hist_opts_3D_3hr_inst)
+      add_hist_file('scream_output_monthly_avg.yaml',hist_opts_monthly_avg)
+      
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
       #-------------------------------------------------------------------------
@@ -161,77 +176,6 @@ def main(opts):
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 
-# alt 2D fields for sfc pressure bias analysis
-field_txt_2D = '\n'
-field_txt_2D += '      - ps\n'
-field_txt_2D += '      - SeaLevelPressure\n'
-field_txt_2D += '      - precip_total_surf_mass_flux\n'
-field_txt_2D += '      - surf_evap\n'
-field_txt_2D += '      - VapWaterPath\n'
-field_txt_2D += '      - LiqWaterPath\n'
-field_txt_2D += '      - IceWaterPath\n'
-
-
-# field_txt_2D = '\n'
-# field_txt_2D += '      - ps\n'
-# field_txt_2D += '      - psl\n'
-# field_txt_2D += '      - precip_total_surf_mass_flux\n'
-# field_txt_2D += '      - VapWaterPath\n'
-# field_txt_2D += '      - LiqWaterPath\n'
-# field_txt_2D += '      - IceWaterPath\n'
-# field_txt_2D += '      - surf_sens_flux\n'
-# field_txt_2D += '      - surface_upward_latent_heat_flux\n'
-# field_txt_2D += '      - wind_speed_10m\n'
-# field_txt_2D += '      - U_at_model_bot\n'
-# field_txt_2D += '      - V_at_model_bot\n'
-# field_txt_2D += '      - SW_flux_up_at_model_top\n'
-# field_txt_2D += '      - SW_flux_dn_at_model_top\n'
-# field_txt_2D += '      - LW_flux_up_at_model_top\n'
-# # field_txt_2D += '      - surf_evap\n'
-# # field_txt_2D += '      - surf_mom_flux\n'
-# # field_txt_2D += '      - horiz_winds_at_model_bot\n'
-# # field_txt_2D += '      - SW_flux_dn_at_model_bot\n'
-# # field_txt_2D += '      - SW_flux_up_at_model_bot\n'
-# # field_txt_2D += '      - LW_flux_dn_at_model_bot\n'
-# # field_txt_2D += '      - LW_flux_up_at_model_bot\n'
-# # field_txt_2D += '      - SW_flux_up_at_model_top\n'
-# # field_txt_2D += '      - SW_flux_dn_at_model_top\n'
-# # field_txt_2D += '      - LW_flux_up_at_model_top\n'
-
-field_txt_3D = '\n'
-field_txt_3D += '      - ps\n'
-field_txt_3D += '      - z_mid\n'
-field_txt_3D += '      - T_mid\n'
-field_txt_3D += '      - qv\n'
-field_txt_3D += '      - U\n'
-field_txt_3D += '      - V\n'
-field_txt_3D += '      - omega\n'
-# field_txt_3D += '      - qc\n'
-# field_txt_3D += '      - qr\n'
-# field_txt_3D += '      - qi\n'
-# field_txt_3D += '      - qm\n'
-# field_txt_3D += '      - nc\n'
-# field_txt_3D += '      - nr\n'
-# field_txt_3D += '      - ni\n'
-# field_txt_3D += '      - bm\n'
-# field_txt_3D += '      - RelativeHumidity\n'
-# field_txt_3D += '      - rad_heating_pdel\n'
-
-hist_opts_2D_1hr_inst = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D.3hr
-averaging_type: instant
-max_snapshots_per_file: 24
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 1
-   frequency_units: nhours
-restart:
-   force_new_file: true
-'''
 
 hist_opts_2D_3hr_inst = f'''
 %YAML 1.1
@@ -241,15 +185,42 @@ averaging_type: instant
 max_snapshots_per_file: 8
 fields:
    physics_pg2:
-      field_names:{field_txt_2D}
+      field_names:
+         - ps
+         - SeaLevelPressure
+         - precip_total_surf_mass_flux
+         - VapWaterPath
+         - LiqWaterPath
+         - IceWaterPath
+         - RainWaterPath
+         - surf_sens_flux
+         - surface_upward_latent_heat_flux
+         - SW_flux_up_at_model_top
+         - SW_flux_dn_at_model_top
+         - LW_flux_up_at_model_top
+         - ShortwaveCloudForcing
+         - LongwaveCloudForcing
 output_control:
    frequency: 3
    frequency_units: nhours
 restart:
-   force_new_file: true
+   force_new_file: false
 '''
 
-
+# - surf_evap
+# - wind_speed_10m
+# - U_at_model_bot
+# - V_at_model_bot
+# - surf_evap
+# - surf_mom_flux
+# - horiz_winds_at_model_bot
+# - SW_flux_dn_at_model_bot
+# - SW_flux_up_at_model_bot
+# - LW_flux_dn_at_model_bot
+# - LW_flux_up_at_model_bot
+# - SW_flux_up_at_model_top
+# - SW_flux_dn_at_model_top
+# - LW_flux_up_at_model_top
 
 hist_opts_3D_3hr_inst = f'''
 %YAML 1.1
@@ -259,28 +230,78 @@ averaging_type: instant
 max_snapshots_per_file: 8
 fields:
    physics_pg2:
-      field_names:{field_txt_3D}
+      field_names:
+         - ps
+         - z_mid
+         - T_mid
+         - qv
+         - qc
+         - qr
+         - qi
+         - U
+         - V
+         - omega
+         - cldfrac_tot_for_analysis
 output_control:
    frequency: 3
    frequency_units: nhours
 restart:
-   force_new_file: true
+   force_new_file: false
 '''
 
-hist_opts_3D_6hr_inst = f'''
+# - qm
+# - nc
+# - nr
+# - ni
+# - bm
+# - RelativeHumidity
+# - rad_heating_pdel
+
+hist_opts_monthly_avg = f'''
 %YAML 1.1
 ---
-filename_prefix: output.scream.3D.6hr
-averaging_type: instant
-max_snapshots_per_file: 4
+filename_prefix: output.scream.monthly
+averaging_type: average
+max_snapshots_per_file: 1
 fields:
    physics_pg2:
-      field_names:{field_txt_3D}
+      field_names:
+      - ps
+      - SeaLevelPressure
+      - precip_total_surf_mass_flux
+      - VapWaterPath
+      - LiqWaterPath
+      - IceWaterPath
+      - RainWaterPath
+      - surf_sens_flux
+      - surface_upward_latent_heat_flux
+      - wind_speed_10m
+      - U_at_model_bot
+      - V_at_model_bot
+      - SW_flux_up_at_model_top
+      - SW_flux_dn_at_model_top
+      - LW_flux_up_at_model_top
+      - ShortwaveCloudForcing
+      - LongwaveCloudForcing
+      - z_mid
+      - T_mid
+      - qv
+      - qc
+      - qr
+      - qi
+      - U
+      - V
+      - omega
+      - RelativeHumidity
+      - rad_heating_pdel
+      - cldfrac_liq
+      - cldfrac_ice_for_analysis
+      - cldfrac_tot_for_analysis
 output_control:
-   frequency: 6
-   frequency_units: nhours
+   frequency: 1
+   frequency_units: nmonths
 restart:
-   force_new_file: true
+   force_new_file: false
 '''
 
 

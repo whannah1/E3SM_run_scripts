@@ -20,7 +20,7 @@ from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'm4842' # e3sm / m4842 (sohip)
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # branch => whannah/eamxx/composable-diag-update-splitform
 
 # clean        = True
 # newcase      = True
@@ -32,7 +32,7 @@ submit       = True
 queue = 'regular'
 
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue = 'debug'
-stop_opt,stop_n,resub,walltime = 'ndays',10,0,'2:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',30,0,'6:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',10,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'4:00:00'
@@ -41,8 +41,14 @@ stop_opt,stop_n,resub,walltime = 'ndays',10,0,'2:00:00'
 # build list of cases to run
 
 # splitform test with new osc diags
-# add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, theta_advect_form=1 ) # default dt_phys=10-min
-add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, theta_advect_form=2 ) # default dt_phys=10-min
+# add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, theta_advect_form=1 )
+# add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, theta_advect_form=2 )
+
+# add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, tms=False, theta_advect_form=1 )
+# add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, tms=False, theta_advect_form=2 )
+
+add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, tms=False, vtheta_thresh=0, theta_advect_form=1 )
+# add_case(prefix='2026-splitform-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=32, tms=False, vtheta_thresh=0, theta_advect_form=2 )
 
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
@@ -156,6 +162,15 @@ def main(opts):
          if taf==1: run_cmd(f'./atmchange -b ctl_nl::pgrad_correction=1')
          if taf==2: run_cmd(f'./atmchange -b ctl_nl::pgrad_correction=0')
       #-------------------------------------------------------------------------
+      if 'tms' in opts:
+         if opts['tms']==False:
+            run_cmd('./atmchange physics::mac_aero_mic::atm_procs_list-=tms')
+      #-------------------------------------------------------------------------
+      if 'vtheta_thresh' in opts:
+         if opts['vtheta_thresh'] is not None:
+            tmp_vtheta_thresh = opts['vtheta_thresh']
+            run_cmd(f'./atmchange vtheta_thresh={tmp_vtheta_thresh}')
+      #-------------------------------------------------------------------------
       if 'NCPL' in opts:
          ncpl = opts['NCPL']
          run_cmd(f'./xmlchange ATM_NCPL={ncpl}')
@@ -196,7 +211,9 @@ def main(opts):
       #----------------------------------------------------------------------
       # add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_1step_inst)
 
-      add_hist_file('scream_output_2D_1dy_avg.yaml', hist_opts_2D_1dy_avg)
+      add_hist_file('scream_output_2D_3hr_avg.yaml', hist_opts_2D_3hr_avg)
+      add_hist_file('scream_output_2D_3hr_min.yaml', hist_opts_2D_3hr_min)
+      add_hist_file('scream_output_2D_3hr_max.yaml', hist_opts_2D_3hr_max)
 
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
@@ -219,45 +236,82 @@ def main(opts):
    # Print the case name again
    print(f'\n  case : {case}\n') 
 #---------------------------------------------------------------------------------------------------
-field_txt_2D = '''
+
+field_txt_2D_noalias = '''
       - ps
+      - SeaLevelPressure
       - precip_total_surf_mass_flux
       - LiqWaterPath
       - IceWaterPath
+      - RainWaterPath
       - T_2m
       - wind_speed_10m
-      - U_at_model_bot
-      - V_at_model_bot
       - qv_at_model_bot
       - surf_sens_flux
       - surface_upward_latent_heat_flux
       - surf_mom_flux
-      - T_at_850hPa
-      - qv_at_850hPa
-      - U_at_850hPa
 '''
+# - T_mid_at_850hPa
+# - T_mid_at_900hPa
+# - T_mid_at_950hPa
+# - wind_speed_850hPa
+# - wind_speed_900hPa
+# - wind_speed_950hPa
+# - T_mid_at_model_bot
 
-alias_txt_2D = '''
-'''
-for tmp_diag_var in ['T_2m','surf_sens_flux','wind_speed_10m','T_at_850hPa','qv_at_850hPa','qv_at_model_bot','U_at_850hPa']:
+field_txt_2D = field_txt_2D_noalias
+alias_txt_2D = '\n'
+for tmp_diag_var in ['T_2m','surf_sens_flux','wind_speed_10m','qv_at_model_bot']:
    alias_txt_2D += f'      - {tmp_diag_var}_bt1:={tmp_diag_var}_minus_{tmp_diag_var}_prev\n'
    # field_txt_2D += f'      - {tmp_diag_var}_bt2:={tmp_diag_var}_bt1_minus_{tmp_diag_var}_bt1_prev\n'
    field_txt_2D += f'      - {tmp_diag_var}_btp:={tmp_diag_var}_bt1_times_{tmp_diag_var}_bt1_prev\n'
 
 
-hist_opts_2D_1dy_avg = f'''
+hist_opts_2D_3hr_avg = f'''
 %YAML 1.1
 ---
 filename_prefix: output.scream.2D
 averaging_type: average
-max_snapshots_per_file: 1
+max_snapshots_per_file: 8
 fields:
    physics_pg2:
       aliases:{alias_txt_2D}
       field_names:{field_txt_2D}
 output_control:
-   frequency: 1
-   frequency_units: ndays
+   frequency: 3
+   frequency_units: nhours
+restart:
+   force_new_file: false
+'''
+
+hist_opts_2D_3hr_min = f'''
+%YAML 1.1
+---
+filename_prefix: output.scream.2D
+averaging_type: min
+max_snapshots_per_file: 8
+fields:
+   physics_pg2:
+      field_names:{field_txt_2D_noalias}
+output_control:
+   frequency: 3
+   frequency_units: nhours
+restart:
+   force_new_file: false
+'''
+
+hist_opts_2D_3hr_max = f'''
+%YAML 1.1
+---
+filename_prefix: output.scream.2D
+averaging_type: max
+max_snapshots_per_file: 8
+fields:
+   physics_pg2:
+      field_names:{field_txt_2D_noalias}
+output_control:
+   frequency: 3
+   frequency_units: nhours
 restart:
    force_new_file: false
 '''

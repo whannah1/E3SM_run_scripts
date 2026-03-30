@@ -96,8 +96,8 @@ for test in tests :
     log_file = case_dir+'/'+timestamp+'.'+test+'.log'
     
     cmd = 'nohup '+src_dir+'/cime/scripts/create_test   '+test
-    cmd = cmd+' --test-root '+case_dir             
-    cmd = cmd+' --project   '+project              
+    cmd = cmd+' --test-root '+case_dir
+    cmd = cmd+' --project   '+project
     cmd = cmd+' --wait -j2 '                       
     # cmd = cmd+' --baseline-root '+output_root+'/baselines '
     
