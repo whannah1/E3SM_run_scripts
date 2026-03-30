@@ -104,7 +104,7 @@ for tdir in dirs :
                 ### print case name
                 case_str = case.ljust(indent_len)
                 case_str = tclr.ULN+case_str+tclr.ULNOFF
-                case_str = tclr.BLD   +case_str+tclr.END
+                case_str = tclr.BLD+case_str+tclr.END
                 print('\n'+case_str+'\n')
 
                 if len( glob.glob(tdir+'/run/e3sm.log*') )==0: 

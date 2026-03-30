@@ -14,12 +14,11 @@ from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'e3sm'
-top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/create-gwd-atm-proc
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC3/' # branch => whannah/atm/2026-ZM-mods
 
 # clean        = True
-# newcase      = True
-# config       = True
+newcase      = True
+config       = True
 build        = True
 submit       = True
 # continue_run = True
@@ -28,17 +27,16 @@ submit       = True
 
 queue = 'debug'  # regular / debug
 
-# stop_opt,stop_n,resub,walltime = 'nsteps',2,0,'0:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',10,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
 #---------------------------------------------------------------------------------------------------
-### EAMxx GWD process testing
+tmp_grid = 'ne30pg2_r05_IcoswISC30E3r5'
 
-add_case(prefix='2025-GW-DEV-00', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
-
-# add_case(prefix='2025-GW-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, debug=True)
+# add_case(prefix='2026-ZM-MOD-00', compset='F2010', grid=tmp_grid, num_nodes=8)
+# add_case(prefix='2026-ZM-MOD-00', compset='F2010', grid=tmp_grid, num_nodes=8, dmdz=-0.20e-3)
+add_case(prefix='2026-ZM-MOD-00', compset='F2010', grid=tmp_grid, num_nodes=8, dmdz=-0.01e-3)
+# add_case(prefix='2026-ZM-MOD-00', compset='F2010', grid=tmp_grid, num_nodes=8, ncin=5)
+add_case(prefix='2026-ZM-MOD-00', compset='F2010', grid=tmp_grid, num_nodes=8, ncin=20)
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -77,12 +75,12 @@ def main(opts):
 
    print(f'\n  case : {case}\n')
    #------------------------------------------------------------------------------------------------
-   print(f' clean        : {clean}')
-   print(f' newcase      : {newcase}')
-   print(f' config       : {config}')
-   print(f' build        : {build}')
-   print(f' submit       : {submit}')
-   print(f' continue_run : {continue_run}')
+   # print(f' clean        : {clean}')
+   # print(f' newcase      : {newcase}')
+   # print(f' config       : {config}')
+   # print(f' build        : {build}')
+   # print(f' submit       : {submit}')
+   # print(f' continue_run : {continue_run}')
    #------------------------------------------------------------------------------------------------
    if 'num_nodes' in opts and 'num_tasks' in opts:
       raise ValueError('cannot specify both num_nodes and num_tasks!')
@@ -108,14 +106,10 @@ def main(opts):
       if os.path.isdir(case_root): exit(f'\n{clr.RED}This case already exists!{clr.END}\n')
       cmd = f'{src_dir}/cime/scripts/create_newcase'
       cmd += f' --case {case} --handle-preexisting-dirs u'
-      cmd += f' --output-root {case_root} '
-      cmd += f' --script-root {case_root}/case_scripts '
-      cmd += f' --compset {opts["compset"]}'
-      cmd += f' --res {opts["grid"]} '
+      cmd += f' --output-root {case_root}  --script-root {case_root}/case_scripts '
+      cmd += f' --compset {opts["compset"]} --res {opts["grid"]} '
       cmd += f' --pecount {atm_ntasks}x{atm_nthrds} '
-      cmd += f' --project {acct} '
-      # cmd += f' --mach chrysalis --compiler gnu'
-      cmd += f' --mach chrysalis --compiler intel'
+      cmd += f' --project {acct} --mach chrysalis --compiler intel'
       run_cmd(cmd)
       #----------------------------------------------------------------------------
       # # Copy this run script into the case directory
@@ -128,23 +122,21 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
+      # if 'use_gw' in opts:
+      #    if opts['use_gw']:
+      #       run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=gw')
+      #-------------------------------------------------------------------------
+      # if 'grad_correct' in opts:
+      #    if opts['grad_correct']:
+      #       run_cmd('./xmlchange --id CAM_CONFIG_OPTS --append --val \" -cppdefs \' -DUSE_FGF_CORRECTION \'  \" ')
+      #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
-      #-------------------------------------------------------------------------
-      if 'use_gw' in opts:
-         if opts['use_gw']:
-            run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=gw')
-            # run_cmd(f'./atmchange -b use_gw_convect=True')
-            # run_cmd(f'./atmchange -b use_gw_frontal=True')
-            run_cmd(f'./atmchange -b use_gw_orographic=True')
    #------------------------------------------------------------------------------------------------
    if build : 
       if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
       if clean : run_cmd('./case.build --clean')
-      run_cmd('./xmlchange CICE_CPPDEFS="-DCCSMCOUPLED -Dcoupled -Dncdf -DNCAT=1 -DNXGLOB=1791 -DNYGLOB=1 -DNTR_AERO=0 -DMODAL_AER"')
-      run_cmd('./case.build --clean ice')
       run_cmd('./case.build')
-      # run_cmd('./case.build --clean ice  && ./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
       #-------------------------------------------------------------------------
@@ -158,14 +150,16 @@ def main(opts):
          # hist_file_list_str = ','.join(hist_file_list)
          # run_cmd(f'./atmchange Scorpio::output_yaml_files="{hist_file_list_str}"')
          #----------------------------------------------------------------------
-         print()
-         print(clr.RED+'WARNING - all output is disabled for debugging!'+clr.END)
-         print()
+         # print()
+         # print(clr.RED+'WARNING - all output is disabled for debugging!'+clr.END)
+         # print()
       else:
          # EAM namelist options
          nfile = 'user_nl_eam'
          file = open(nfile,'w') 
          file.write(eam_opts)
+         if 'dmdz' in opts: file.write(f" zmconv_dmpdz    = {opts['dmdz']} \n")
+         if 'ncin' in opts: file.write(f" zmconv_cape_cin = {opts['ncin']} \n")
          file.close()
       #-------------------------------------------------------------------------
       # Set some run-time stuff
@@ -185,13 +179,19 @@ def main(opts):
    # Print the case name again
    print(f'\n  case : {case}\n') 
 
+   
 #---------------------------------------------------------------------------------------------------
 eam_opts = f'''
- avgflag_pertape = 'A','A'
- nhtfrq = 0,-24
- mfilt  = 1,1
- fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
+ avgflag_pertape = 'A','I','I'
+ nhtfrq = 0,1
+ mfilt  = 1,48
+ fincl2 = 'PS','Z3','PRECT','PRECZ','PCONVT','PCONVB','MAXI','CAPE_ZM','DCAPE',
+          'ZM_ENTR_UP','ZM_DETR_UP','ZM_ENTR_DN','ZMMU','ZMMD','ZMDT','ZMDQ'
 '''
+# fincl2 = 'PS','PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
+
+# EVAPTZM
+# EVAPQZM
 #---------------------------------------------------------------------------------------------------
 field_txt_2D = '\n'
 # field_txt_2D += '      - precip_total_surf_mass_flux'
@@ -201,7 +201,6 @@ field_txt_2D = '\n'
 # field_txt_2D += '      - surf_mom_flux'
 field_txt_2D += '      - U_at_model_bot'
 # field_txt_2D += '      - V_at_model_bot'
-# field_txt_2D += '      - ash'
 
 
 # hist_opts_2D_inst = f'''

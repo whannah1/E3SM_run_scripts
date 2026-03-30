@@ -32,10 +32,17 @@ verbose      = True      # print commands
 # tests = ['mmf_tmp']
 # tests = ['e3sm_orodrag_developer']
 
-# tests = [ 'SMS_Ln5.ne4pg2_oQU480.F2010.chrysalis_intel' ]
+tests = [ 
+        # 'SMS_Ln5_P3072x1.ne128pg2_ne128pg2.F2010-SCREAMv1.chrysalis_intel',
+        # 'SMS_Ln5_P768x1.ne64pg2_ne64pg2.F2010-SCREAMv1.chrysalis_intel',
+        'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010-SCREAMv1.chrysalis_intel',
+        # 'SMS_Ln5_P192x1.ne30pg2_ne30pg2.F2010-SCREAMv1.chrysalis_intel',
+        # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010.chrysalis_intel',
+        ]
+
 
 # tests = [ 'SMS_P720.arcticx4v1pg2_ARRM10to60E2r1.WCYCL1850.chrysalis_intel' ]
-tests = [ 'SMS_Ln9_P720.arcticx4v1pg2_ARRM10to60E2r1.WCYCL1850.chrysalis_intel' ]
+# tests = [ 'SMS_Ln9_P720.arcticx4v1pg2_ARRM10to60E2r1.WCYCL1850.chrysalis_intel' ]
 
 # tests = [
 #         'SMS_D_Ln5.ne4pg2_oQU480.F2010.chrysalis_intel.eam-orodrag_ne4pg2', # from oro drag test suite
@@ -88,7 +95,8 @@ for test in tests :
     cmd = 'nohup '+src_dir+'/cime/scripts/create_test   '+test
     cmd = cmd+' --test-root '+case_dir             
     cmd = cmd+' --project   '+project              
-    cmd = cmd+' --wait -j2 '                       
+    cmd = cmd+' --wait -j2 '
+    cmd = cmd+' --no-run '
     # cmd = cmd+' --baseline-root '+output_root+'/baselines '  
     cmd = cmd+' --output-root   '+output_root+' '
     cmd +=' --input-dir /lcrc/group/e3sm/data/inputdata'

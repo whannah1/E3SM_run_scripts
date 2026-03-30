@@ -1,4 +1,4 @@
-import os, glob
+import os, glob, subprocess as sp
 #-------------------------------------------------------------------------------
 home = os.getenv('HOME')
 host = None
@@ -34,6 +34,7 @@ def get_host(verbose=False):
   if host=='chn': host = 'nersc' # reset for perlmutter
   if host is not None:
     if 'nersc' in host : host = None
+    
     if host is None or host=='' : host = os.getenv('NERSC_HOST')
   if host is None or host=='' : host = os.getenv('host')
   if host is None or host=='' : host = os.getenv('HOST')
