@@ -57,29 +57,64 @@ kwargs_L128_v31_alpha3['init_file']  = '/global/cfs/cdirs/e3sm/whannah/files_ini
 
 prefix = '2026-vert-test-00'
 
-add_case(prefix=prefix, compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_cntrl)
+# add_case(prefix=prefix, compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_cntrl)
 # add_case(prefix=prefix, compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_pbias)
 # add_case(prefix=prefix, compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_cntrl, qi2qc=True)
+
+
+vert_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
+init_root = '/global/cfs/cdirs/e3sm/whannah/files_init'
+
+kwargs_L128_v31_a10_pm100 = {}; kwargs_L128_v31_a10_pm100['vgrid_name'] = 'L128v31a10'
+kwargs_L128_v31_a15_pm100 = {}; kwargs_L128_v31_a15_pm100['vgrid_name'] = 'L128v31a15'
+kwargs_L128_v31_a20_pm100 = {}; kwargs_L128_v31_a20_pm100['vgrid_name'] = 'L128v31a20'
+kwargs_L128_v31_a25_pm100 = {}; kwargs_L128_v31_a25_pm100['vgrid_name'] = 'L128v31a25'
+kwargs_L128_v31_a30_pm100 = {}; kwargs_L128_v31_a30_pm100['vgrid_name'] = 'L128v31a30'
+
+
+kwargs_L128_v31_a10_pm100['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_100.nc'
+kwargs_L128_v31_a15_pm100['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_100.nc'
+kwargs_L128_v31_a20_pm100['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_100.nc'
+kwargs_L128_v31_a25_pm100['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_100.nc'
+kwargs_L128_v31_a30_pm100['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_100.nc'
+
+kwargs_L128_v31_a10_pm100['init_file']  = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_1.0_pm_100.nc'
+kwargs_L128_v31_a15_pm100['init_file']  = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_1.5_pm_100.nc'
+kwargs_L128_v31_a20_pm100['init_file']  = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_2.0_pm_100.nc'
+kwargs_L128_v31_a25_pm100['init_file']  = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_2.5_pm_100.nc'
+kwargs_L128_v31_a30_pm100['init_file']  = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_3.0_pm_100.nc'
+
+add_case(prefix='2026-vert-test-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_a10_pm100)
+add_case(prefix='2026-vert-test-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_a15_pm100)
+add_case(prefix='2026-vert-test-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_a20_pm100)
+add_case(prefix='2026-vert-test-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_a25_pm100)
+add_case(prefix='2026-vert-test-01', compset='F2010-SCREAMv1', grid='ne256pg2_ne256pg2', num_nodes=32, **kwargs_L128_v31_a30_pm100)
 
 
 #---------------------------------------------------------------------------------------------------
 ''' commands for remapping IC for new vertical grids
 IC_SRC=/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne256np4L128_ifs-20200120_20220914.nc
+
 IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1.nc
 VG_DST=/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112.nc
 
-IC_SRC=/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne256np4L128_ifs-20200120_20220914.nc
 IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_p-bias.nc
 VG_DST=/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_p-bias.nc
 
-IC_SRC=/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne256np4L128_ifs-20200120_20220914.nc
 IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha3.nc
 VG_DST=/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_alpha3.nc
+
+VG_DST=/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_100.nc; IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_1.0_pm_100.nc
+VG_DST=/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_100.nc; IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_1.5_pm_100.nc
+VG_DST=/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_100.nc; IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_2.0_pm_100.nc
+VG_DST=/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_100.nc; IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_2.5_pm_100.nc
+VG_DST=/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_100.nc; IC_DST=/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_alpha_3.0_pm_100.nc
 
 ncremap -7 --vrt_fl=${VG_DST} --ps_nm=ps --in_fl=${IC_SRC} --out_fl=${IC_DST}
 # ncatted -O -a _FillValue,.*,m,f,1.0e36 ${IC_DST} ${IC_DST}.tmp
 ncatted -O -a _FillValue,,d,, ${IC_DST} ${IC_DST}.tmp
 ncks -O --fl_fmt=64bit_data ${IC_DST}.tmp ${IC_DST}
+rm ${IC_DST}.tmp
 '''
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -119,7 +154,7 @@ def main(opts):
    print(f'\n  case : {case}\n')
 
    #------------------------------------------------------------------------------------------------
-   # return
+   return
    #------------------------------------------------------------------------------------------------
    debug_mode = False
    if 'debug' in opts: debug_mode = opts['debug']

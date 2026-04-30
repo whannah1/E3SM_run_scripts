@@ -23,21 +23,22 @@ def add_case( **kwargs ):
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'e3sm' # e3sm / m4310 (scidac)
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # whannah/eamxx/composable-diag-update-splitform
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/eamxx/zm-limit-test
 
 # clean        = True
-newcase      = True
-config       = True
-build        = True
+# newcase      = True
+# config       = True
+# build        = True
 submit       = True
 # continue_run = True
 
 # queue,stop_opt,stop_n,resub,walltime = 'debug','nsteps',3,0,'0:05:00'
 # queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:30:00'
-# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',10,0,'0:30:00'
-# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',60,0,'4:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',5,0,'0:30:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',5,0,'2:00:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',60,0,'5:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',60,0,'6:00:00'
-queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',61,0,'6:00:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',61,0,'6:00:00'
 
 # arch = 'GPU'
 
@@ -67,21 +68,80 @@ horiz_remap_root = '/global/homes/w/whannah/maps'
 # add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  5, lx=600, dt=60, arch='CPU', enable_zm=True, tau=14400 )
 
 
-vgrid_cntrl = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc'
-vgrid_pbias = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_p-bias.nc'
-vgrid_tbias = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_t-bias.nc'
-vgrid_alpha3 = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_alpha3.nc'
+# vgrid_cntrl = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc'
+# vgrid_pbias = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_p-bias.nc'
+# vgrid_tbias = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_t-bias.nc'
+# vgrid_alpha3 = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112_alpha3.nc'
 
 # add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_cntrl',vgrid_file=vgrid_cntrl)
 # add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_pbias',vgrid_file=vgrid_pbias)
 # add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_tbias',vgrid_file=vgrid_tbias)
-add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_alpha3',vgrid_file=vgrid_alpha3)
+# add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_alpha3',vgrid_file=vgrid_alpha3)
 
 # add_case(prefix='DP.2026-RCE-01', num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128_cntrl',vgrid_file=vgrid_cntrl, qi2qc=True)
 
 # add_case(prefix='DP.2026-RCE-01', num_nodes=1, ne=22, lx=200, dt=60, vgrid_name='L128_cntrl',vgrid_file=vgrid_cntrl)
 # add_case(prefix='DP.2026-RCE-01', num_nodes=1, ne=22, lx=200, dt=60, vgrid_name='L128_pbias',vgrid_file=vgrid_pbias)
 # add_case(prefix='DP.2026-RCE-01', num_nodes=1, ne=22, lx=200, dt=60, vgrid_name='L128_tbias',vgrid_file=vgrid_tbias)
+
+
+
+# add_case(prefix='DP.2026-RCE-00', num_nodes=4, ne= 67, lx=600, dt=60, arch='GPU', enable_zm=True ) # dx =  2.99 /  4.48 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=60, arch='GPU', enable_zm=True ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 17, lx=600, dt=60, arch='GPU', enable_zm=True ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  9, lx=600, dt=60, arch='GPU', enable_zm=True ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  5, lx=600, dt=60, arch='GPU', enable_zm=True ) # dx = 40.00 / 60.00 (np4/pg2)
+
+
+
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=1*60, arch='GPU', enable_zm=True, mvgr=10, debug=True )
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne=  9, lx=600, dt=1*60, arch='GPU', enable_zm=True, mvgr=10, debug=True )
+
+common_kwargs = {}
+common_kwargs['prefix'] = 'DP.2026-RCE-00'
+common_kwargs['arch'] = 'GPU'
+common_kwargs['num_nodes'] = 1
+
+# common_kwargs.update({'ne':40,'lx':400,'dt':1*60}) # dx =  3.33 /  5 (np4/pg2)
+# add_case(**common_kwargs, enable_zm=False ) 
+# add_case(**common_kwargs, enable_zm=True, mvgr=100 )
+# add_case(**common_kwargs, enable_zm=True, mvgr=10 )
+# add_case(**common_kwargs, enable_zm=True, mvgr=1 )
+
+common_kwargs.update({'ne':10,'lx':400,'dt':1*60}) # dx = 13.33 / 20 (np4/pg2)
+add_case(**common_kwargs, enable_zm=False ) 
+add_case(**common_kwargs, enable_zm=True, mvgr=100 )
+add_case(**common_kwargs, enable_zm=True, mvgr=10 )
+add_case(**common_kwargs, enable_zm=True, mvgr=6 )
+add_case(**common_kwargs, enable_zm=True, mvgr=4 )
+add_case(**common_kwargs, enable_zm=True, mvgr=2 )
+add_case(**common_kwargs, enable_zm=True, mvgr=1 )
+
+common_kwargs.update({'ne':10,'lx':400,'dt':5*60}) # dx = 13.33 / 20 (np4/pg2)
+add_case(**common_kwargs, enable_zm=False ) 
+add_case(**common_kwargs, enable_zm=True, mvgr=100 )
+add_case(**common_kwargs, enable_zm=True, mvgr=10 )
+add_case(**common_kwargs, enable_zm=True, mvgr=6 )
+add_case(**common_kwargs, enable_zm=True, mvgr=4 )
+add_case(**common_kwargs, enable_zm=True, mvgr=2 )
+add_case(**common_kwargs, enable_zm=True, mvgr=1 )
+
+# common_kwargs['arch'] = 'CPU'
+# add_case(**common_kwargs, enable_zm=True, mvgr=100, debug=True )
+# add_case(**common_kwargs, enable_zm=True, mvgr=100 )
+
+
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=1*60, arch='GPU', enable_zm=False ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=1*60, arch='GPU', enable_zm=True, mvgr=100  ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=1*60, arch='GPU', enable_zm=True, mvgr=10  ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=1*60, arch='GPU', enable_zm=True, mvgr=1  ) # dx =  5.88 /  8.82 (np4/pg2)
+
+
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=5*60, arch='GPU', enable_zm=False ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=5*60, arch='GPU', enable_zm=True, mvgr=100  ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=5*60, arch='GPU', enable_zm=True, mvgr=10  ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(prefix='DP.2026-RCE-00', num_nodes=1, ne= 34, lx=600, dt=5*60, arch='GPU', enable_zm=True, mvgr=1  ) # dx =  5.88 /  8.82 (np4/pg2)
+
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
@@ -102,7 +162,7 @@ def main(opts):
    #----------------------------------------------------------------------------
    case_list = []
    for key,val in opts.items(): 
-      if   key in ['prefix','compset']:case_list.append(val)
+      if   key in ['prefix','compset','arch']:case_list.append(val)
       elif key in ['grid']:            case_list.append(val.split('_')[0])
       elif key in ['num_nodes']:       case_list.append(f'NN_{val:02}')
       elif key in ['ne']:              case_list.append(f'ne_{val:03}')
@@ -224,6 +284,9 @@ def main(opts):
          run_cmd('./atmchange physics::atm_procs_list=iop_forcing,zm,mac_aero_mic,rrtmgp')
          run_cmd('./atmchange physics::zm::apply_tendencies=true')
          run_cmd(f'./atmchange physics::zm::compute_tendencies=T_mid,qv')
+         if opts.get('mvgr'):
+            max_vert_growth_rate = opts['mvgr']
+            run_cmd(f'./atmchange physics::zm::max_vert_growth_rate={max_vert_growth_rate}')
       #-------------------------------------------------------------------------
       if 'qi2qc' in opts and opts['qi2qc']: run_cmd(f'./atmchange use_qi2qc=true ')
       #-------------------------------------------------------------------------
@@ -307,6 +370,7 @@ default_field_txt_2D = '''
       - VapWaterPath
       - LiqWaterPath
       - IceWaterPath
+      - RainWaterPath
       - surf_sens_flux
       - surf_evap
       - surface_upward_latent_heat_flux
@@ -321,28 +385,27 @@ default_field_txt_2D = '''
       - SW_flux_dn_at_model_top
       - LW_flux_up_at_model_top
 '''
-# field_txt_3D = '''
-#       - ps
-#       - omega
-#       - horiz_winds
-#       - qv
-#       - qc
-#       - qr
-#       - qi
-#       - qm
-#       - nc
-#       - nr
-#       - ni
-#       - bm
-#       - T_mid
-#       - z_mid
-#       - RelativeHumidity
-#       - rad_heating_pdel
-#       - P3_qr2qv_evap
-# '''
 
 default_field_txt_1D = '''
       - ps
+      - precip_total_surf_mass_flux
+      - VapWaterPath
+      - LiqWaterPath
+      - IceWaterPath
+      - RainWaterPath
+      - surf_sens_flux
+      - surf_evap
+      - surface_upward_latent_heat_flux
+      - surf_mom_flux
+      - wind_speed_10m
+      - horiz_winds_at_model_bot
+      - SW_flux_dn_at_model_bot
+      - SW_flux_up_at_model_bot
+      - LW_flux_dn_at_model_bot
+      - LW_flux_up_at_model_bot
+      - SW_flux_up_at_model_top
+      - SW_flux_dn_at_model_top
+      - LW_flux_up_at_model_top
       - omega
       - horiz_winds
       - qv
@@ -367,7 +430,9 @@ def get_field_txt_2D(opts):
    enable_zm = False
    if 'enable_zm' in opts: enable_zm = opts['enable_zm']
    field_txt_2D = default_field_txt_2D
-   if enable_zm: field_txt_2D+='      - zm_prec \n'
+   if enable_zm:
+      field_txt_2D+='      - zm_prec \n'
+      field_txt_2D+='      - zm_activity \n'
    return field_txt_2D
 
 def get_field_txt_1D(opts):
@@ -388,6 +453,8 @@ def get_field_txt_1D(opts):
       field_txt_1D+='      - zm_qv_tend \n'
       # field_txt_1D+='      - zm_u_tend \n'
       # field_txt_1D+='      - zm_v_tend \n'
+      field_txt_1D+='      - zm_prec \n'
+      field_txt_1D+='      - zm_activity \n'
    return field_txt_1D
 
 def get_hist_opts_2D_1hr(opts):

@@ -21,6 +21,10 @@ Script authors: Peter Bogenschutz (bogenschutz1@llnl.gov)
                 Jishi Zhang (zhang73@llnl.gov)
 """
 #-------------------------------------------------------------------------------
+''' basic resolution formulas
+
+'''
+#-------------------------------------------------------------------------------
 import os, netCDF4 as nc4, numpy as np
 from datetime import datetime
 #---------------------------------------------------------------------------------------------------
@@ -51,14 +55,19 @@ output_root = os.getenv('HOME')+"/maps/" # path where mapping file will be place
 # add_grid(NE=67,LX=int(600e3))
 # add_grid(NE=34,LX=int(600e3))
 # add_grid(NE=17,LX=int(600e3))
+add_grid(NE=15,LX=int(600e3))
 # add_grid(NE= 9,LX=int(600e3))
 # add_grid(NE= 5,LX=int(600e3))
+
+# add_grid(NE=40,LX=int(400e3))
+# add_grid(NE=10,LX=int(400e3))
+
 
 # add_grid(NE= 22,LX=int(200e3))
 # add_grid(NE= 66,LX=int(200e3))
 # add_grid(NE=333,LX=int(200e3))
 
-add_grid(NE=67,LX=int(600e3))
+# add_grid(NE=67,LX=int(600e3))
 
 # formatted_date = '20251217'
 

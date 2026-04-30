@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# Note - the mksurfdat utilit was broken during some v3 updates. The errors 
+# Note - the mksurfdat utility was broken during some v3 updates. The errors 
 # mention something about "mkFertMod"
 # the current workaround is to drop back to an older version of the model, 
 # the commit/hash I checked out was: cda33a1902c2e4490bd446e81951e2580071a697

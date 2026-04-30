@@ -30,15 +30,15 @@ ncremap --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'e3sm' # e3sm / m4310 (scidac)
-# src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # master @ Sep 24 2025
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # whannah/eamxx/composable-diag-update-splitform
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => quantheory/implicit-momentum-flux-eamxx-rebase-new-diag
+# src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # whannah/eamxx/composable-diag-update-splitform
 
 # clean        = True
-# newcase      = True
-# config       = True
-# build        = True
+newcase      = True
+config       = True
+build        = True
 submit       = True
-continue_run = True
+# continue_run = True
 
 # queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',5,0,'0:30:00'
 queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',20,0,'4:00:00'
@@ -117,7 +117,7 @@ kwargs_L128_v31_alpha3['vgrid_nlev'] = 128
 kwargs_L128_v31_alpha3['vgrid_name'] = 'L128v3.1_alpha3'
 kwargs_L128_v31_alpha3['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha3.nc'
 
-prefix = '2026-GATE-IDEAL-02'
+# prefix = '2026-GATE-IDEAL-02'
 
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_cntrl)
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_pbias)
@@ -125,7 +125,7 @@ prefix = '2026-GATE-IDEAL-02'
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_alpha3)
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_cntrl, qi2qc=True)
 
-grid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
+# grid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_300.nc')
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_400', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_400.nc')
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_500.nc')
@@ -135,13 +135,13 @@ grid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc')
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_990', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_990.nc')
 
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_500.nc')
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_700.nc')
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_500.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_700.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc')
 
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_300.nc')
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.0_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc')
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_300.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_300.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.0_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc')
+# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_300.nc')
 
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_3.0_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_3_pm_300.nc')
 
@@ -153,6 +153,27 @@ add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_800', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_800.nc')
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_900.nc')
 # add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_990', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_990.nc')
+
+
+'''
+starting over with new prefix - older results were not monotonic, which doens't make sense...
+so I remade the vertical grids from scratch - and we're using a higher pm value and comparing 3km vs 13km
+'''
+
+vgrid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
+prefix = '2026-GATE-IDEAL-03'
+
+add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_3.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_100.nc')
+add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_2.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_100.nc')
+add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_2.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_100.nc')
+add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_1.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_100.nc')
+add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_1.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_100.nc')
+
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_3.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_100.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_2.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_100.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_2.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_100.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_1.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_100.nc')
+add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_1.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_100.nc')
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
