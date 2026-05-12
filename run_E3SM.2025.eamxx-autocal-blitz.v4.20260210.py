@@ -74,13 +74,13 @@ newcase,config,set_params,set_timestep,set_output,set_runopt,submit,continue_run
 # build_exe    = True
 # clean_exe    = True
 
-print_case_list = True
+# print_case_list = True
 
-newcase        = True # create the case via create_newcase
-config         = True # configure the case via case.setup
-set_params     = True # set tuning parameter values
-set_timestep   = True # set time step parameters according to grid
-set_output     = True # set history output specs
+# newcase        = True # create the case via create_newcase
+# config         = True # configure the case via case.setup
+# set_params     = True # set tuning parameter values
+# set_timestep   = True # set time step parameters according to grid
+# set_output     = True # set history output specs
 set_runopt     = True # update run-time parameters - including run length
 submit         = True # only runs case.submit
 # continue_run   = True
@@ -89,16 +89,15 @@ submit         = True # only runs case.submit
 # num_case = 1 # uncomment to override and use small number of cases for testing
 
 acct = 'E3SM_Dec'
-queue = 'prod' # debug / prod
+queue = 'capacity' # debug / prod / capacity
 
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',122,3,'06:00:00' # 122*3=366 model-days
-# stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'04:00:00' # 73*5=365 model-days
-stop_opt,stop_n,resub,walltime = 'nyears',1,0,'24:00:00' # 1 myear in 24 wall-hrs
+stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'04:00:00' # 73*5=365 model-days
+# stop_opt,stop_n,resub,walltime = 'nyears',1,0,'24:00:00' # 1 myear in 24 wall-hrs
 
-# prefix = '2025-EACB-v3'
-prefix = '2025-EACB-v4' # alt time step settings - see set_timestep section
+prefix = '2025-EACB-v4'
 
 src_dir = '/lus/flare/projects/E3SM_Dec/whannah/e3sm_src' # branch => whannah/2025-eamxx-autocal-blitz
 # src_dir = '/lus/flare/projects/E3SM_Dec/prod/ppe-20251106/E3SM-20251219' # branch => whannah/2025-eamxx-autocal-blitz
@@ -110,11 +109,8 @@ ens_case_root = '/lus/flare/projects/E3SM_Dec/whannah/scratch'
 # num_case = 1 ; print(f'\n{clr.RED}WARNING - num_case has been reset to {num_case} for testing  - WARNING{clr.END}\n')
 # case_beg,case_end = 0,num_case
 # case_beg,case_end = 0,32
-# case_beg,case_end = 0,1
-case_beg,case_end = 1,32
 
-# case_beg,case_end = 0,4
-case_beg,case_end = 1,4
+case_beg,case_end = 111-1,111-1+20
 
 if (case_end-case_beg+1)<num_case:
    print(f'\n{clr.RED}WARNING - running subset of cases => {case_beg}-{(case_end-1)} - WARNING{clr.END}\n')
@@ -122,12 +118,23 @@ if (case_end-case_beg+1)<num_case:
 # add_case(exe=True,prefix=prefix,grid='ne256',num_nodes=128)
 # add_case(exe=True,prefix=prefix,grid='ne128',num_nodes=32)
 # add_case(exe=True,prefix=prefix,grid='ne64', num_nodes=16)
-# add_case(exe=True,prefix=prefix,grid='ne32', num_nodes=4)
+add_case(exe=True,prefix=prefix,grid='ne32', num_nodes=4)
 #---------------------------------------------------------------------------------------------------
-cnt_beg = 111
+cnt_beg = 1
+
+# case_id_list = [
+#                 # 109-1,
+#                  25-1,
+#                  53-1,
+#                  30-1,
+#                  33-1,
+#                  37-1
+#                ]
+
 # cnt = 0
 # for c in range(num_case):
 for c in range(case_beg,case_end):
+# for c in case_id_list:
    tuning_params = set_tuning_params(LHS_parameter_values[c])
    # add_case(prefix=prefix,member=f'{(cnt_beg+c):03}',grid='ne256',num_nodes=128,tuning_params=tuning_params)
    # add_case(prefix=prefix,member=f'{(cnt_beg+c):03}',grid='ne128',num_nodes=32, tuning_params=tuning_params)
@@ -297,7 +304,7 @@ def run_ens_member(opts):
    #------------------------------------------------------------------------------------------------
    if set_timestep:
       #------------------------------------------------------------------------------------------------
-      ''' ne256 defaults
+      ''' ne256 defaults for reference
       ATM_NCPL: 144 <= 10 min
       ctl_nl::se_tstep: 33.33333333333
       ctl_nl::dt_remap_factor: 2
@@ -306,45 +313,35 @@ def run_ens_member(opts):
       ctl_nl::semi_lagrange_trajectory_nsubstep: 0
       '''
       #------------------------------------------------------------------------------------------------
-      # New timestep for v2/v3 ensemble
-      if opts['prefix']=='2025-EACB-v3':
-         run_cmd(f'./xmlchange ATM_NCPL=120') # 12-min
-         run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')
+      # use resolution specific time step settings for 2025-EACB-v4
+      if opts['grid']=='ne256':
+         run_cmd(f'./xmlchange ATM_NCPL=120')            # 12-min
+         run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')  #  0.5-min
          run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
          run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=12')
          run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=12')
          run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=2')
-      #------------------------------------------------------------------------------------------------
-      # use resolution specific time step settings for 2025-EACB-v4
-      if opts['prefix']=='2025-EACB-v4':
-         if opts['grid']=='ne256':
-            run_cmd(f'./xmlchange ATM_NCPL=120')            # 12-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=30')  #  0.5-min
-            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
-            run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=12')
-            run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=12')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=2')
-         if opts['grid']=='ne128':
-            run_cmd(f'./xmlchange ATM_NCPL=120')            # 12-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=120') #  2-min
-            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
-            run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=6')
-            run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=6')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
-         if opts['grid']=='ne64' :
-            run_cmd(f'./xmlchange ATM_NCPL=96')             # 15-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=180') #  3-min
-            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
-            run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=5')
-            run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=5')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
-         if opts['grid']=='ne32' :
-            run_cmd(f'./xmlchange ATM_NCPL=72')             # 20-min
-            run_cmd(f'./atmchange -b ctl_nl::se_tstep=300') #  5-min
-            run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
-            run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=4')
-            run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=4')
-            run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
+      if opts['grid']=='ne128':
+         run_cmd(f'./xmlchange ATM_NCPL=120')            # 12-min
+         run_cmd(f'./atmchange -b ctl_nl::se_tstep=120') #  2-min
+         run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
+         run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=6')
+         run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=6')
+         run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
+      if opts['grid']=='ne64' :
+         run_cmd(f'./xmlchange ATM_NCPL=96')             # 15-min
+         run_cmd(f'./atmchange -b ctl_nl::se_tstep=180') #  3-min
+         run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
+         run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=5')
+         run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=5')
+         run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
+      if opts['grid']=='ne32' :
+         run_cmd(f'./xmlchange ATM_NCPL=72')             # 20-min
+         run_cmd(f'./atmchange -b ctl_nl::se_tstep=300') #  5-min
+         run_cmd(f'./atmchange -b ctl_nl::dt_remap_factor=2')
+         run_cmd(f'./atmchange -b ctl_nl::dt_tracer_factor=4')
+         run_cmd(f'./atmchange -b ctl_nl::hypervis_subcycle_q=4')
+         run_cmd(f'./atmchange -b ctl_nl::semi_lagrange_trajectory_nsubstep=1')
 
    #------------------------------------------------------------------------------------------------
    if set_output :
@@ -398,7 +395,7 @@ def run_ens_member(opts):
       # Set some other run-time stuff
       if 'stop_opt' in globals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
       if 'stop_n'   in globals(): run_cmd(f'./xmlchange STOP_N={stop_n}')
-      if 'queue'    in globals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
+      if 'queue'    in globals(): run_cmd(f'./xmlchange JOB_QUEUE={queue} --force')
       if 'resub'    in globals(): run_cmd(f'./xmlchange RESUBMIT={resub}')
       if 'walltime' in globals(): run_cmd(f'./xmlchange JOB_WALLCLOCK_TIME={walltime}')
       #-------------------------------------------------------------------------

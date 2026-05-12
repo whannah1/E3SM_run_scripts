@@ -40,17 +40,30 @@ ndir = len(dirs)
 
 if len(args) < 1 :
     # exit('\nERROR: no search string provided!\n')
-    
-    cmd = 'ls -1dt '
-    for td in top_dir: cmd += f' {td}/*'
 
-    proc = sp.Popen([cmd], stdout=sp.PIPE, shell=True, universal_newlines=True)
-    (msg, err) = proc.communicate()
+
+    ############################################################################
+    # special logic for 2026 EAMxx auto-cal blitz on Aurora
+    search_strings = []
+    # for i in range(1,5+1):
+    for i in range(1,110+1):
+        search_strings.append(f'2025-EACB-v4.{i:03}.ne32.NN_4.')
+        opts.allow_partial_match = True
+    ############################################################################
+
+
+    # cmd = 'ls -1dt '
+    # for td in top_dir: cmd += f' {td}/*'
+
+    # proc = sp.Popen([cmd], stdout=sp.PIPE, shell=True, universal_newlines=True)
+    # (msg, err) = proc.communicate()
     
-    search_strings = [ msg.rstrip().split('\n')[0].split('/')[-1] ]
+    # search_strings = [ msg.rstrip().split('\n')[0].split('/')[-1] ]
 
 else :
     search_strings = args
+
+print(search_strings)
 
 #---------------------------------------------------------------------------------------------------
 # Loop through case directories
