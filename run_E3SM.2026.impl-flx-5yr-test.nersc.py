@@ -15,6 +15,15 @@ def add_case( **kwargs ):
 #---------------------------------------------------------------------------------------------------
 # https://docs.alcf.anl.gov/aurora/running-jobs-aurora/#queues
 #---------------------------------------------------------------------------------------------------
+'''
+components/elm/src/biogeophys/BareGroundFluxesMod.F90
+components/elm/src/biogeophys/CanopyFluxesMod.F90
+components/elm/src/biogeophys/LakeFluxesMod.F90
+components/elm/src/biogeophys/UrbanFluxesMod.F90
+driver-mct/main/seq_flux_mct.F90
+share/util/shr_flux_mod.F90
+'''
+#---------------------------------------------------------------------------------------------------
 import os, datetime, subprocess as sp
 from shutil import copy2
 home = os.getenv('HOME')
@@ -34,8 +43,10 @@ submit       = True
 queue = 'regular'
 
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'; queue = 'debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',73,5*5-1,'4:00:00' # 5-yr
+stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',182,0,'7:00:00' # July 1
+# stop_opt,stop_n,resub,walltime = 'ndays',365,0,'14:00:00' # 1-yr
+# stop_opt,stop_n,resub,walltime = 'ndays',73,5*5-1,'4:00:00' # 5-yr
 # stop_opt,stop_n,resub,walltime = 'ndays',365,5-1,'12:00:00' # 5-yr
 
 #---------------------------------------------------------------------------------------------------
@@ -56,7 +67,15 @@ stop_opt,stop_n,resub,walltime = 'ndays',73,5*5-1,'4:00:00' # 5-yr
 
 # add_case(prefix='2026-impflx-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False, gust=False )
 # add_case(prefix='2026-impflx-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=True,  gust=True )
-add_case(prefix='2026-impflx-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=True,  gust=False )
+# add_case(prefix='2026-impflx-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=True,  gust=False )
+
+### new cases with special source code changes to understand instability issues
+
+# this run makes 4 additional changes:
+# - use itmax in UrbanFluxesMod / LakeFluxesMod / BareGroundFluxesMod
+# - flux_max_iteration = 30 in driver-mct/main/seq_flux_mct.F90
+add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False )
+add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False, vtheta_thresh=0, theta_advect_form=2 )
 
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
@@ -69,7 +88,7 @@ def get_grid(opts):
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
    #----------------------------------------------------------------------------
-   debug_mode = opts['debug'] if opts.get('debug') else False
+   debug_mode = opts.get('debug', False)
    #----------------------------------------------------------------------------
    case_list = ['E3SM']
    for key,val in opts.items(): 
@@ -93,15 +112,15 @@ def main(opts):
    #----------------------------------------------------------------------------
    
    # src_dir = None
-   # if opts.get('imp_flux'):
+   # if opts.get('imp_flux') is not None:
    #    src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => quantheory/implicit-momentum-flux-eamxx-rebase-new-diag
    # else:
    #    src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # branch => whannah/eamxx/composable-diag-update-rebase
    
    if src_dir is None:  raise ValueError('src_dir cannot be None!')
    #----------------------------------------------------------------------------
-   debug_mode = opts['debug'] if opts.get('debug') else False
-   arch       = opts['arch']  if opts.get('arch')  else 'CPU'
+   debug_mode = opts.get('debug', False)
+   arch       = opts.get('arch','CPU')
    #----------------------------------------------------------------------------
    if 'num_nodes' in opts and 'num_tasks' in opts: raise ValueError('cannot specify both num_nodes and num_tasks!')
    if 'num_nodes' not in opts and 'num_tasks' not in opts: raise ValueError('you must specify either num_nodes of num_tasks!')
@@ -148,10 +167,8 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      if opts.get('iflx'):
-         run_cmd('./xmlchange ATM_FLUX_INTEGRATION_METHOD=implicit_stress')
-      if opts.get('gust'):
-         run_cmd('./xmlchange ATM_SUPPLIES_GUSTINESS=TRUE')
+      if opts.get('iflx') is not None: run_cmd('./xmlchange ATM_FLUX_INTEGRATION_METHOD=implicit_stress')
+      if opts.get('gust') is not None: run_cmd('./xmlchange ATM_SUPPLIES_GUSTINESS=TRUE')
       #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
@@ -162,17 +179,27 @@ def main(opts):
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
-      #----------------------------------------------------------------------
+      #-------------------------------------------------------------------------
+      if opts.get('theta_advect_form') is not None:
+         taf = opts['theta_advect_form']
+         run_cmd(f'./atmchange -b ctl_nl::theta_advect_form={taf}')
+         if taf==1: run_cmd(f'./atmchange -b ctl_nl::pgrad_correction=1')
+         if taf==2: run_cmd(f'./atmchange -b ctl_nl::pgrad_correction=0')
+      #-------------------------------------------------------------------------
+      if opts.get('vtheta_thresh') is not None:
+         tmp_vtheta_thresh = opts['vtheta_thresh']
+         run_cmd(f'./atmchange vtheta_thresh={tmp_vtheta_thresh}')
+      #-------------------------------------------------------------------------
       run_cmd('./atmchange homme::compute_tendencies=T_mid,qv,horiz_winds')
       run_cmd('./atmchange physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv,horiz_winds')
       # run_cmd('./atmchange physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
       # run_cmd('./atmchange physics::rrtmgp::compute_tendencies=T_mid')
-      #----------------------------------------------------------------------
+      #-------------------------------------------------------------------------
       hist_file_list = []
       def add_hist_file(hist_file,txt):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
-      #----------------------------------------------------------------------
+      #-------------------------------------------------------------------------
       add_hist_file('scream_output_1dy_avg.yaml', hist_opts_1dy_avg)
       add_hist_file('scream_output_1mo_avg.yaml', hist_opts_1mo_avg)
 
@@ -189,6 +216,12 @@ def main(opts):
       if     continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=TRUE ')   
       if not continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=FALSE ')
       #-------------------------------------------------------------------------
+
+      # monthly restarts for debugging only!
+      print(clr.RED+'WARNING - monthly restarts enabled for debugging!'+clr.END)
+      run_cmd('./xmlchange --file env_run.xml --id REST_OPTION --val MONTHLY')
+
+
       # Submit the run
       run_cmd('./case.submit')
 

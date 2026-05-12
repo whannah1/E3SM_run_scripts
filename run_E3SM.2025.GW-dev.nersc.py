@@ -9,6 +9,11 @@ def add_case( **kwargs ):
    for k, val in kwargs.items(): case_opts[k] = val
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
+'''
+~/E3SM/E3SM_SRC2/components/eamxx/src/physics/gw
+export E3SM_ENABLE_KOKKOS_BOUNDS_CHECKING=TRUE
+'''
+#---------------------------------------------------------------------------------------------------
 import os, datetime, subprocess as sp
 from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
@@ -29,26 +34,20 @@ submit       = True
 queue = 'debug'  # regular / debug
 
 # stop_opt,stop_n,resub,walltime = 'nsteps',2,0,'0:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:10:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
 #---------------------------------------------------------------------------------------------------
 ### EAMxx GWD process testing
 
-# add_case(prefix='2025-GW-DEV-00', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_tasks=1, use_gw=True, debug=True)
-
 # add_case(prefix='2025-GW-DEV-00', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=False, debug=True)
-add_case(prefix='2025-GW-DEV-00', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
 
-# edit DEFAULT_PACK_SIZE in  E3SM_SRC2/components/eamxx/CMakeLists.txt
+# add_case(prefix='2025-GW-DEV-00', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True)
+# add_case(prefix='2025-GW-DEV-00', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
 
-# # DEFAULT_PACK_SIZE=1
-# add_case(prefix='2025-GW-DEV-01', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
-
-# # DEFAULT_PACK_SIZE=8
-# add_case(prefix='2025-GW-DEV-02', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
-
+add_case(prefix='2025-GW-DEV-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True)
+# add_case(prefix='2025-GW-DEV-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
 
 # add_case(prefix='2025-GW-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, debug=True)
 

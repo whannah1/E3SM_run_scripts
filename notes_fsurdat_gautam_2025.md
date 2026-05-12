@@ -53,7 +53,8 @@ cd <your-e3sm>
 cd components/elm/tools/mksurfdata_map/
 ```
 
-Copy the placeholder namelist file from https://gist.github.com/bishtgautam/3b220bce9de550d8e2c49377243feb61
+Copy the placeholder namelist file from 
+https://gist.github.com/bishtgautam/3b220bce9de550d8e2c49377243feb61
 and do a find/replace for following
 - USR_MAPDIR
 - HGRID_NAME
@@ -76,7 +77,7 @@ cd src
 salloc --nodes 1 --qos interactive --time 00:15:00 --constraint cpu --account e3sm
 
 # Load modules and export environmental variables mentioned in lines 1-37 of
-https://gist.github.com/bishtgautam/712261d33d650dac70c9a8dbfa094899.
+https://gist.github.com/bishtgautam/712261d33d650dac70c9a8dbfa094899
 
 cd ..
 # (i.e. cd components/elm/tools/mksurfdata_map/)
