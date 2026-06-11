@@ -38,12 +38,13 @@ acct = 'e3sm' # e3sm / m4842 (sohip) / m4310 (scidac)
 # config       = True
 build        = True
 submit       = True
-# continue_run = True
+continue_run = True
 
 queue = 'regular'
 
-# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'; queue = 'debug'
-stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,6-1,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',182,0,'7:00:00' # July 1
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'14:00:00' # 1-yr
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5*5-1,'4:00:00' # 5-yr
@@ -75,7 +76,11 @@ stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
 # - use itmax in UrbanFluxesMod / LakeFluxesMod / BareGroundFluxesMod
 # - flux_max_iteration = 30 in driver-mct/main/seq_flux_mct.F90
 add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False )
-add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False, vtheta_thresh=0, theta_advect_form=2 )
+# add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False, vtheta_thresh=0, theta_advect_form=2 )
+# add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False, vtheta_thresh=100, theta_advect_form=2 )
+
+# new test with larger value of tau_diff_fac to make crash happen faster
+# add_case(prefix='2026-impflx-debug-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=True,  gust=True )
 
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
@@ -167,8 +172,8 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      if opts.get('iflx') is not None: run_cmd('./xmlchange ATM_FLUX_INTEGRATION_METHOD=implicit_stress')
-      if opts.get('gust') is not None: run_cmd('./xmlchange ATM_SUPPLIES_GUSTINESS=TRUE')
+      if opts.get('iflx'): run_cmd('./xmlchange ATM_FLUX_INTEGRATION_METHOD=implicit_stress')
+      if opts.get('gust'): run_cmd('./xmlchange ATM_SUPPLIES_GUSTINESS=TRUE')
       #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
@@ -218,8 +223,10 @@ def main(opts):
       #-------------------------------------------------------------------------
 
       # monthly restarts for debugging only!
-      print(clr.RED+'WARNING - monthly restarts enabled for debugging!'+clr.END)
-      run_cmd('./xmlchange --file env_run.xml --id REST_OPTION --val MONTHLY')
+      # print(clr.RED+'WARNING - monthly restarts enabled for debugging!'+clr.END)
+      # run_cmd('./xmlchange REST_OPTION=nmonths REST_N=1')
+      # run_cmd(f'./xmlchange REST_OPTION={stop_opt} REST_N={stop_n}')
+   
 
 
       # Submit the run

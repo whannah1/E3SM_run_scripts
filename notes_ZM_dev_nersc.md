@@ -4,6 +4,20 @@
 scontrol update qos=debug jobid=
 ```
 
+```shell
+export E3SM_ENABLE_KOKKOS_BOUNDS_CHECKING=TRUE
+```
+
+~/E3SM/E3SM_SRC1/components/eamxx/src/physics/zm
+
+--------------------------------------------------------------------------------
+
+```shell
+LOG=
+grep "eamxx_zm_process_interface" $LOG -A4 -B4
+```
+
+
 --------------------------------------------------------------------------------
 # Interactive Job
 
@@ -56,20 +70,26 @@ opt ==> release
 
 ```shell
 # E3SM_SRC=/pscratch/sd/w/whannah/tmp_eamxx_src
-E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC3
+E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
 TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests
-mach=pm-cpu
-comp=gnu
 
 cd ${TEST_ROOT}/full_debug
 
+mach=pm-cpu; comp=gnu
 eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=128 && export OMP_PROC_BIND=spread;
-
 ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
-
 cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
 make -j128
 
+
+# mach=pm-gpu; comp=gnugpu
+# eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
+# ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+# cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
+# make -j4
+
+# run the tests
+./zm_tests
 
 OMP_NUM_THREADS=1 gdb ./zm_tests
 
@@ -98,7 +118,7 @@ cp ${ZM_ROOT_SRC}/eamxx_zm_process_interface.cpp ${ZM_ROOT_DST}/eamxx_zm_process
 ```
 
 --------------------------------------------------------------------------------
-# Running in an interactive session
+# Running CPU case in interactive session
 
 ```shell
 salloc --nodes 1 --qos interactive --time 04:00:00 --constraint cpu --account=e3sm
@@ -108,8 +128,11 @@ salloc --nodes 1 --qos interactive --time 04:00:00 --constraint cpu --account=e3
 
 # CASE=E3SM.2025-ZM-DEV-01a.F2010xx-ZM.ne4pg2.NT_96.zm_apply_tend_0.debug
 # CASE=E3SM.2025-ZM-DEV-04.F2010xx-ZM.ne30pg2.NN_8.zm_apply_tend_1.debug
+CASE=E3SM.2025-GW-DEV-00.CPU.F2010xx-ZM.ne4pg2.NN_1.debug
+CASE=E3SM.2025-GW-DEV-00.CPU.F2010xx-ZM.ne4pg2.NN_1.zm_f90.debug/
 
-CASE_ROOT=/pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE
+# CASE_ROOT=/pscratch/sd/w/whannah/e3sm_scratch/pm-cpu/$CASE
+CASE_ROOT=/pscratch/sd/w/whannah/scream_scratch/pm-cpu/$CASE
 
 cd $CASE_ROOT
 source $CASE_ROOT/case_scripts/.env_mach_specific.sh

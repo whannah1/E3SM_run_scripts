@@ -30,16 +30,17 @@ ncremap --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'e3sm' # e3sm / m4310 (scidac)
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/eamxx/zm-limit-test
+# src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/eamxx/zm-limit-test
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # branch => whannah/eamxx/zm-limit-test - May 15 - switched after starting atm proc dev
 
 # clean        = True
 # newcase      = True
 # config       = True
-# build        = True
+build        = True
 submit       = True
 # continue_run = True
 
-# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',5,0,'0:30:00'
+# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:30:00'
 queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',10,1,'0:30:00' # useful for full runs @ ne9
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',20,0,'4:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','nhours',4,6-1,'12:00:00'
@@ -65,7 +66,9 @@ common_kwargs = {}
 # common_kwargs['prefix'] = 'DP.2026-GATE-ZM-03' # 02 + cape_threshold=200
 # common_kwargs['prefix'] = 'DP.2026-GATE-ZM-04' # 03 + zm_param%tau 3600 => 600
 # common_kwargs['prefix'] = 'DP.2026-GATE-ZM-05' # 05 + disable clos_dyn_adj
-common_kwargs['prefix'] = 'DP.2026-GATE-ZM-06' # 05 + enable DCAPE & revert CAPE thresholds
+# common_kwargs['prefix'] = 'DP.2026-GATE-ZM-06' # 05 + enable DCAPE & revert CAPE thresholds
+
+common_kwargs['prefix'] = 'DP.2026-GATE-ZM-06a' # test detrainment bug fix
 
 common_kwargs['arch'] = 'GPU'
 
@@ -112,14 +115,14 @@ common_kwargs['arch'] = 'GPU'
 # now we're getting into some weird sensitivity tests
 # add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True, mvgr=2, mamsc=8 ) # dx = 22.22 / 33.33 (np4/pg2)
 
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True, mvgr=3 ) # dx = 22.22 / 33.33 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt= 1.25*60, enable_zm=True, mvgr=3 ) # dx = 22.22 / 33.33 (np4/pg2)
+add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True, mvgr=3 ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt= 1.25*60, enable_zm=True, mvgr=3 ) # dx = 22.22 / 33.33 (np4/pg2)
 
 # add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True, mvgr=10 ) # dx = 22.22 / 33.33 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt= 1.25*60, enable_zm=True, mvgr=10 ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt= 1.25*60, enable_zm=True, mvgr=10 ) # dx = 22.22 / 33.33 (np4/pg2)
 
 # add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True, mvgr=100 ) # dx = 22.22 / 33.33 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt= 1.25*60, enable_zm=True, mvgr=100 ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt= 1.25*60, enable_zm=True, mvgr=100 ) # dx = 22.22 / 33.33 (np4/pg2)
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
@@ -459,6 +462,7 @@ def get_field_txt_1D(opts):
       field_txt_1D+='      - zm_T_mid_tend \n'
       field_txt_1D+='      - zm_qv_tend \n'
       field_txt_1D+='      - zm_prec \n'
+      field_txt_1D+='      - zm_dlf \n'
       field_txt_1D+='      - zm_cape \n'
       field_txt_1D+='      - zm_activity \n'
    return field_txt_1D
@@ -479,8 +483,12 @@ def get_field_txt_3D(opts):
    field_txt_3D+='      - shoc_T_mid_tend \n'
    field_txt_3D+='      - rrtmgp_T_mid_tend \n'
    field_txt_3D+='      - homme_T_mid_tend \n'
+   field_txt_3D+='      - p3_qv_tend \n'
+   field_txt_3D+='      - shoc_qv_tend \n'
    if enable_zm: 
       field_txt_3D+='      - zm_T_mid_tend \n'
+      field_txt_3D+='      - zm_qv_tend \n'
+      field_txt_3D+='      - zm_dlf \n'
    return field_txt_3D
 
 def get_hist_opts_1D_1hr_mean(opts):
