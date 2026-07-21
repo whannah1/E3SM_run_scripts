@@ -21,9 +21,9 @@ top_dir  = os.getenv('HOME')+'/E3SM/'
 src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => whannah/eamxx/zm-atm-proc
 
 # clean        = True
-# newcase      = True
-# config       = True
-# build        = True
+newcase      = True
+config       = True
+build        = True
 submit       = True
 # continue_run = True
 
@@ -32,10 +32,10 @@ submit       = True
 queue = 'regular'  # regular / debug
 
 # stop_opt,stop_n,resub,walltime = 'nsteps',10,0,'0:05:00'; queue = 'debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue = 'debug'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'1:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'3:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',365,0,'12:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',365,0,'12:00:00'
 #---------------------------------------------------------------------------------------------------
 ### EAMxx ZM process testing
 
@@ -56,8 +56,14 @@ stop_opt,stop_n,resub,walltime = 'ndays',365,0,'12:00:00'
 # add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', arch='GPU', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx',zm_detr=True,mcsp_mod=1)
 
 # enable new default => clos_dyn_adj=True
-add_case(prefix='2026-ZM-DEV-01', compset='F2010xx-ZM', arch='GPU', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='f90')
-add_case(prefix='2026-ZM-DEV-01', compset='F2010xx-ZM', arch='GPU', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx')
+# add_case(prefix='2026-ZM-DEV-01', compset='F2010xx-ZM', arch='GPU', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='f90')
+# add_case(prefix='2026-ZM-DEV-01', compset='F2010xx-ZM', arch='GPU', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx')
+
+# starting over after lot sof work at OLCF
+# add_case(prefix='2026-ZM-DEV-02', compset='F2010xx-ZM', arch='CPU', grid='ne4pg2_oQU480', num_nodes=1, zm='f90', debug=True)
+
+add_case(prefix='2026-ZM-DEV-02', compset='F2010xx-ZM', arch='CPU', grid='ne4pg2_oQU480', num_nodes=1, zm='cxx', debug=True)
+add_case(prefix='2026-ZM-DEV-02', compset='F2010xx-ZM', arch='GPU', grid='ne4pg2_oQU480', num_nodes=1, zm='cxx', debug=True)
 
 
 #---------------------------------------------------------------------------------------------------
@@ -192,13 +198,12 @@ def main(opts):
          # # run_cmd(f'./atmchange -b use_gw_frontal=True')
          # run_cmd(f'./atmchange -b use_gw_orographic=True')
 
-         if opts.get('mcsp_mod')==1:
-            run_cmd(f'./atmchange -b zm::mcsp_t_coeff=0.5')
-            run_cmd(f'./atmchange -b zm::mcsp_q_coeff=0.5')
-            run_cmd(f'./atmchange -b zm::mcsp_u_coeff=0.0')
-            run_cmd(f'./atmchange -b zm::mcsp_v_coeff=0.0')
-         
-         
+         # if opts.get('mcsp_mod')==1:
+         #    run_cmd(f'./atmchange -b zm::mcsp_t_coeff=0.5')
+         #    run_cmd(f'./atmchange -b zm::mcsp_q_coeff=0.5')
+         #    run_cmd(f'./atmchange -b zm::mcsp_u_coeff=0.0')
+         #    run_cmd(f'./atmchange -b zm::mcsp_v_coeff=0.0')
+
       #-------------------------------------------------------------------------
       # if 'SCREAM' in opts['compset']:
       if True:

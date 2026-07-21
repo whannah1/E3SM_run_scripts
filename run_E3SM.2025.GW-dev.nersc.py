@@ -25,17 +25,18 @@ src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/create-gwd-atm-proc
 # clean        = True
 # newcase      = True
 # config       = True
-build        = True
+# build        = True
 submit       = True
 # continue_run = True
 
 # debug_mode = False
 
-queue = 'debug'  # regular / debug
+# queue = 'regular'  # regular / debug
 
-# stop_opt,stop_n,resub,walltime = 'nsteps',2,0,'0:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:10:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'nsteps',2,0,'0:30:00' ; queue = 'debug'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00' ; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00' ; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'; queue = 'regular'
 # stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
 #---------------------------------------------------------------------------------------------------
@@ -45,9 +46,20 @@ stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:10:00'
 
 # add_case(prefix='2025-GW-DEV-00', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True)
 # add_case(prefix='2025-GW-DEV-00', arch='CPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
-
-add_case(prefix='2025-GW-DEV-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True)
 # add_case(prefix='2025-GW-DEV-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
+
+# add_case(prefix='2025-GW-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=False)
+# add_case(prefix='2025-GW-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True)
+
+# add_case(prefix='2025-GW-DEV-01', arch='CPU', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8)
+# add_case(prefix='2025-GW-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, use_gw=False)
+# add_case(prefix='2025-GW-DEV-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, use_gw=True)
+
+# test fix to populate SGH
+# add_case(prefix='2025-GW-DEV-02', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, use_gw=True)
+
+# quick test after rebase
+add_case(prefix='2025-GW-DEV-03', arch='GPU', compset='F2010-SCREAMv1', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, use_gw=True)
 
 # add_case(prefix='2025-GW-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, debug=True)
 
@@ -152,11 +164,12 @@ def main(opts):
             # run_cmd(f'./atmchange -b use_gw_convect=True')
             # run_cmd(f'./atmchange -b use_gw_frontal=True')
             run_cmd(f'./atmchange -b use_gw_orographic=True')
+            run_cmd(f'./atmchange -b physics::gw::compute_tendencies=T_mid,horiz_winds')
    #------------------------------------------------------------------------------------------------
    if build : 
       if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
       if clean : run_cmd('./case.build --clean')
-      run_cmd('./xmlchange CICE_CPPDEFS="-DCCSMCOUPLED -Dcoupled -Dncdf -DNCAT=1 -DNXGLOB=1791 -DNYGLOB=1 -DNTR_AERO=0 -DMODAL_AER"')
+      # run_cmd('./xmlchange CICE_CPPDEFS="-DCCSMCOUPLED -Dcoupled -Dncdf -DNCAT=1 -DNXGLOB=1791 -DNYGLOB=1 -DNTR_AERO=0 -DMODAL_AER"')
       run_cmd('./case.build --clean ice')
       run_cmd('./case.build')
       # run_cmd('./case.build --clean ice  && ./case.build')
@@ -164,18 +177,24 @@ def main(opts):
    if submit :
       #-------------------------------------------------------------------------
       if 'SCREAM' in opts['compset']:
+      # if True:
          hist_file_list = []
          def add_hist_file(hist_file,txt):
             file=open(hist_file,'w'); file.write(txt); file.close()
             hist_file_list.append(hist_file)
          #----------------------------------------------------------------------
          # add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_inst)
-         # hist_file_list_str = ','.join(hist_file_list)
-         # run_cmd(f'./atmchange Scorpio::output_yaml_files="{hist_file_list_str}"')
+         if opts.get('use_gw'):
+            hist_opts_monthly_mean = hist_opts_monthly_mean_gw_1
+         else:
+            hist_opts_monthly_mean = hist_opts_monthly_mean_gw_0
+         add_hist_file('scream_output_monthly_mean.yaml',hist_opts_monthly_mean)
+         hist_file_list_str = ','.join(hist_file_list)
+         run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
          #----------------------------------------------------------------------
-         print()
-         print(clr.RED+'WARNING - all output is disabled for debugging!'+clr.END)
-         print()
+         # print()
+         # print(clr.RED+'WARNING - all output is disabled for debugging!'+clr.END)
+         # print()
       else:
          # EAM namelist options
          nfile = 'user_nl_eam'
@@ -205,18 +224,61 @@ eam_opts = f'''
  avgflag_pertape = 'A','A'
  nhtfrq = 0,-24
  mfilt  = 1,1
- fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
+ fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE','UTGWORO','VTGWORO'
 '''
 #---------------------------------------------------------------------------------------------------
 field_txt_2D = '\n'
-# field_txt_2D += '      - precip_total_surf_mass_flux'
-# field_txt_2D += '      - LiqWaterPath'
-# field_txt_2D += '      - surf_sens_flux'
-# field_txt_2D += '      - surf_evap'
-# field_txt_2D += '      - surf_mom_flux'
-field_txt_2D += '      - U_at_model_bot'
-# field_txt_2D += '      - V_at_model_bot'
-# field_txt_2D += '      - ash'
+field_txt_2D += '      - ps\n'
+field_txt_2D += '      - SeaLevelPressure\n'
+field_txt_2D += '      - precip_total_surf_mass_flux\n'
+field_txt_2D += '      - VapWaterPath\n'
+field_txt_2D += '      - LiqWaterPath\n'
+field_txt_2D += '      - IceWaterPath\n'
+field_txt_2D += '      - RainWaterPath\n'
+field_txt_2D += '      - T_2m\n'
+field_txt_2D += '      - wind_speed_10m\n'
+field_txt_2D += '      - SW_flux_up_at_model_top\n'
+field_txt_2D += '      - SW_flux_dn_at_model_top\n'
+field_txt_2D += '      - LW_flux_up_at_model_top\n'
+# field_txt_2D += '      - U_at_model_bot\n'
+# field_txt_2D += '      - V_at_model_bot\n'
+field_txt_2D += '      - U_at_850hPa\n'
+# field_txt_2D += '      - U_at_200hPa\n'
+# field_txt_2D += '      - omega_at_500hPa\n'
+
+field_txt_3D = field_txt_2D
+field_txt_3D+='      - T_mid\n'
+field_txt_3D+='      - z_mid\n'
+field_txt_3D+='      - omega\n'
+field_txt_3D+='      - qv\n'
+field_txt_3D+='      - qc\n'
+field_txt_3D+='      - qr\n'
+field_txt_3D+='      - qi\n'
+field_txt_3D+='      - RelativeHumidity\n'
+
+# field_txt_3D+='      - p3_T_mid_tend\n'
+# field_txt_3D+='      - shoc_T_mid_tend\n'
+# field_txt_3D+='      - rrtmgp_T_mid_tend\n'
+# field_txt_3D+='      - homme_T_mid_tend\n'
+# field_txt_3D+='      - p3_qv_tend\n'
+# field_txt_3D+='      - shoc_qv_tend\n'
+# field_txt_3D+='      - homme_qv_tend\n' 
+# field_txt_3D+='      - zm_T_mid_tend\n'
+# field_txt_3D+='      - zm_qv_tend\n'
+
+field_txt_ma = field_txt_3D
+field_txt_ma+='      - surf_sens_flux\n'
+field_txt_ma+='      - surf_evap\n'
+field_txt_ma+='      - surf_mom_flux\n'
+field_txt_ma+='      - cldfrac_tot_for_analysis\n'
+field_txt_ma+='      - cldfrac_liq\n'
+field_txt_ma+='      - cldfrac_ice_for_analysis\n'
+field_txt_ma+='      - U\n'
+field_txt_ma+='      - V\n'
+# field_txt_ma+='      - zm_detr_qc\n'
+# field_txt_ma+='      - zm_detr_qi\n'
+# field_txt_ma+='      - gw_T_mid_tend\n'
+# field_txt_ma+='      - gw_horiz_winds_tend\n'
 
 
 # hist_opts_2D_inst = f'''
@@ -251,6 +313,38 @@ output_control:
    MPI Ranks in Filename: false
 Restart:
    force_new_file: true
+'''
+
+# monthly mean output
+hist_opts_monthly_mean_gw_0 = f'''
+%YAML 1.1
+---
+filename_prefix: output.monthly
+averaging_type: average
+max_snapshots_per_file: 1
+fields:
+   physics_pg2:
+      field_names:{field_txt_ma}
+output_control:
+   frequency: 1
+   frequency_units: nmonths
+'''
+
+# monthly mean output
+hist_opts_monthly_mean_gw_1 = f'''
+%YAML 1.1
+---
+filename_prefix: output.monthly
+averaging_type: average
+max_snapshots_per_file: 1
+fields:
+   physics_pg2:
+      field_names:{field_txt_ma}
+      - gw_T_mid_tend
+      - gw_horiz_winds_tend
+output_control:
+   frequency: 1
+   frequency_units: nmonths
 '''
 
 #---------------------------------------------------------------------------------------------------

@@ -35,10 +35,12 @@ srun --pty --nodes=1 --time=04:00:00 /bin/bash
 # Building Unit Tests - chrysalis
 
 ```shell
-E3SM_SRC=${HOME}/E3SM/E3SM_SRC3
-TEST_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/chrys/zm_dev/tests
-mach=chrysalis
-comp=intel
+
+# mach=chrysalis; comp=intel
+mach=chrysalis; comp=oneapi
+
+E3SM_SRC=${HOME}/E3SM/E3SM_SRC1
+TEST_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/chrys/zm_dev/tests_${comp}
 
 # move in to build dir (note it is printed above)
 cd ${TEST_ROOT}/full_debug
@@ -53,6 +55,37 @@ ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-o
 cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
 make -j128
 
+srun ./zm_tests
+
+
+```
+
+## alternate verion that also generates baselines
+
+```shell
+mach=chrysalis; comp=intel
+
+E3SM_SRC=${HOME}/E3SM/E3SM_SRC1
+TEST_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/chrys/zm_dev/tests_${comp}
+BASELINE_DIR=${TEST_ROOT}/baselines
+
+# Load environment
+mkdir -p ${TEST_ROOT}/full_debug
+cd ${TEST_ROOT}/full_debug
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp})
+export OMP_NUM_THREADS=1 CTEST_PARALLEL_LEVEL=128 OMP_PROC_BIND=spread
+
+# Configure + build
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
+make -j128
+
+# Generate baselines (runs Fortran, writes reference output)
+mkdir -p ${BASELINE_DIR}
+srun ./zm_tests --args -g -b ${BASELINE_DIR}
+
+# Compare C++ against baselines
+srun ./zm_tests --args -c -b ${BASELINE_DIR}
 
 ```
 
@@ -70,23 +103,30 @@ opt ==> release
 
 ```shell
 # E3SM_SRC=/pscratch/sd/w/whannah/tmp_eamxx_src
-E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
-TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests
-
-cd ${TEST_ROOT}/full_debug
 
 mach=pm-cpu; comp=gnu
+# mach=pm-cpu; comp=intel
+
+E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
+TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_cpu_${comp}
+mkdir -p ${TEST_ROOT}/full_debug
+cd ${TEST_ROOT}/full_debug
 eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=128 && export OMP_PROC_BIND=spread;
 ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
 cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
 make -j128
+./zm_tests
 
 
-# mach=pm-gpu; comp=gnugpu
-# eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
-# ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
-# cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
-# make -j4
+E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
+TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_gpu
+mkdir -p ${TEST_ROOT}/full_debug
+cd ${TEST_ROOT}/full_debug
+mach=pm-gpu; comp=gnugpu
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
+make -j4
 
 # run the tests
 ./zm_tests
@@ -114,6 +154,35 @@ cd /pscratch/sd/w/whannah/tmp_eamxx_src/components/eamxx
 ZM_ROOT_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC3/components/eamxx/src/physics/zm
 ZM_ROOT_DST=/pscratch/sd/w/whannah/tmp_eamxx_src/components/eamxx/src/physics/zm
 cp ${ZM_ROOT_SRC}/eamxx_zm_process_interface.cpp ${ZM_ROOT_DST}/eamxx_zm_process_interface.cpp ; cp ${ZM_ROOT_SRC}/eamxx_zm_process_interface.hpp ${ZM_ROOT_DST}/eamxx_zm_process_interface.hpp ; cp ${ZM_ROOT_SRC}/zm_functions.hpp ${ZM_ROOT_DST}/zm_functions.hpp
+
+```
+
+
+## alternate verion that also generates baselines
+
+```shell
+mach=pm-cpu; comp=gnu
+
+E3SM_SRC=${HOME}/E3SM/E3SM_SRC1
+TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_cpu_${comp}
+BASELINE_DIR=${TEST_ROOT}/baselines
+
+# Load environment
+mkdir -p ${TEST_ROOT}/full_debug
+cd ${TEST_ROOT}/full_debug
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
+
+# Configure + build
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
+make -j128
+
+# Generate baselines (runs Fortran, writes reference output)
+mkdir -p ${BASELINE_DIR}
+./zm_tests --args -g -b ${BASELINE_DIR}
+
+# Compare C++ against baselines
+./zm_tests --args -c -b ${BASELINE_DIR}
 
 ```
 
