@@ -20,8 +20,8 @@ top_dir  = os.getenv('HOME')+'/E3SM/'
 src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jun 29 2026
 
 # clean        = True
-# newcase      = True
-# config       = True
+newcase      = True
+config       = True
 build        = True
 submit       = True
 # continue_run = True
@@ -30,24 +30,33 @@ submit       = True
 
 # queue = 'regular'  # regular / debug
 
-stop_opt,stop_n,resub,walltime = 'nsteps',6,0,'0:30:00' #; queue = 'debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00' #; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'nsteps',6,0,'0:30:00' #; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00' #; queue = 'debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,3-1,'1:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,9-1,'1:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',32,12-1,'1:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'2:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',365,5-1,'8:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',365,0,'5:00:00'
 #---------------------------------------------------------------------------------------------------
 ### EAMxx ZM process testing
 
-# check time-step output for ne30
-# add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='f90', ts_output=True, dcape=True, ull=True)
-# add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='f90', ts_output=True, dcape=False, ull=True)
-# add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='f90', ts_output=True, dcape=True, ull=False)
+# check MCSP momentum - both should crash initially
+# add_case(prefix='2026-MCSP-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm='f90', muc=0.3)
+# add_case(prefix='2026-MCSP-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm='cxx', muc=0.3)
 
-# add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx', ts_output=True, dcape=True, ull=True)
-# add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx', ts_output=True, dcape=False, ull=True)
-# add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx', ts_output=True, dcape=True, ull=False)
-# add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx', ts_output=True, dcape=False, ull=False)
 
-add_case(prefix='2026-ZM-DEV-01', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm='cxx', ts_output=True, dcape=True, ull=False) # with ULL fix
+kwargs_ne30 = {}
+kwargs_ne30['compset']     = 'F2010xx-ZM'
+kwargs_ne30['grid']        = 'ne30pg2_r05_IcoswISC30E3r5'
+kwargs_ne30['num_nodes']   = 8
+
+# add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='f90', ufs=False, muc=0.0 ) # f90 control
+# add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='f90', ufs=True,  muc=0.0 ) # f90
+# add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='f90', ufs=True,  muc=0.3 ) # f90
+# add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=False, muc=0.0 ) # cxx control
+# add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=True,  muc=0.0 ) # cxx
+# add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=True,  muc=0.3 ) # cxx
+add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=True,  muc=-0.3 ) # cxx - downgradient
 
 # full multi-year tests
 # add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=12, zm='f90')
@@ -195,12 +204,16 @@ def main(opts):
          # # run_cmd(f'./atmchange -b use_gw_frontal=True')
          # run_cmd(f'./atmchange -b use_gw_orographic=True')
 
-         # if opts.get('mcsp_mod')==1:
-         #    run_cmd(f'./atmchange -b zm::mcsp_t_coeff=0.5')
-         #    run_cmd(f'./atmchange -b zm::mcsp_q_coeff=0.5')
-         #    run_cmd(f'./atmchange -b zm::mcsp_u_coeff=0.0')
-         #    run_cmd(f'./atmchange -b zm::mcsp_v_coeff=0.0')
          
+         if 'mtc' in opts: run_cmd(f'./atmchange -b zm::mcsp_t_coeff='+str(opts['mtc']))
+         if 'mqc' in opts: run_cmd(f'./atmchange -b zm::mcsp_q_coeff='+str(opts['mqc']))
+         if 'muc' in opts: run_cmd(f'./atmchange -b zm::mcsp_mom_coeff='+str(opts['muc']))
+         
+         if opts.get('ufs'):
+            if     opts['ufs']: run_cmd(f'./atmchange -b zm::mcsp_use_full_shear=true')
+            if not opts['ufs']: run_cmd(f'./atmchange -b zm::mcsp_use_full_shear=false')
+
+
          # # test if DCAPE is causing divergence on second time step
          # if 'ne4pg2_' in opts['grid']:
          #    # print(f'\n{clr.RED}WARNING - disabling DCAPE for ne4 test!{clr.END}')
@@ -374,19 +387,15 @@ fields:
       - zm_detr_qc
       - zm_detr_qi
       - mcsp_ds_out
-      - mcsp_dq_out
-      - mcsp_du_out
-      - mcsp_dv_out
       - mcsp_freq
       - mcsp_shear
       - zm_depth
-
+      - evap_ds_out
+      - evap_dq_out
 output_control:
    frequency: 1
    frequency_units: nsteps
 '''
-# - evap_ds_out
-# - evap_dq_out
 
 # horiz_remap_file = f'{horiz_remap_root}/map_dpxx_x{domain_len}m_y{domain_len}m_nex{ne}_ney{ne}_to_1x1.nc'
 # hist_opts_1D_1hr_mean = f'''

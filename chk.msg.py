@@ -111,21 +111,25 @@ for tdir in dirs :
 
             ### If we found the to the case run directory, then identify the latest logs and parse
             if found :
-                #-------------------------------------------------------
-                #-------------------------------------------------------
-                
-                ### print case name
+                case_root = tdir
+                #---------------------------------------------------------------
+                # print case name
                 case_str = case.ljust(indent_len)
                 case_str = tclr.ULN+case_str+tclr.ULNOFF
                 case_str = tclr.BLD+case_str+tclr.END
                 print('\n'+case_str+'\n')
 
-                if len( glob.glob(tdir+'/run/e3sm.log*') )==0: 
+                if len( glob.glob(case_root+'/run/e3sm.log*') )==0: 
                     print(tclr.RED+'  NO LOG FILES???'+tclr.END)
                     continue
-
-                ### Get the names of all e3sm logs
-                cmd = 'ls  '+tdir+'/run/e3sm.log* | tail -n '+str(num_file)+' '
+                #---------------------------------------------------------------
+                # check if we're dealing with EAM or EAMxx
+                comp = sp.check_output('./xmlquery --value COMP_ATM', shell=True,
+                                       cwd=f'{case_root}/case_scripts', text=True)
+                if comp=='scream': comp = 'eamxx'
+                #---------------------------------------------------------------
+                # Get the names of all e3sm logs
+                cmd = 'ls  '+case_root+'/run/e3sm.log* | tail -n '+str(num_file)+' '
                 proc = sp.Popen([cmd], stdout=sp.PIPE, shell=True, universal_newlines=True)
                 (msg, err) = proc.communicate()
 
@@ -156,9 +160,15 @@ for tdir in dirs :
                     ### only atm log
                     # cmd = 'tail -n '+opts.num_line+' '+file_list.replace('e3sm','atm')
                 
+                step_search_str = None
+                if comp=='eam'  : step_search_str = 'nstep,'
+                if comp=='eamxx': step_search_str = 'end-of-step timestamp'
+                if step_search_str is None:
+                    raise ValueError(f'step_search_str cannot be None - is comp={comp} supported?')
+
                 if opts.nstep_only:
                     
-                    cmd = 'grep "nstep," '+file_list.replace('e3sm','atm')+' | tail -n '+opts.num_line
+                    cmd = f'grep "{step_search_str}" '+file_list.replace('e3sm','atm')+' | tail -n '+opts.num_line
                     proc = sp.Popen([cmd], stdout=sp.PIPE, shell=True, universal_newlines=True)
                     (nstep_msg, err) = proc.communicate()
                     msg = nstep_msg.rstrip().split('\n')
@@ -185,7 +195,7 @@ for tdir in dirs :
 
                     if all('nstep, te' not in m for m in msg) :
                         # cmd = ' echo ; grep "nstep" '+file_list.replace('e3sm','atm')+' | tail -n '+opts.num_line
-                        cmd = 'grep "nstep" '+str(file_list.replace('e3sm','atm'))+' | tail -n 5 '
+                        cmd = f'grep "{step_search_str}" '+str(file_list.replace('e3sm','atm'))+' | tail -n 5 '
                         proc = sp.Popen([cmd], stdout=sp.PIPE, shell=True, universal_newlines=True)
                         (nstep_msg, err) = proc.communicate()
                         if nstep_msg!='' : 
