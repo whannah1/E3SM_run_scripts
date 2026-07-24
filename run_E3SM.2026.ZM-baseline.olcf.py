@@ -17,7 +17,7 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'cli115'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jul 21 2026
+src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jul 21 2026 - 656bc155a9f990052e4b60b7f73a786ad978cdea
 
 # clean        = True
 newcase      = True
@@ -26,50 +26,23 @@ build        = True
 submit       = True
 # continue_run = True
 
-# queue = 'regular'  # regular / debug
-
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',32,0,'1:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',31,0,'4:00:00'
+stop_opt,stop_n,resub,walltime = 'nmonths',6,5*2-1,'6:00:00' # 5-years / ne256 / 128-nodes
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'5:00:00'
 #---------------------------------------------------------------------------------------------------
 ### EAMxx ZM process testing
 
-### retest with commit used by Wuyin: 2999625a0817705df1173df0917221a0cb9f26ab - no chunk adjust
-# src_dir  = f'{top_dir}/E3SM_SRC0'
-# add_case(prefix='2026-ZM-BASE-00a', grid='ne256pg2_ne256pg2', num_nodes= 32, compset='F2010-SCREAMv1'  )
-# add_case(prefix='2026-ZM-BASE-00a', grid='ne256pg2_ne256pg2', num_nodes= 64, compset='F2010-SCREAMv1'  )
-# add_case(prefix='2026-ZM-BASE-00a', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010-SCREAMv1'  )
-
-### try again after applying the XSTRIDE fix from PR #8501
-# src_dir  = f'{top_dir}/E3SM_SRC3'
-# add_case(prefix='2026-ZM-BASE-00b', grid='ne256pg2_ne256pg2', num_nodes= 32, compset='F2010-SCREAMv1'  )
-# add_case(prefix='2026-ZM-BASE-00b', grid='ne256pg2_ne256pg2', num_nodes= 64, compset='F2010-SCREAMv1'  )
-# add_case(prefix='2026-ZM-BASE-00b', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010-SCREAMv1'  )
-
-# kwargs_ne30  = {'grid':'ne30pg2_r05_IcoswISC30E3r5', 'num_nodes':8}
-# kwargs_ne256 = {'grid':'ne256pg2_r025_RRSwISC6to18E3r5', 'num_nodes':128}
-# kwargs_ne256 = {'grid':'ne256pg2_ne256pg2', 'num_nodes':64}
-# kwargs_ne256 = {'grid':'ne256pg2_ne256pg2', 'num_nodes':96}
-# kwargs_ne256 = {'grid':'ne256pg2_ne256pg2', 'num_nodes':128}
-
-# add_case(prefix='2026-ZM-BASE-00', **kwargs_ne256, compset='F2010-SCREAMv1'  )
-# add_case(prefix='2026-ZM-BASE-00', **kwargs_ne256, compset='F2010xx-ZM-CICE' )
-
-add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes= 32, compset='F2010-SCREAMv1'  )
-add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes= 64, compset='F2010-SCREAMv1'  )
-
-add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes= 32, compset='F2010xx-ZM-CICE'  )
-add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes= 64, compset='F2010xx-ZM-CICE'  )
+add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010-SCREAMv1' )
+add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010xx-ZM-CICE' )
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
    grid_name = opts['grid']
-   if 'ne4pg2_'   in opts['grid']: grid_name = 'ne4pg2'
-   if 'ne30pg2_'  in opts['grid']: grid_name = 'ne30pg2'
-   if 'ne120pg2_' in opts['grid']: grid_name = 'ne120pg2'
-   if 'ne256pg2_' in opts['grid']: grid_name = 'ne256pg2'
+   for ne in [4,30,32,64,128,256,512,1024]:
+      if f'ne{ne}pg2_' in opts['grid']:
+         grid_name = f'ne{ne}pg2'
    return grid_name
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
@@ -80,6 +53,7 @@ def get_case_name(opts):
       elif key in ['debug']:     continue
       elif key in ['num_nodes']: case_list.append(f'NN_{val}')
       elif key in ['num_tasks']: case_list.append(f'NT_{val}')
+      elif key in ['cosp'] and opts.get('cosp'):  case_list.append('COSP')
       else:
          if isinstance(val, str):
             case_list.append(f'{key}_{val}')
@@ -109,12 +83,9 @@ def main(opts):
    if 'num_nodes' not in opts and 'num_tasks' not in opts:
       raise ValueError('you must specify either num_nodes of num_tasks!')
    #----------------------------------------------------------------------------
-   machine,compiler = 'frontier','craygnu-mphipcc '
+   machine,compiler = 'frontier','craygnu-mphipcc'
    case_root = f'/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/{case}'
    atm_ntasks = 8*opts['num_nodes'] # 8 GPU per node
-   #----------------------------------------------------------------------------
-   if opts['prefix']=='2026-ZM-BASE-00b':
-      atm_ntasks = 56*opts['num_nodes']
    #------------------------------------------------------------------------------------------------
    # Create new case
    if newcase :
@@ -135,12 +106,12 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      if opts['prefix']=='2026-ZM-BASE-00b':
-         run_cmd('./xmlchange MAX_MPITASKS_PER_NODE=56')
-         run_cmd('./xmlchange PSTRID_ATM=7,EXCL_STRIDE_ATM=7')
-      #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
+      #-------------------------------------------------------------------------
+      # Enable COSP
+      if opts.get('cosp',False):
+         run_cmd(f'./atmchange physics::atm_procs_list+=cosp')
       #-------------------------------------------------------------------------
       # Enable tendency calculation for output
       if not opts.get('debug',False):
@@ -148,16 +119,9 @@ def main(opts):
          run_cmd(f'./atmchange -b physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
          run_cmd(f'./atmchange -b physics::rrtmgp::compute_tendencies=T_mid')
          run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid,qv')
-         if opts['compset']=='F2010xx-ZM':
+         if 'F2010xx-ZM' in opts['compset']:
             run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv')
             run_cmd(f'./atmchange -b zm::use_fortran_bridge=false')
-      #-------------------------------------------------------------------------
-      if opts['prefix'] not in ['2026-ZM-BASE-00a','2026-ZM-BASE-00b']:
-         chunk_size=1280
-         if opts['num_nodes']== 64: chunk_size = 256
-         if opts['num_nodes']== 96: chunk_size = 512
-         if opts['num_nodes']==128: chunk_size = 512
-         run_cmd(f'./atmchange -b physics::rrtmgp::column_chunk_size={chunk_size} ') # default => 1280
    #------------------------------------------------------------------------------------------------
    if build : 
       if opts.get('debug',False): run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
@@ -166,12 +130,11 @@ def main(opts):
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
-      #-------------------------------------------------------------------------
       hist_file_list = []
       def add_hist_file(hist_file,txt):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
-      #----------------------------------------------------------------------
+      #-------------------------------------------------------------------------
       if not opts.get('debug',False):
          add_hist_file('scream_output_3hi.yaml',      get_hist_opts_3hi(opts) )
          add_hist_file('scream_output_1da.yaml',      get_hist_opts_1da(opts) )
@@ -202,12 +165,15 @@ fields_1da_main = f'''
          - ps
          - SeaLevelPressure
          - precip_total_surf_mass_flux
+         - precip_liq_surf_mass_flux
+         - precip_ice_surf_mass_flux
          - VapWaterPath
          - LiqWaterPath
          - IceWaterPath
          - RainWaterPath
          - T_2m
          - wind_speed_10m
+         - snow_depth_land
          - SW_flux_up_at_model_top
          - SW_flux_dn_at_model_top
          - LW_flux_up_at_model_top
@@ -218,7 +184,6 @@ fields_1da_main = f'''
          # - omega_at_850hPa
          # - U_at_model_bot
          # - V_at_model_bot
-         - snow_depth_land
 '''
 fields_1da_zm = f'''
          - zm_prec
@@ -289,9 +254,6 @@ fields_1ma_main = f'''
          - homme_T_mid_tend
          - homme_qv_tend
          - rrtmgp_T_mid_tend
-         # COSP
-         # - isccp_ctptau
-         # - isccp_cldtot
 '''
 fields_1ma_zm = f'''
          - zm_T_mid_tend
@@ -308,6 +270,11 @@ fields_1ma_zm = f'''
          - zm_dcape
          - zm_prec
          - zm_activity
+'''
+fields_1ma_cosp = f'''
+         # COSP
+         - isccp_ctptau
+         - isccp_cldtot
 '''
 #---------------------------------------------------------------------------------------------------
 
@@ -374,7 +341,7 @@ averaging_type: average
 max_snapshots_per_file: 5
 fields:
    physics_pg2:
-      field_names:{fields_1da_main + (fields_1da_zm if opts['compset']=='F2010xx-ZM' else '')}
+      field_names:{fields_1da_main + (fields_1da_zm if 'F2010xx-ZM' in opts['compset'] else '')}
 output_control:
    frequency: 24
    frequency_units: nhours
@@ -389,7 +356,7 @@ averaging_type: average
 max_snapshots_per_file: 5
 fields:
    physics_pg2:
-      field_names:{fields_1da_main + (fields_1da_zm if opts['compset']=='F2010xx-ZM' else '')}
+      field_names:{fields_1da_main+(fields_1da_zm if 'F2010xx-ZM' in opts['compset'] else '')}
 output_control:
    frequency: 24
    frequency_units: nhours
@@ -403,7 +370,9 @@ averaging_type: average
 max_snapshots_per_file: 1
 fields:
    physics_pg2:
-      field_names:{fields_1ma_main + (fields_1ma_zm if opts['compset']=='F2010xx-ZM' else '')}
+      field_names:{fields_1ma_main
+                  +(fields_1ma_zm if 'F2010xx-ZM' in opts['compset'] else '')
+                  +(fields_1ma_cosp if opts.get('cosp',False) else '')}
 output_control:
    frequency: 1
    frequency_units: nmonths
@@ -418,7 +387,9 @@ averaging_type: average
 max_snapshots_per_file: 1
 fields:
    physics_pg2:
-      field_names:{fields_1ma_main + (fields_1ma_zm if opts['compset']=='F2010xx-ZM' else '')}
+      field_names:{fields_1ma_main
+                  +(fields_1ma_zm if 'F2010xx-ZM' in opts['compset'] else '')
+                  +(fields_1ma_cosp if opts.get('cosp',False) else '')}
 output_control:
    frequency: 1
    frequency_units: nmonths
