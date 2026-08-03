@@ -35,7 +35,9 @@ verbose      = True      # print commands
 tests = [ 
         # 'SMS_Ln5_P3072x1.ne128pg2_ne128pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'SMS_Ln5_P768x1.ne64pg2_ne64pg2.F2010-SCREAMv1.chrysalis_intel',
-        'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010-SCREAMv1.chrysalis_intel',
+        # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010-SCREAMv1.chrysalis_intel',
+        # 'ERS_Ld5.ne4pg2_oQU480.F2010xx-ZM.chrysalis_intel',
+        'ERS_D_Ld5.ne4pg2_oQU480.F2010xx-ZM.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne30pg2_ne30pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010.chrysalis_intel',
         ]

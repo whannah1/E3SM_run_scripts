@@ -19,9 +19,9 @@ src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/create-gwd-atm-proc
 
 # clean        = True
 # newcase      = True
-# config       = True
-build        = True
-submit       = True
+config       = True
+# build        = True
+# submit       = True
 # continue_run = True
 
 # debug_mode = False
@@ -115,7 +115,8 @@ def main(opts):
       cmd += f' --pecount {atm_ntasks}x{atm_nthrds} '
       cmd += f' --project {acct} '
       # cmd += f' --mach chrysalis --compiler gnu'
-      cmd += f' --mach chrysalis --compiler intel'
+      # cmd += f' --mach chrysalis --compiler intel'
+      cmd += f' --mach bebop --compiler intel'
       run_cmd(cmd)
       #----------------------------------------------------------------------------
       # # Copy this run script into the case directory
