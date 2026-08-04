@@ -9,11 +9,7 @@ vert_file_list,name,clr = [],[],[]
 vert_file_list.append(f'{home}/E3SM/vert_grid_files/L72_E3SM.nc');                clr.append('red'); name.append('L72 old')
 vert_file_list.append(f'{home}/E3SM/vert_grid_files/L72_E3SM_new.nsmooth_20.nc'); clr.append('blue'); name.append('L72 new')
 
-
-fig_type = 'png'
-fig_file = os.getenv('HOME')+'/E3SM/figs_grid/vertical_grid.v2'
-
-
+fig_file,fig_type = os.getenv('HOME')+'/E3SM/figs_grid/vertical_grid_ladder','png'
 
 #-------------------------------------------------------------------------------
 # Set up workstation
