@@ -20,18 +20,6 @@ def add_case( **kwargs ):
    for k, val in kwargs.items(): case_opts[k] = val
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
-''' commands to regrid initial condition - don't need this - IOP provides IC data
-SRC_FILE=/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne30np4L128_20221004.nc
-DST_FILE=/global/homes/w/whannah/E3SM_grid_support/2026-INCITE-CONUS-RRM/screami_ne30np4L128_20221004.L144.nc
-DST_VERT=/global/homes/w/whannah/E3SM_grid_support/2026-INCITE-CONUS-RRM/2026-INCITE-CONUS-RRM_L144_v1_c20251211.nc
-ncremap --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE} --fl_fmt=64bit_data
-
-SRC_FILE=/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne30np4L128_20221004.nc
-DST_VERT=/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc
-DST_FILE=/pscratch/sd/w/whannah/files_init/screami_ne30np4L128_20221004.L128_v3.4.nc
-ncremap --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
-'''
-#---------------------------------------------------------------------------------------------------
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
 acct = 'e3sm' # e3sm / m4310 (scidac)
@@ -46,151 +34,33 @@ submit       = True
 # continue_run = True
 
 # queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',5,0,'0:30:00'
-queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',20,0,'4:00:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','nhours',6,0,'1:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','nhours',4,6-1,'12:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',6,0,'12:00:00'
 
-compset = 'FIOP-SCREAMv1-DP'
-
 horiz_remap_root = '/global/homes/w/whannah/maps'
 
-# vgrid_L128 = '/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/vertical_coordinates_L128_20220927.nc'
-# vgrid_L144 = '/global/homes/w/whannah/E3SM_grid_support/2026-INCITE-CONUS-RRM/2026-INCITE-CONUS-RRM_L144_v1_c20251211.nc'
+compset = 'FIOP-SCREAMv1-DP'
 
-# init_L128 = '/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne30np4L128_20221004.nc'
-# init_L144 = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/screami_ne30np4L128_20221004.L144.nc'
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
-
-# # 3km
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=4,ne=67,lx=600,dt=60,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  4.5 /  3.0km (ne1024)
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=4,ne=67,lx=600,dt=60,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  4.5 /  3.0km (ne1024)
-
-# 1km
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=8,ne=200,lx=600,dt=20,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  1.5 /  1.0km
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=8,ne=200,lx=600,dt=20,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  1.5 /  1.0km
-
-# NOTE - the current runs are an attempt to set tom_sponge_start to fix the instability
-
-# # 15 sec is unstable - but 128 nodes seems to work
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=128,ne=1000,lx=600,dt=15,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  dx_dyn ~ 200m
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=128,ne=1000,lx=600,dt=15,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  dx_dyn ~ 200m
-
-# 4 sec timestep is consistent with the 3km/ne67 runs
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=128,ne=1000,lx=600,dt=4,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  dx_dyn ~ 200m
-# add_case(prefix='2026-GATE-IDEAL-00',num_nodes=128,ne=1000,lx=600,dt=4,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  dx_dyn ~ 200m
-
-# add_case(prefix='2026-GATE-IDEAL-00', num_nodes=1, ne=44, lx=600, dt=60 ) #  9.0 /  6.0km ( ne512)
-# add_case(prefix='2026-GATE-IDEAL-00', num_nodes=1, ne=22, lx=600, dt=60 ) # 18.2 / 12.1km ( ne256)
-# add_case(prefix='2026-GATE-IDEAL-00', num_nodes=1, ne=11, lx=600, dt=60 ) # 36.4 / 24.2km ( ne256)
-# add_case(prefix='2026-GATE-IDEAL-00', num_nodes=1, ne=5,  lx=600, dt=60 ) # 36.4 / 24.2km ( ne256)
-
-# start a new group with smaller domain size to get down to smaller dx
-
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=  1,ne= 22,lx=200,dt=60,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  4.5 /  3.0km (ne1024)
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=  1,ne= 22,lx=200,dt=60,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  4.5 /  3.0km (ne1024)
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=  8,ne= 66,lx=200,dt=20,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  1.5 /  1.0km
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=  8,ne= 66,lx=200,dt=20,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  1.5 /  1.0km
-
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=128,ne=333,lx=200,dt= 4,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  dx_dyn ~ 200m
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=128,ne=333,lx=200,dt= 4,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  dx_dyn ~ 200m
-
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=256,ne=333,lx=200,dt= 4,vgrid_name='L128',vgrid_file=vgrid_L128,vgrid_nlev=128,init_file=init_L128) #  dx_dyn ~ 200m
-# add_case(prefix='2026-GATE-IDEAL-01',num_nodes=256,ne=333,lx=200,dt= 4,vgrid_name='L144',vgrid_file=vgrid_L144,vgrid_nlev=144,init_file=init_L144) #  dx_dyn ~ 200m
-
-
-
-# kwargs_L128_v31_cntrl = {}
-# kwargs_L128_v31_cntrl['vgrid_nlev'] = 128
-# kwargs_L128_v31_cntrl['vgrid_name'] = 'L128v3.1'
-# kwargs_L128_v31_cntrl['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112.nc'
-# # kwargs_L128_v31_cntrl['init_file']  = '/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1.nc'
-
-# kwargs_L128_v31_pbias = {}
-# kwargs_L128_v31_pbias['vgrid_nlev'] = 128
-# kwargs_L128_v31_pbias['vgrid_name'] = 'L128v3.1_pbias'
-# kwargs_L128_v31_pbias['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_p-bias.nc'
-# # kwargs_L128_v31_pbias['init_file']  = '/global/cfs/cdirs/e3sm/whannah/files_init/screami_ne256np4L128_ifs-20200120_20220914.L128v3.1_p-bias.nc'
-
-# kwargs_L128_v31_alpha2 = {}
-# kwargs_L128_v31_alpha2['vgrid_nlev'] = 128
-# kwargs_L128_v31_alpha2['vgrid_name'] = 'L128v3.1_alpha2'
-# kwargs_L128_v31_alpha2['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha2.nc'
-
-# kwargs_L128_v31_alpha3 = {}
-# kwargs_L128_v31_alpha3['vgrid_nlev'] = 128
-# kwargs_L128_v31_alpha3['vgrid_name'] = 'L128v3.1_alpha3'
-# kwargs_L128_v31_alpha3['vgrid_file'] = '/global/cfs/cdirs/e3sm/whannah/files_vert/SCREAM_L128_v3.1_c20251112_alpha3.nc'
-
-# prefix = '2026-GATE-IDEAL-02'
-
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_cntrl)
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_pbias)
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_alpha2)
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_alpha3)
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v31_cntrl, qi2qc=True)
-
-# grid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_300.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_400', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_400.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_500.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_600', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_600.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_700.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_800', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_800.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_990', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_990.nc')
-
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_500.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_700.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1_pm_900.nc')
-
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_1.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_300.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.0_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2.5_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_300.nc')
-
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_3.0_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_3_pm_300.nc')
-
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_300', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_300.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_400', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_400.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_500', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_500.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_600', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_600.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_700', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_700.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_800', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_800.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_900', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_900.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, vgrid_name='L128v3.1_alpha_2_pm_990', vgrid_file=f'{grid_root}/SCREAM_L128_v3.1_c20251112_alpha_2_pm_990.nc')
-
-
-'''
-starting over with new prefix - older results were not monotonic, which doens't make sense...
-so I remade the vertical grids from scratch - and we're using a higher pm value and comparing 3km vs 13km
-'''
-
-# vgrid_root = '/global/cfs/cdirs/e3sm/whannah/files_vert'
-# prefix = '2026-GATE-IDEAL-03'
-
-# add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_3.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_2.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_2.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_1.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=1, ne=15, lx=600, dt=5*60, vgrid_name='L128_v3.1_alpha_1.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_100.nc')
-
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_3.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_3.0_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_2.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.5_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_2.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_2.0_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_1.5_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.5_pm_100.nc')
-# add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=1*60, vgrid_name='L128_v3.1_alpha_1.0_pm_100', vgrid_file=f'{vgrid_root}/SCREAM_L128_v3.1_c20251112_alpha_1.0_pm_100.nc')
-
 
 kwargs_L128_v34 = {}
 kwargs_L128_v34['vgrid_nlev'] = 128
 kwargs_L128_v34['vgrid_name'] = 'L128v3.4'
 kwargs_L128_v34['vgrid_file'] = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc'
 
-prefix = '2026-GATE-IDEAL-04'
+prefix = '2026-DYCOMS-SRF1-00'
 
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60 )
-add_case(prefix=prefix, num_nodes=4, ne=67, lx=600, dt=60, **kwargs_L128_v34)
+add_case(prefix=prefix, num_nodes=4, ne=10, lx=100, dt=100 )
+add_case(prefix=prefix, num_nodes=4, ne=10, lx=100, dt=100, **kwargs_L128_v34)
 
+#---------------------------------------------------------------------------------------------------
+# case specific info
+iop_lat = 31.5
+iop_lon = 238.500
+start_date = '1999-07-10'
+start_tod  = '0'
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 def main(opts):
@@ -213,8 +83,6 @@ def main(opts):
    # vgrid_name = opts['vgrid_name']
    # vgrid_file = opts['vgrid_file']
    # vgrid_nlev = opts['vgrid_nlev']
-   # init_file  = opts['init_file']
-   #print(f'init_file: {init_file}')
    #exit()
    #----------------------------------------------------------------------------
    # optional arguments that still need a value
@@ -228,7 +96,6 @@ def main(opts):
       if   key in ['prefix','compset']:case_list.append(val)
       elif key in ['vgrid_file']:      continue
       elif key in ['vgrid_nlev']:      continue
-      elif key in ['init_file']:       continue
       elif key in ['vgrid_name']:      case_list.append(f'{val}')
       elif key in ['grid']:            case_list.append(val.split('_')[0])
       elif key in ['num_nodes']:       case_list.append(f'NN_{val:02}')
@@ -290,8 +157,8 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      run_cmd(f'./xmlchange RUN_STARTDATE="1974-08-30",START_TOD="0"')
-      run_cmd(f'./xmlchange PTS_MULTCOLS_MODE="TRUE",PTS_MODE="TRUE",PTS_LAT="0.0",PTS_LON="0.0"')
+      run_cmd(f'./xmlchange RUN_STARTDATE="{start_date}",START_TOD="{start_tod}"')
+      run_cmd(f'./xmlchange PTS_MULTCOLS_MODE="TRUE",PTS_MODE="TRUE",PTS_LAT="{iop_lat}",PTS_LON="{iop_lon}"')
       #-------------------------------------------------------------------------
       num_col = ne*ne*4 # number of columns needed for component model initialization
       # run_cmd(f'./xmlchange MASK_GRID="USGS",PTS_NX="{num_col}",PTS_NY=1')
@@ -307,49 +174,35 @@ def main(opts):
          vgrid_nlev = opts['vgrid_nlev']
          run_cmd(f'./xmlchange SCREAM_CMAKE_OPTIONS="SCREAM_NUM_VERTICAL_LEV {vgrid_nlev} SCREAM_NP 4 SCREAM_NUM_TRACERS 10"')
       #-------------------------------------------------------------------------
-      if 'init_file' in opts and opts['init_file'] is not None:
-         init_file = opts['init_file']
-         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
-      #-------------------------------------------------------------------------
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
       #---------------------------------------------------------------------------------------------------
       # Case specific information
-      run_cmd(f'./atmchange -b target_latitude=9.0 ')
-      run_cmd(f'./atmchange -b target_longitude=336.0 ')
+      run_cmd(f'./atmchange -b target_latitude={iop_lat}')
+      run_cmd(f'./atmchange -b target_longitude={iop_lon}')
       run_cmd(f'./atmchange -b se_ne_x={ne} ')
       run_cmd(f'./atmchange -b se_ne_y={ne} ')
       run_cmd(f'./atmchange -b se_lx={domain_len} ')
       run_cmd(f'./atmchange -b se_ly={domain_len} ')
+
+      run_cmd(f'./atmchange -b rad_frequency=3')
+      run_cmd(f'./atmchange -b iop_srf_prop=true')
+      run_cmd(f'./atmchange -b iop_dosubsidence=true')
+      run_cmd(f'./atmchange -b iop_coriolis=false')
+      run_cmd(f'./atmchange -b extra_shoc_diags=true')
+      run_cmd(f'./atmchange -b set_cld_frac_r_to_one=true')
+      run_cmd(f'./atmchange -b iop_nudge_uv=false')
+      run_cmd(f'./atmchange -b iop_nudge_tq=false')
+
+      run_cmd(f'./atmchange -b iop_file={din_loc_root}/atm/cam/scam/iop/DYCOMSrf01_iopfile_4scam.nc')
+
       run_cmd(f'./atmchange -b cubed_sphere_map=2 ')
-      run_cmd(f'./atmchange -b iop_file={din_loc_root}/atm/cam/scam/iop/GATEIDEAL_iopfile_4scam_extended.nc ')
       run_cmd(f'./atmchange -b nu=0.216784 ')
       run_cmd(f'./atmchange -b nu_top={nu_top} ')
-      # if opts['ne']== 67: run_cmd(f'./atmchange -b nu_top=1e4 ') # default
-      # if opts['ne']==200: run_cmd(f'./atmchange -b nu_top=3333 ')
       run_cmd(f'./atmchange -b se_ftype=2 ')
-      run_cmd(f'./atmchange -b dt_remap_factor=1 ')
-      run_cmd(f'./atmchange -b se_tstep={(dtime/6)} ')
-      # dp_cpl_tight = False
-      # if dp_cpl_tight:
-      #    run_cmd(f'./atmchange se_tstep={dtime} ')
-      #    run_cmd(f'./atmchange dt_remap_factor=1 ')
-      #    run_cmd(f'./atmchange dt_tracer_factor=1 ')
-      #    run_cmd(f'./atmchange hypervis_subcycle_q=1 ')
-      # else:
-      #    run_cmd(f'./atmchange dt_remap_factor=1 ')
-      #    run_cmd(f'./atmchange se_tstep={(dtime/6)} ')
-      run_cmd(f'./atmchange -b rad_frequency=1 ')
-      run_cmd(f'./atmchange -b iop_srf_prop=false ')
-      run_cmd(f'./atmchange -b iop_nudge_uv=true ')
-      run_cmd(f'./atmchange -b iop_nudge_tq=false ')
-      run_cmd(f'./atmchange -b iop_coriolis=false ')
-      run_cmd(f'./atmchange -b iop_dosubsidence=false ')
-      # # Allow for the computation of tendencies for output purposes
-      # run_cmd(f'./atmchange physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv')
-      # run_cmd(f'./atmchange physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
-      # run_cmd(f'./atmchange physics::rrtmgp::compute_tendencies=T_mid')
-      # run_cmd(f'./atmchange homme::compute_tendencies=T_mid,qv')
+      run_cmd(f'./atmchange -b dt_remap_factor=2 ')
+      run_cmd(f'./atmchange -b se_tstep={(dtime/12)} ')
+      
       #-------------------------------------------------------------------------
       # if enable_zm:
       #    run_cmd('./atmchange physics::atm_procs_list=iop_forcing,zm,mac_aero_mic,rrtmgp')
@@ -385,13 +238,9 @@ def main(opts):
       add_hist_file('scream_output_1D_1hr_mean.yaml',get_hist_opts_1D_1hr(opts))
       add_hist_file('scream_output_2D_1hr_mean.yaml',get_hist_opts_2D_1hr(opts))
       add_hist_file('scream_output_2D_1hr_inst.yaml',get_hist_opts_2D_1hr_inst(opts))
-      add_hist_file('scream_output_3D_1hr_inst.yaml',get_hist_opts_3D_1hr_inst(opts))
+      # add_hist_file('scream_output_3D_1hr_inst.yaml',get_hist_opts_3D_1hr_inst(opts))
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
-      #-------------------------------------------------------------------------
-      if 'init_file' in opts and opts['init_file'] is not None:
-         init_file = opts['init_file']
-         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
       #-------------------------------------------------------------------------
       # write_atm_namelist(ne,domain_len,dtime)
       #-------------------------------------------------------------------------
