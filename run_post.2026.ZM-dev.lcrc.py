@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, subprocess as sp, glob, datetime, sys, netCDF4
+import os, subprocess as sp, glob, datetime, sys
 #---------------------------------------------------------------------------------------------------
 class clr:END,RED,GREEN,YELLOW,MAGENTA,CYAN,BOLD = '\033[0m','\033[31m','\033[32m','\033[33m','\033[35m','\033[36m','\033[1m'
 def print_line(): print(' '*2+'-'*80)
@@ -84,16 +84,18 @@ def main(opts):
                 tmp_files.remove(f'{status_path}/{file_name}')
                 tmp_files = sorted(tmp_files, key=os.path.getmtime, reverse=True)
                 log_file = tmp_files[0]
-                log_file_name = log_file.replace(f'{status_path}/','')
+                log_file_name = log_file#.replace(f'{status_path}/','')
                 proc = sp.run(['tail',log_file], capture_output=True, text=True, universal_newlines=True)
                 msg, err = proc.stdout, proc.stderr
                 msg = msg.replace('ERROR',f'{clr.RED}ERROR{clr.END}')
+                print()
                 print(' '*6+f'{clr.CYAN}{log_file_name}{clr.END} : \n')
                 print(' '*8+'...')
                 for line in msg.split('\n'): print(' '*8+line)
     #-----------------------------------------------------------------------------------------------
     # preliminary check to ensure all file variables are there
     if run_zppy_chk:
+        import netCDF4
         diag_var_list_list = get_diag_vars(opts)
         file_prefix_list = [ file_prefix_1ma, file_prefix_1da ]
         if len(diag_var_list_list)!=len(file_prefix_list): raise ValueError('var and prefix list lengths must match!')
@@ -261,6 +263,7 @@ years = "{yr1}:{yr2}:{ts_nyr}",
   vars = "{vars_1da}"
 
   [[ atm_monthly_{dst_grid}_aave ]]
+  case = "output"
   input_subdir = "{data_sub}"
   input_files = "{file_prefix_1ma}"
   input_component = "eamxx"
