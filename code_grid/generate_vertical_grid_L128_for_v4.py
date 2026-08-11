@@ -6,6 +6,7 @@ ps = 1000e2
 # flags for printing debugging/tuning info/lists
 print_int_debug = False
 print_mid_debug = False
+print_summary   = False
 
 nsmooth = 20
 
@@ -65,9 +66,21 @@ def main():
     # nsmooth = 40
     # fix_lowest_spacing = True
 
-    ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc'
-    dk_list = [10,36,  8, 12, 12, 12, 12, 10,  6,    8,   2,]
-    dz_list = [20,60,140,280,320,360,400,440,1000,2000,2500,]
+    # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc'
+    # dk_list = [10,36,  8, 12, 12, 12, 12, 10,  6,    8,   2,]
+    # dz_list = [20,60,140,280,320,360,400,440,1000,2000,2500,]
+    # nsmooth = 40
+    # fix_lowest_spacing = True
+
+    # ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.5_c20251112.nc'
+    # dk_list = [10,30, 12, 12, 12, 12, 12, 12,   6,   6,   4,]
+    # dz_list = [20,50,120,240,300,360,420,480,1000,1800,2400,]
+    # nsmooth = 40
+    # fix_lowest_spacing = True
+
+    ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/SCREAM_L128_v3.6_c20251112.nc'
+    dk_list = [10,38, 4, 12, 12, 12, 12, 12,   6,   6,   4,]
+    dz_list = [20,40,80,260,320,380,440,500,1000,1800,2400,]
     nsmooth = 40
     fix_lowest_spacing = True
     
@@ -152,25 +165,26 @@ def main():
 
     #---------------------------------------------------------------------------
     # print mid and interface levels
-    for k in range(num_mlev):
-        k2 = num_mlev-k-1
-        msg1 = f'{k:3}  ({k2:3})'
-        msg2 = ' '*len(msg1)
-        if k==0:
-            ki = 0
+    if print_summary:
+        for k in range(num_mlev):
+            k2 = num_mlev-k-1
+            msg1 = f'{k:3}  ({k2:3})'
+            msg2 = ' '*len(msg1)
+            if k==0:
+                ki = 0
+                msg2 = msg2 +' '*4+' '*7+f'{ilev[ki]:8.2f}          {ai[ki]:8.5f}        {bi[ki]:8.5f}'
+                msg2 = tcolor.GREEN + msg2 + tcolor.ENDC
+                print(msg2)
+            km = k
+            ki = k+1
+            msg1 = f'{k:3}  ({k2:3})'
+            msg2 = ' '*len(msg1)
+            msg1 = msg1 +' '*4+      f'{mlev[km]:8.2f}          {am[km]:8.5f}        {bm[km]:8.5f}'
             msg2 = msg2 +' '*4+' '*7+f'{ilev[ki]:8.2f}          {ai[ki]:8.5f}        {bi[ki]:8.5f}'
             msg2 = tcolor.GREEN + msg2 + tcolor.ENDC
+            print(msg1)
             print(msg2)
-        km = k
-        ki = k+1
-        msg1 = f'{k:3}  ({k2:3})'
-        msg2 = ' '*len(msg1)
-        msg1 = msg1 +' '*4+      f'{mlev[km]:8.2f}          {am[km]:8.5f}        {bm[km]:8.5f}'
-        msg2 = msg2 +' '*4+' '*7+f'{ilev[ki]:8.2f}          {ai[ki]:8.5f}        {bi[ki]:8.5f}'
-        msg2 = tcolor.GREEN + msg2 + tcolor.ENDC
-        print(msg1)
-        print(msg2)
-    # exit()
+        # exit()
 
     #---------------------------------------------------------------------------
     # Write to file

@@ -29,31 +29,32 @@ from shutil import copy2
 home = os.getenv('HOME')
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => quantheory/implicit-momentum-flux-eamxx-rebase-new-diag
+# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => quantheory/implicit-momentum-flux-eamxx-rebase-new-diag
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # branch => jdongg/cpl/ocn-atm-flux-revision-rebase
 
 acct = 'e3sm' # e3sm / m4842 (sohip) / m4310 (scidac)
 
 # clean        = True
 # newcase      = True
 # config       = True
-build        = True
+# build        = True
 submit       = True
-continue_run = True
+# continue_run = True
 
 queue = 'regular'
 
-stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,6-1,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',182,0,'7:00:00' # July 1
-# stop_opt,stop_n,resub,walltime = 'ndays',365,0,'14:00:00' # 1-yr
+stop_opt,stop_n,resub,walltime = 'ndays',365,0,'14:00:00' # 1-yr
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5*5-1,'4:00:00' # 5-yr
 # stop_opt,stop_n,resub,walltime = 'ndays',365,5-1,'12:00:00' # 5-yr
 
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-# test to investigate how to disable implici fluxes
+# test to investigate how to disable implicit fluxes
 
 # add_case(prefix='2026-impflx-test-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne4', num_nodes=1, imp_flux=False )
 
@@ -75,12 +76,16 @@ stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
 # this run makes 4 additional changes:
 # - use itmax in UrbanFluxesMod / LakeFluxesMod / BareGroundFluxesMod
 # - flux_max_iteration = 30 in driver-mct/main/seq_flux_mct.F90
-add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False )
+# add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False )
 # add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False, vtheta_thresh=0, theta_advect_form=2 )
 # add_case(prefix='2026-impflx-debug-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False,  gust=False, vtheta_thresh=100, theta_advect_form=2 )
 
 # new test with larger value of tau_diff_fac to make crash happen faster
 # add_case(prefix='2026-impflx-debug-01', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=True,  gust=True )
+
+### new tests with Justin's update => jdongg/cpl/ocn-atm-flux-revision-rebase
+add_case(prefix='2026-impflx-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=False, gust=False )
+add_case(prefix='2026-impflx-00', arch='GPU', compset='F2010-SCREAMv1', grid='ne256', num_nodes=128, iflx=True, gust=True )
 
 #---------------------------------------------------------------------------------------------------
 def get_grid(opts):
@@ -90,6 +95,29 @@ def get_grid(opts):
    if grid_short=='ne4' : grid = 'ne4pg2_ne4pg2'
    if grid is None: raise ValueError('grid cannot be None!')
    return grid
+#---------------------------------------------------------------------------------------------------
+def write_nl_cpl():
+   nl_txt = '''
+use_ocn_atm_flux_reg = .true.
+ocn_atm_flux_eps = 0.5
+ocn_atm_flux_damping = 0.08
+flux_convergence = 3.0e-3
+flux_max_iteration = 20000000
+'''
+   file = open('user_nl_cpl','w')
+   file.write(nl_txt)
+   file.close()
+#---------------------------------------------------------------------------------------------------
+def write_nl_mpassi():
+   nl_txt = '''
+config_use_ice_atm_flux_reg = true
+config_ice_atm_flux_eps = 0.5
+config_ice_atm_flux_damping = 0.08
+config_boundary_layer_iteration_number = 20000000
+'''
+   file = open('user_nl_mpassi','w')
+   file.write(nl_txt)
+   file.close()
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
    #----------------------------------------------------------------------------
@@ -180,7 +208,8 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    if build : 
       if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
-      if clean : run_cmd('./case.build --clean')
+      if clean : run_cmd('./case.build --clean-all')
+      # run_cmd('./case.build --clean ice')
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
@@ -210,6 +239,9 @@ def main(opts):
 
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
+      #-------------------------------------------------------------------------
+      write_nl_cpl()
+      write_nl_mpassi()
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       if 'stop_opt' in globals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
@@ -261,6 +293,8 @@ fields:
          - wind_speed_10m
          - U_at_model_bot
          - V_at_model_bot
+         - U_at_850hPa
+         - U_at_200hPa
          - surf_sens_flux
          - surface_upward_latent_heat_flux
          - surf_mom_flux

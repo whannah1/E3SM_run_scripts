@@ -44,7 +44,7 @@ src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/eamxx/zm-clou
 submit         = True
 # continue_run = True
 
-# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:10:00'
+# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:30:00'
 # queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',10,1,'0:30:00' # useful for full runs @ ne9
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',20,0,'2:00:00'
 queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',40,0,'5:00:00' # <<<<
@@ -181,7 +181,7 @@ common_kwargs['arch'] = 'GPU'
 # add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, mcta=3, mit=60*60 ) # dx = 40.00 / 60.00 (np4/pg2)
 
 ### ZM w/ cloud-top ascent limiter - mcta=2 + mit=60*60 (3600)
-add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=2, mit=60*60 ) # dx =  2.99 /  4.48 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=2, mit=60*60 ) # dx =  2.99 /  4.48 (np4/pg2)
 # add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, mcta=2, mit=60*60 ) # dx =  4.00 /  6.00 (np4/pg2)
 # add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, mcta=2, mit=60*60 ) # dx =  5.88 /  8.82 (np4/pg2)
 # add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, mcta=2, mit=60*60 ) # dx =  8.00 / 12.00 (np4/pg2)
@@ -191,6 +191,23 @@ add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=T
 # add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, mcta=2, mit=60*60 ) # dx = 28.57 / 42.86 (np4/pg2)
 # add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, mcta=2, mit=60*60 ) # dx = 40.00 / 60.00 (np4/pg2)
 
+
+### ZM w/o cloud-top ascent limiter - higher CAPE/DCAPE limits
+# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, cpt=, dct= ) # dx =  2.99 /  4.48 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, cpt=, dct= ) # dx =  4.00 /  6.00 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, cpt=, dct= ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, cpt=, dct= ) # dx =  8.00 / 12.00 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=, dct= ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, cpt=, dct= ) # dx = 15.38 / 23.08 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, cpt=, dct= ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, cpt=, dct= ) # dx = 28.57 / 42.86 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, cpt=, dct= ) # dx = 40.00 / 60.00 (np4/pg2)
+
+# test out DCAPE limits
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0 ) # dx = 11.76 / 17.65 (np4/pg2)
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.1 )
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.5 )
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=1.0 )
 
 ### ZM w/ cloud-top ascent limiter + constant dt to mimic behavior across RRM scales
 # add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 )
@@ -406,6 +423,12 @@ def main(opts):
       #-------------------------------------------------------------------------
       # run_cmd(f'./atmchange -b homme::tom_sponge_start=')
       #-------------------------------------------------------------------------
+      if enable_zm:
+         if 'cpt' in opts:
+            run_cmd(f'./atmchange -b physics::zm::cape_threshold='+str(opts['cpt']))
+         if 'dct' in opts:
+            run_cmd(f'./atmchange -b physics::zm::dcape_threshold='+str(opts['dct']))
+      #-------------------------------------------------------------------------
       # avoid writing monthly cice file
       file = open('user_nl_cice','w') 
       file.write(f"histfreq='y','x','x','x','x' \n")
@@ -573,6 +596,7 @@ def get_field_txt_2D(opts):
    if enable_zm:
       field_txt_2D+='      - zm_prec \n'
       field_txt_2D+='      - zm_cape \n'
+      field_txt_2D+='      - zm_dcape \n'
       field_txt_2D+='      - zm_activity \n'
    return field_txt_2D
 

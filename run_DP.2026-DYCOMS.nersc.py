@@ -45,15 +45,19 @@ compset = 'FIOP-SCREAMv1-DP'
 #---------------------------------------------------------------------------------------------------
 # build list of cases to run
 
-kwargs_L128_v34 = {}
-kwargs_L128_v34['vgrid_nlev'] = 128
-kwargs_L128_v34['vgrid_name'] = 'L128v3.4'
+kwargs_L128_v34 = {'vgrid_nlev':128,'vgrid_name':'L128v3.4'}
 kwargs_L128_v34['vgrid_file'] = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc'
+kwargs_L128_v35 = {'vgrid_nlev':128,'vgrid_name':'L128v3.5'}
+kwargs_L128_v35['vgrid_file'] = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.5_c20251112.nc'
+kwargs_L128_v36 = {'vgrid_nlev':128,'vgrid_name':'L128v3.6'}
+kwargs_L128_v36['vgrid_file'] = '/global/homes/w/whannah/E3SM/vert_grid_files/SCREAM_L128_v3.6_c20251112.nc'
 
 prefix = '2026-DYCOMS-SRF1-00'
 
 add_case(prefix=prefix, num_nodes=4, ne=10, lx=100, dt=100 )
 add_case(prefix=prefix, num_nodes=4, ne=10, lx=100, dt=100, **kwargs_L128_v34)
+add_case(prefix=prefix, num_nodes=4, ne=10, lx=100, dt=100, **kwargs_L128_v35)
+add_case(prefix=prefix, num_nodes=4, ne=10, lx=100, dt=100, **kwargs_L128_v36)
 
 #---------------------------------------------------------------------------------------------------
 # case specific info
@@ -340,6 +344,29 @@ default_field_txt_1D = '''
       - cldfrac_tot_for_analysis
       - cldfrac_liq
       - cldfrac_ice_for_analysis
+      # SHOC diagnostics
+      - sgs_buoy_flux
+      - pbl_height
+      - inv_qc_relvar
+      - eddy_diff_heat
+      - w_variance
+      - cldfrac_liq_prev
+      - ustar
+      - obklen
+      - tau_est
+      - shoc_mix
+      - shoc_cond
+      - shoc_evap
+      - wthl_sec
+      - wqw_sec
+      - qw_sec
+      - uw_sec
+      - vw_sec
+      - w3
+      - vapor_flux
+      - water_flux
+      - ice_flux
+      - heat_flux
 '''
 
 def get_field_txt_2D(opts):

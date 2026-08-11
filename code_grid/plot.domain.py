@@ -13,7 +13,7 @@ def add_file(file_in,n=None):
     file_list.append(file_in)
     file_name.append(os.path.basename(file_in).replace('.nc','') if n is None else n)
 #-------------------------------------------------------------------------------
-tmp_path = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_domain'
+# tmp_path = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_domain'
 
 # add_file(f'{tmp_path}/domain.lnd.conus-1024x2-pg2_RRSwISC6to18E3r5.20260721.mask-version.nc', n='20260721.mask-version')
 # add_file(f'{tmp_path}/domain.lnd.conus-1024x2-pg2_RRSwISC6to18E3r5.20260618.nc',              n='20260618')
@@ -21,10 +21,15 @@ tmp_path = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_d
 # add_file(f'{tmp_path}/domain.ocn.conus-1024x2-pg2_RRSwISC6to18E3r5.20260721.mask-version.nc', n='20260721.mask-version')
 # add_file(f'{tmp_path}/domain.ocn.conus-1024x2-pg2_RRSwISC6to18E3r5.20260618.nc',              n='20260618')
 
-tmp_path = '/lustre/orion/cli115/world-shared/e3sm/inputdata/share/domains'
-add_file(f'{tmp_path}/domain.ocn.RRSwISC6to18E3r5.240328.nc',n='RRSwISC6to18E3r5')
+DIN_LOC_ROOT = '/lustre/orion/cli115/world-shared/e3sm/inputdata'
+DIN_LOC_ROOT = '/global/cfs/cdirs/e3sm/inputdata'
+data_root = f'{DIN_LOC_ROOT}/share/domains'
+add_file(f'{data_root}/domain.ocn.RRSwISC6to18E3r5.240328.nc',n='RRSwISC6to18E3r5 old')
 
-add_file(f'{tmp_path}/domain.ocn.oEC60to30v3.161222.nc',n='oEC60to30v3')
+# add_file(f'{data_root}/domain.ocn.oEC60to30v3.161222.nc',n='oEC60to30v3')
+
+data_root = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain'
+add_file(f'{data_root}/domain.ocn.RRSwISC6to18E3r5.20260610.nc',n='RRSwISC6to18E3r5 new')
 
 # tmp_path = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_domain'
 # add_file(f'{tmp_path}/domain.ocn.RRSwISC6to18E3r5.20260618.nc',n='RRSwISC6to18E3r5')

@@ -1,5 +1,38 @@
 --------------------------------------------------------------------------------
 
+```
+diff --git a/components/eam/src/physics/cam/gw/gw_common.F90 b/components/eam/src/physics/cam/gw/gw_common.F90
+index 3080401ded..6b7df64b8f 100644
+--- a/components/eam/src/physics/cam/gw/gw_common.F90
++++ b/components/eam/src/physics/cam/gw/gw_common.F90
+@@ -659,6 +659,14 @@ subroutine gwd_compute_tendencies_from_stress_divergence(ncol, ngwv, do_taper, d
+            end where
+         end if
+
++#ifdef USE_TAU_FIX
++        ! Protection on SMALL gwut to prevent floating point issues
++        !--------------------------------------------------
++        where( abs(gwut(:,k,l)) < 1.e-15_r8 )
++           gwut(:,k,l) = 0._r8
++        end where
++#endif
++
+         where (k <= tend_level)
+
+            ! Redetermine the effective stress on the interface below from
+@@ -667,7 +675,11 @@ subroutine gwd_compute_tendencies_from_stress_divergence(ncol, ngwv, do_taper, d
+            ! causing stress divergence in the next layer down. This
+            ! smoothes large stress divergences downward while conserving
+            ! total stress.
++#ifdef USE_TAU_FIX
++           tau(:,l,k) = tau(:,l,k-1) + abs(gwut(:,k,l)) * dpm(:,k) / gravit
++#else
+            tau(:,l,k) = tau(:,l,k-1) + ubtl * dpm(:,k) / gravit
++#endif
+
+         end where
+```
+
 --------------------------------------------------------------------------------
 # LCRC
 
