@@ -26,10 +26,10 @@ acct = 'e3sm' # e3sm / m4310 (scidac)
 src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0' # branch => quantheory/implicit-momentum-flux-eamxx-rebase-new-diag
 # src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC2' # whannah/eamxx/composable-diag-update-splitform
 
-# clean        = True
-newcase      = True
-config       = True
-build        = True
+# # clean        = True
+# newcase      = True
+# config       = True
+# build        = True
 submit       = True
 # continue_run = True
 
@@ -238,6 +238,8 @@ def main(opts):
       def add_hist_file(hist_file,txt):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
+      #-------------------------------------------------------------------------
+      run_cmd(f'./atmchange extra_shoc_diags=true')
       #-------------------------------------------------------------------------
       add_hist_file('scream_output_1D_1hr_mean.yaml',get_hist_opts_1D_1hr(opts))
       add_hist_file('scream_output_2D_1hr_mean.yaml',get_hist_opts_2D_1hr(opts))

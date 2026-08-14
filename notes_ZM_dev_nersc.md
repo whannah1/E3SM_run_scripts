@@ -144,36 +144,51 @@ OMP_NUM_THREADS=1 valgrind ./zm_tests
 --------------------------------------------------------------------------------
 # Building Unit Tests - perlmutter
 
+## CPU tests
+
 ```shell
-# E3SM_SRC=/pscratch/sd/w/whannah/tmp_eamxx_src
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
 
 mach=pm-cpu; comp=gnu
 # mach=pm-cpu; comp=intel
 
-E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
+# E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
+E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
 TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_cpu_${comp}
 mkdir -p ${TEST_ROOT}/full_debug
 cd ${TEST_ROOT}/full_debug
 eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=128 && export OMP_PROC_BIND=spread;
-${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT} -b AUTO
 cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
 make -j128
+# run the tests
 ./zm_tests
 
+```
 
-E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
+## GPU tests
+
+```shell
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint gpu --account=e3sm
+
+mach=pm-gpu; comp=gnugpu
+
+# E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC1
+E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
 TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_gpu
 mkdir -p ${TEST_ROOT}/full_debug
 cd ${TEST_ROOT}/full_debug
-mach=pm-gpu; comp=gnugpu
 eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
 ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
 cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
 make -j4
-
 # run the tests
 ./zm_tests
+```
 
+## Debugging
+
+```shell
 OMP_NUM_THREADS=1 gdb ./zm_tests
 
 break __cxa_throw
@@ -201,32 +216,255 @@ cp ${ZM_ROOT_SRC}/eamxx_zm_process_interface.cpp ${ZM_ROOT_DST}/eamxx_zm_process
 ```
 
 
-## alternate verion that also generates baselines
+## alternate CPU version that also generates baselines
 
 ```shell
+cd /pscratch/sd/w/whannah/tmp_e3sm_src
+git checkout master-alt-for-baselines
+git submodule sync ; git submodule update --init --recursive
+
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
+
 mach=pm-cpu; comp=gnu
 
-E3SM_SRC=${HOME}/E3SM/E3SM_SRC1
+# E3SM_SRC=${HOME}/E3SM/E3SM_SRC1
+E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
 TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_cpu_${comp}
-BASELINE_DIR=${TEST_ROOT}/baselines
+TEST_PATH=${TEST_ROOT}/full_debug/src/physics/zm/tests
+BASELINE_DIR=${TEST_ROOT}/baselines_cpu
+
+mkdir -p ${TEST_ROOT}/full_debug
+mkdir -p ${BASELINE_DIR}
 
 # Load environment
-mkdir -p ${TEST_ROOT}/full_debug
 cd ${TEST_ROOT}/full_debug
 eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
 
 # Configure + build
 ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
-cd ${TEST_ROOT}/full_debug/src/physics/zm/tests
+cd ${TEST_PATH}
 make -j128
 
+cd ${TEST_PATH}
+
+./zm_tests --rng-seed 23568 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR}
+
 # Generate baselines (runs Fortran, writes reference output)
-mkdir -p ${BASELINE_DIR}
+
 ./zm_tests --args -g -b ${BASELINE_DIR}
 
 # Compare C++ against baselines
 ./zm_tests --args -c -b ${BASELINE_DIR}
 
+```
+
+New CPU test with modified config to mimic GPU
+
+```shell
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
+
+mach=pm-cpu; comp=gnu
+E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
+TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_cpu_${comp}_mg
+TEST_PATH=${TEST_ROOT}/full_debug/src/physics/zm/tests
+BASELINE_DIR=${TEST_ROOT}/baselines_cpu_mg
+mkdir -p ${TEST_ROOT}/full_debug ${BASELINE_DIR}
+
+cd ${TEST_ROOT}/full_debug
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
+
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT} \
+  -c SCREAM_PACK_SIZE=1 \
+  -c SCREAM_FPE=OFF
+
+# confirm it took before spending the build
+grep -E "^SCREAM_PACK_SIZE:|^SCREAM_FPE:|^Kokkos_ENABLE_CUDA:|^SCREAM_DOUBLE_PRECISION:" \
+  ${TEST_ROOT}/full_debug/CMakeCache.txt
+
+cd ${TEST_PATH}
+make -j128
+./zm_tests --rng-seed 23568 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR}
+
+# zm_conv_main_bfb should fail exactly as before, on both — it already failed identically on CPU and GPU, so it's independent of all of this.
+
+# The one to watch is zm_conv_evap_bfb:
+# - fails here → pack size, i.e. expression grouping in the C++ port. Not a GPU problem, and debuggable on CPU.
+# - passes here → device arithmetic. Next step would be --fmad=false on the ZM device sources to confirm FMA contraction is the source.
+```
+
+
+Manual bisection on CPU
+
+```shell
+
+# git checkout c8f59e154e4c255ebcd0a7370f185c45931b7857 # Aug 12 < FAIL
+# git checkout 72ee0570474dd7369a1b471299c007d1f36c2f05 # Aug 12 < ?
+# git checkout 23b2ddf2b40c6475d82a5e0fe548ad3a04b52963 # Aug 11 < ?
+# git checkout 5b6018bb77f8f282c64f1bdf7f52f85f7bb4fd5b # Aug 11 < ?
+# git checkout c9254a6d9f51a60b8efb914151440076de429f29 # Aug 11 < ?
+# git checkout 28849b6756ced30d1e418829d28b7d9ca2e2f540 # Aug 10 < ?
+# git checkout 49f1ce78bc22a5174a1a2b83a79c7e7b90353ceb # Aug 9  < ?
+# git checkout 538e092bafe0f532c645bf5887736e56ddf214d4 # Aug 7  < FAIL
+# git checkout a6f518470bd2b1c905eb1aa69dba5f03ab9cd41b # Aug 6  < FAIL   0.0224952577 == Approx( 0.0224694987 )
+# git checkout 33c69bee3347d997e9f51bb0150746828edfa2af # Aug 6  < FAIL   0.0224952577 == Approx( 0.0224694987 )
+# git checkout 5bace1fdf4de1cd0cef994a178db034a92a4ca31 # Aug 4  < FAIL   0.0224952577 == Approx( 0.0224694987 ) 
+# git checkout 24ec260619207a35eb1dfd8af02d63d475807718 # Jul 10 < FAIL   0.0224952577 == Approx( 0.0224694987 )
+# git checkout 01130a01361bb6536f9907a3c041f794aceca8b6 # Jul 6  < FAILx2 0.0224952577 == Approx( 0.0224694987 ) + zm_conv_evap_bfb
+# git checkout 9b832f00d0582a6fcfc653cab0a463b184f3a15c # Jul 1  < FAILx2 0.0224952577 == Approx( 0.0224694987 ) + zm_conv_evap_bfb
+# git checkout b50b9648ff567f66e515e8a34f13acbca8d5720f # Jun 25 < FAILx2 0.0224952577 == Approx( 0.0224694987 ) + zm_conv_evap_bfb
+git checkout c314aa6d469d294e7ec40f00dbb4a218ca78c233 # Jun 24 < FAILx2 0.0224952577 == Approx( 0.0224694987 ) + zm_conv_evap_bfb
+# git checkout c7285a5c734514fe6f6c88e0df1f41d18df574e7 # Jun 24 < PASS
+# git checkout 72d3884fd338c60b4bc00b7e3ce2f5eae3636ab9 # Jun 17 < PASS
+git submodule sync ; git submodule update --init --recursive
+sed -i '93,96s/REQUIRE(/CHECK(/; 99,103s/REQUIRE(/CHECK(/; 130,141s/REQUIRE(/CHECK(/; 144,145s/REQUIRE(/CHECK(/'     components/eamxx/src/physics/zm/tests/zm_conv_main_tests.cpp
+
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
+
+mach=pm-cpu; comp=gnu
+E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
+TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_cpu_${comp}_bisect
+TEST_PATH=${TEST_ROOT}/full_debug/src/physics/zm/tests
+BASELINE_DIR=${TEST_ROOT}/baselines_cpu_bisect
+mkdir -p ${TEST_ROOT}/full_debug ${BASELINE_DIR}
+cd ${TEST_ROOT}/full_debug
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+cd ${TEST_PATH}
+make -j128
+./zm_tests --rng-seed 23568 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR}
+```
+
+This fix seems to fix the problem
+
+```diff
+diff --git a/components/eamxx/src/physics/zm/impl/zm_conv_main_impl.hpp b/components/eamxx/src/physics/zm/impl/zm_conv_main_impl.hpp
+index bfbd465390..0ce77a202f 100644
+--- a/components/eamxx/src/physics/zm/impl/zm_conv_main_impl.hpp
++++ b/components/eamxx/src/physics/zm/impl/zm_conv_main_impl.hpp
+@@ -447,10 +447,10 @@ void Functions<S,D>::zm_conv_main(
+         cld_base_mass_flux(i) = Kokkos::max(
+           cld_base_mass_flux(i) - omega(i, pbl_top(i)) * ZMC::pa_to_mb, Real(0));
+         // reapply limiter from above to protect against instability caused by large omega values
+-        if (mflx_up_max_val > 0) {
+-          cld_base_mass_flux(i) = Kokkos::min(cld_base_mass_flux(i),
+-                                                   1 / (time_step * mflx_up_max_val));
+-        }
++       // if (mflx_up_max_val > 0) {
++       //   cld_base_mass_flux(i) = Kokkos::min(cld_base_mass_flux(i),
++       //                                            1 / (time_step * mflx_up_max_val));
++       // }
+```
+
+## alternate GPU version that also generates baselines
+
+```shell
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint gpu --account=e3sm
+
+mach=pm-gpu; comp=gnugpu
+E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
+TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_gpu
+TEST_PATH=${TEST_ROOT}/full_debug/src/physics/zm/tests
+# BASELINE_DIR=${TEST_ROOT}/baselines_gpu
+BASELINE_DIR=${TEST_ROOT}/baselines_gpu_mvm
+
+mkdir -p ${TEST_ROOT}/full_debug
+mkdir -p ${BASELINE_DIR}
+
+cd ${TEST_ROOT}/full_debug
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
+
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+cd ${TEST_PATH}
+make -j4
+
+cd ${TEST_PATH}
+
+# Generate baselines
+./zm_tests --rng-seed 12345 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+./zm_tests --rng-seed 13579 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # PASS
+./zm_tests --rng-seed 24680 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+./zm_tests --rng-seed 12457 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+./zm_tests --rng-seed 23568 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 2 fail
+./zm_tests --rng-seed 34679 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+./zm_tests --rng-seed 13467 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+./zm_tests --rng-seed 98765 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+./zm_tests --rng-seed 87654 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+./zm_tests --rng-seed 76543 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 1 fail
+
+
+# Compare C++ against baselines
+./zm_tests --args -c -b ${BASELINE_DIR}
+
+```
+
+another targeted test of "FMA contraction" - will zm_conv_evap_bfb pass?
+
+```shell
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint gpu --account=e3sm
+
+mach=pm-gpu; comp=gnugpu
+E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
+TEST_ROOT=/pscratch/sd/w/whannah/zm_dev/tests_gpu_fmachk
+TEST_PATH=${TEST_ROOT}/full_debug/src/physics/zm/tests
+BASELINE_DIR=${TEST_ROOT}/baselines_gpu_fmachk
+mkdir -p ${TEST_ROOT}/full_debug
+mkdir -p ${BASELINE_DIR}
+cd ${TEST_ROOT}/full_debug
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=4 && export OMP_PROC_BIND=spread;
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT} -c CMAKE_CUDA_FLAGS=--fmad=false
+cd ${TEST_PATH}
+make -j4
+./zm_tests --rng-seed 23568 --args -g -b ${BASELINE_DIR}; ./zm_tests --args -c -b ${BASELINE_DIR} # 2 fail
+```
+
+Claude's suggestion based on result from above:
+
+  Build the table on the host and copy it down. In `zm_opts_impl.hpp`, replace the parallel_for with:
+```
+  auto estbl_h = Kokkos::create_mirror_view(estbl);
+  for (Int i = 0; i < plenest; ++i) { estbl_h(i) = svp_trans(ZMC::tmin + i); }
+  Kokkos::deep_copy(estbl, estbl_h);
+```
+  svp_trans is KOKKOS_INLINE_FUNCTION, so it's callable on the host. Do the same at `zm_functions.hpp:187`.
+
+  The prediction is falsifiable: since the CPU build already matches Fortran bit-for-bit on evap, a host-built table must already equal the Fortran table — so if this is the cause, zm_conv_evap_bfb should pass on GPU with no other change. If it still fails, the table isn't the source and I'd next dump estbl from both
+  builds and cmp them to settle it directly.
+
+  Worth noting this is also the right fix on its merits, not just a diagnostic: plenest is a few hundred entries computed once at init, there's no performance case for putting it on the device, and doing so removes a whole class of host/device non-BFB from ZM.
+
+
+
+
+```shell
+# CPU test w/ --rng-seed 23568
+/pscratch/sd/w/whannah/tmp_e3sm_src/components/eamxx/src/physics/zm/tests/zm_conv_main_tests.cpp:93: FAILED:
+  REQUIRE( d_baseline.prec[k] == Approx(d_test.prec[k]).margin(margin) )
+with expansion:
+  0.0000224953 == Approx( 0.0000224695 )
+
+# GPU test w/ --rng-seed 23568
+-------------------------------------------------------------------------------
+zm_conv_main_bfb
+-------------------------------------------------------------------------------
+/pscratch/sd/w/whannah/tmp_e3sm_src/components/eamxx/src/physics/zm/tests/zm_conv_main_tests.cpp:166
+...............................................................................
+
+/pscratch/sd/w/whannah/tmp_e3sm_src/components/eamxx/src/physics/zm/tests/zm_conv_main_tests.cpp:93: FAILED:
+  REQUIRE( d_baseline.prec[k] == Approx(d_test.prec[k]).margin(margin) )
+with expansion:
+  0.0000224953 == Approx( 0.0000224695 )
+
+ For test zm_conv_evap_bfb, using stored seed: 23568
+-------------------------------------------------------------------------------
+zm_conv_evap_bfb
+-------------------------------------------------------------------------------
+/pscratch/sd/w/whannah/tmp_e3sm_src/components/eamxx/src/physics/zm/tests/zm_conv_evap_tests.cpp:114
+...............................................................................
+
+/pscratch/sd/w/whannah/tmp_e3sm_src/components/eamxx/src/physics/zm/tests/zm_conv_evap_tests.cpp:81: FAILED:
+  REQUIRE( d_baseline.tend_s_snwevmlt[k] == d_test.tend_s_snwevmlt[k] )
+with expansion:
+  -0.0035715274 == -0.0035715274
 ```
 
 --------------------------------------------------------------------------------

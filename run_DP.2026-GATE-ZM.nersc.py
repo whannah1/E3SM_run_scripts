@@ -37,10 +37,10 @@ acct = 'e3sm' # e3sm / m4310 (scidac)
 src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/eamxx/zm-cloud-top-ascent-limiter
 
 # clean        = True
-# newcase        = True
-# config         = True
-# set_bld_params = True
-# build          = True
+newcase        = True
+config         = True
+set_bld_params = True
+build          = True
 submit         = True
 # continue_run = True
 
@@ -204,10 +204,23 @@ common_kwargs['arch'] = 'GPU'
 # add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, cpt=, dct= ) # dx = 40.00 / 60.00 (np4/pg2)
 
 # test out DCAPE limits
-add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0 ) # dx = 11.76 / 17.65 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.1 )
-add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.5 )
-add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=1.0 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0 ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.001 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.005 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.01 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.05 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.1 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.5 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=1.0 )
+
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt= 10, dct=0 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt= 50, dct=0 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=100, dct=0 )
+# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=500, dct=0 )
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=600, dct=0 )
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=700, dct=0 )
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=800, dct=0 )
+add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=900, dct=0 )
 
 ### ZM w/ cloud-top ascent limiter + constant dt to mimic behavior across RRM scales
 # add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 )
