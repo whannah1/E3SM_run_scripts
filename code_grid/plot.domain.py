@@ -32,7 +32,7 @@ data_root = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_domain'
 add_file(f'{data_root}/domain.ocn.RRSwISC6to18E3r5.20260610.nc',n='RRSwISC6to18E3r5 new')
 
 # tmp_path = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_domain'
-# add_file(f'{tmp_path}/domain.ocn.RRSwISC6to18E3r5.20260618.nc',n='RRSwISC6to18E3r5')
+# add_file(f'{tmp_path}/domain.ocn.RRSwISC6to18E3r5.20260618.nc',n='RRSwISC6to18E3r5 - new')
 
 #-------------------------------------------------------------------------------
 fig_file = 'figs_grid/plot.domain.png'

@@ -63,7 +63,7 @@ if len(args) < 1 :
 else :
     search_strings = args
 
-print(search_strings)
+# print(search_strings)
 
 #---------------------------------------------------------------------------------------------------
 # Loop through case directories

@@ -9,7 +9,33 @@ def add_case( **kwargs ):
    for k, val in kwargs.items(): case_opts[k] = val
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
-''' Notes '''
+''' Notes
+# interpolating land IC
+LND_IC_ROOT=/lustre/orion/cli115/world-shared/e3sm/inputdata/lnd/clm2/initdata
+LND_IC_SRC=${LND_IC_ROOT}/20240104.I2010CRUELM.ne256pg2.elm.r.2016-08-01-00000.nc
+LND_IC_DST=${LND_IC_ROOT}/20240104.I2010CRUELM.ne128pg2.elm.r.2016-08-01-00000.nc
+interpinic -i 
+
+#-------------------------------------------------------------------------------
+# vertical remap
+DST_VERT=/lustre/orion/cli115/proj-shared/hannah6/files_vert/SCREAM_L128_v3.6_c20251112.cdf5.nc
+INIT_ROOT=/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init
+SRC_FILE=${INIT_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.nc
+DST_FILE=${INIT_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.L128_v3.6.nc
+
+ncremap -4 --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
+
+# # This doesn't work - same error as above without the -4 option
+# ncatted -O -a _FillValue,,o,d,1.0e36 ${DST_FILE} ${DST_FILE}.tmp
+# ncks -5 ${DST_FILE}.tmp ${DST_FILE}.tmp.cdf5
+# mv ${DST_FILE}.cdf5 ${DST_FILE}
+
+ncatted -O -a _FillValue,ps,d,, ${DST_FILE} ${DST_FILE}.tmp
+ncks -5 ${DST_FILE}.tmp ${DST_FILE}.tmp.cdf5
+mv ${DST_FILE}.tmp.cdf5 ${DST_FILE}
+rm ${DST_FILE}.tmp
+
+'''
 #---------------------------------------------------------------------------------------------------
 import os, datetime, subprocess as sp
 from shutil import copy2
@@ -27,15 +53,30 @@ submit       = True
 # continue_run = True
 
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',31,0,'4:00:00'
-stop_opt,stop_n,resub,walltime = 'nmonths',6,5*2-1,'6:00:00' # 5-years / ne256 / 128-nodes
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'nmonths',6,5*2-1,'6:00:00' # 5-years / ne256 / 128-nodes - DID NOT WORK!
+# stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3-1,'6:00:00' # 5-years / ne256 / 128-nodes
+stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3+2-1,'6:00:00' # 5-years + aug init / ne256 / 128-nodes
+# stop_opt,stop_n,resub,walltime = 'nmonths',4,2-1,'6:00:00' # extra time to finish year 6
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'5:00:00'
 #---------------------------------------------------------------------------------------------------
 ### EAMxx ZM process testing
 
-add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010-SCREAMv1' )
-add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010xx-ZM-CICE' )
+vert_root = '/lustre/orion/cli115/proj-shared/hannah6/files_vert'
+init_root = '/lustre/orion/cli115/proj-shared/hannah6/files_init'
+
+kwargs_L128v36 = {'vgrid_name':'L128v3.6'}
+kwargs_L128v36['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.6_c20251112.nc'
+kwargs_L128v36['init_file']  = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.L128_v3.6.nc'
+
+# add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010-SCREAMv1' )
+# add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010xx-ZM-CICE' )
+
+add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010xx-ZM-CICE', **kwargs_L128v36 )
+
+# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
+# add_case(prefix='2026-ZM-BASE-00', grid='ne4pg2_ne4pg2', num_nodes=1, compset='F2010xx-ZM-CICE' )
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -54,6 +95,9 @@ def get_case_name(opts):
       elif key in ['num_nodes']: case_list.append(f'NN_{val}')
       elif key in ['num_tasks']: case_list.append(f'NT_{val}')
       elif key in ['cosp'] and opts.get('cosp'):  case_list.append('COSP')
+      elif key in ['vgrid_name']:      case_list.append(f'{val}')
+      elif key in ['vgrid_file']:      continue
+      elif key in ['init_file']:       continue
       else:
          if isinstance(val, str):
             case_list.append(f'{key}_{val}')
@@ -70,6 +114,8 @@ def main(opts):
    case = get_case_name(opts)
 
    print(f'\n  case : {case}\n')
+   #------------------------------------------------------------------------------------------------
+   # return
    #------------------------------------------------------------------------------------------------
    print(f' clean        : {clean}')
    print(f' newcase      : {newcase}')
@@ -130,18 +176,50 @@ def main(opts):
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
+      #-------------------------------------------------------------------------
+      # use updated SPA data file - first baseline pair missed this
+      DIN_LOC_ROOT = '/lustre/orion/cli115/world-shared/e3sm/inputdata'
+      run_cmd(f'./atmchange spa_data_file="{DIN_LOC_ROOT}/atm/scream/init/spa_v3.LR.F2010.2011-2025.c_20240405.nc"')
+      #-------------------------------------------------------------------------
+      if 'ne4pg2_' in opts.get('grid'):
+         init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
+         init_file = f'{init_root}/screami_ne4np4L128_20241022.nc'
+         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
+         run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE=0001-01-01')
+      if 'ne256pg2_' in opts.get('grid'):
+         init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
+         # init_file = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.nc' # default
+         init_file = f'{init_root}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.nc'
+         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
+         run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE=0001-08-01')
+         # run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_START={sst_yr}')
+      #-------------------------------------------------------------------------
+      if 'ne256pg2_' in opts.get('grid'):
+         lnd_init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/lnd/clm2/initdata'
+         lnd_init_file = '20240104.I2010CRUELM.ne256pg2.elm.r.2016-08-01-00000.nc'
+         # lnd_init_file = '20240104.I2010CRUELM.ne256pg2.elm.r.1994-10-01-00000.nc'
+         # lnd_init_file = '20230522.I2010CRUELM.ne256pg2.elm.r.2013-08-01-00000.nc'
+         file=open('user_nl_elm','w')
+         file.write(f' finidat = \'{lnd_init_root}/{lnd_init_file}\' \n')
+         # default fsurdat => lnd/clm2/surfdata_map/surfdata_ne256pg2_simyr2010_c230207.nc
+         # file.write(f' fsurdat = \'{lnd_data_root}/{lnd_data_file}\' \n')
+         file.close()
+      #-------------------------------------------------------------------------
       hist_file_list = []
       def add_hist_file(hist_file,txt):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
       #-------------------------------------------------------------------------
       if not opts.get('debug',False):
-         add_hist_file('scream_output_3hi.yaml',      get_hist_opts_3hi(opts) )
-         add_hist_file('scream_output_1da.yaml',      get_hist_opts_1da(opts) )
-         add_hist_file('scream_output_1ma.yaml',      get_hist_opts_1ma(opts) )
-         add_hist_file('scream_output_3ha_ne30.yaml', get_hist_opts_3ha_ne30(opts) )
-         add_hist_file('scream_output_1da_ne30.yaml', get_hist_opts_1da_ne30(opts) )
-         add_hist_file('scream_output_1ma_ne30.yaml', get_hist_opts_1ma_ne30(opts) )
+         if 'ne4pg2_' in opts.get('grid'):
+            add_hist_file('scream_output_1da_debug.yaml', get_hist_opts_1da_debug(opts) )
+         if 'ne256pg2_' in opts.get('grid'):
+            add_hist_file('scream_output_3hi.yaml',      get_hist_opts_3hi(opts) )
+            add_hist_file('scream_output_1da.yaml',      get_hist_opts_1da(opts) )
+            add_hist_file('scream_output_1ma.yaml',      get_hist_opts_1ma(opts) )
+            add_hist_file('scream_output_3ha_ne30.yaml', get_hist_opts_3ha_ne30(opts) )
+            add_hist_file('scream_output_1da_ne30.yaml', get_hist_opts_1da_ne30(opts) )
+            add_hist_file('scream_output_1ma_ne30.yaml', get_hist_opts_1ma_ne30(opts) )
          hist_file_list_str = ','.join(hist_file_list)
          run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
       #-------------------------------------------------------------------------
@@ -237,6 +315,7 @@ fields_1ma_main = f'''
          - nr
          # misc 2D fields
          - T_2m
+         # - surf_radiative_T
          - wind_speed_10m
          - U_at_850hPa
          - U_at_200hPa
@@ -357,6 +436,22 @@ max_snapshots_per_file: 5
 fields:
    physics_pg2:
       field_names:{fields_1da_main+(fields_1da_zm if 'F2010xx-ZM' in opts['compset'] else '')}
+output_control:
+   frequency: 24
+   frequency_units: nhours
+'''
+#------------------------------------------------
+# monthly mean output - native grid
+def get_hist_opts_1da_debug(opts):
+   return f'''
+filename_prefix: output.debug.1da
+averaging_type: average
+max_snapshots_per_file: 5
+fields:
+   physics_pg2:
+      field_names:{fields_1ma_main
+                  +(fields_1ma_zm if 'F2010xx-ZM' in opts['compset'] else '')
+                  +(fields_1ma_cosp if opts.get('cosp',False) else '')}
 output_control:
    frequency: 24
    frequency_units: nhours

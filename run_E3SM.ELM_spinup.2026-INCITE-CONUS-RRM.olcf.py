@@ -6,6 +6,40 @@ def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
 ''' notes on ROF mapping file
 DIN_LOC_ROOT=/lustre/orion/cli115/world-shared/e3sm/inputdata
 ${DIN_LOC_ROOT}/lnd/clm2/mappingdata/grids/SCRIPgrid_0.5x0.5_nomask_c110308.nc
+
+
+salloc --time 6:00:00 --account=cli115 --nodes=1
+
+micromamba activate taos_env
+
+# export SLURM_MPI_TYPE=pmix
+
+GRID_ROOT=/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid
+MAP_ROOT=/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_map
+
+# GRID_ROOT=/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_grid
+# MAP_ROOT=/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_map
+
+LND_GRID=${GRID_ROOT}/2026-incite-conus-1024x2-pg2_scrip.cdf5.nc
+ROF_GRID=${DIN_LOC_ROOT}/lnd/clm2/mappingdata/grids/MOSART_global_8th.scrip.20180211c.nc
+
+MAP_FILE_LND2ROF=${MAP_ROOT}/map_conus1024x2v1pg2_to_r0125_traave.20260810.nc
+MAP_FILE_ROF2LND=${MAP_ROOT}/map_r0125_to_conus1024x2v1pg2_traave.20260810.nc
+
+time ncremap --mpi_nbr=128 -a traave --src_grd=${LND_GRID} --dst_grd=${ROF_GRID} --map_file=${MAP_FILE_LND2ROF}
+
+# ncremap --mpi_nbr=8 -a esmfaave --src_grd=${LND_GRID} --dst_grd=${ROF_GRID} --map_file=${MAP_FILE_LND2ROF}
+
+ncremap -a traave --src_grd=${LND_GRID} --dst_grd=${ROF_GRID} --map_file=${MAP_FILE_LND2ROF}
+ncremap -a traave --src_grd=${ROF_GRID} --dst_grd=${LND_GRID} --map_file=${MAP_FILE_ROF2LND}
+
+MAP_FILE_ATM2ROF_2=${MAP_ROOT}/map_conus1024x2v1pg2_to_r0125_trfv2.20260810.nc
+MAP_FILE_ATM2ROF_3=${MAP_ROOT}/map_conus1024x2v1pg2_to_r0125_trbilin.20260810.nc
+
+ncremap -a trfv2   --src_grd=${ATM_GRID} --dst_grd=${ROF_GRID} --map_file=${MAP_FILE_ATM2ROF_2}
+ncremap -a trbilin --src_grd=${ATM_GRID} --dst_grd=${ROF_GRID} --map_file=${MAP_FILE_ATM2ROF_3}
+
+/lustre/orion/cli115/world-shared/e3sm/inputdata/cpl/gridmaps/conus1024x2v1pg2
 '''
 #---------------------------------------------------------------------------------------------------
 import os, subprocess as sp, datetime
@@ -13,55 +47,73 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'cli115'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jul 21 2026 - 656bc155a9f990052e4b60b7f73a786ad978cdea
+src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => brhillman/2026-INCITE-CONUS-RRM-20260729
 DIN_LOC_ROOT = '/lustre/orion/cli115/world-shared/e3sm/inputdata'
 
 # clean        = True
-# newcase      = True
-# config       = True
-# build        = True
-submit       = True
+newcase      = True
+config       = True
+build        = True
+# submit       = True
 # continue_run = True
 
 
 stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'nmonths',1, 0,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'nyears',5, 0,'2:00'
 # stop_opt,stop_n,resub,walltime = 'nyears',1, 9-1,'2:00'
 # stop_opt,stop_n,resub,walltime = 'nyears',1, 10-1,'2:00'
 
 # rest_opt,rest_n = 'nyears',1
 
-# compset   = 'ICRUELM' 
-compset   = 'IERA5ELM' 
+compset   = 'IERA5ELM' # ICRUELM / IERA5ELM
 
-grid = 'ne128pg2_ne128pg2'
-num_nodes = 16
-fsurdat = f'{DIN_LOC_ROOT}/lnd/clm2/surfdata_map/surfdata_ne128pg2_simyr2010_c260116.nc'
+grid = 'conus1024x2v1pg2_RRSwISC6to18E3r5'
+num_nodes = 256
+# fsurdat = f'{DIN_LOC_ROOT}/lnd/clm2/surfdata_map/surfdata_ne128pg2_simyr2010_c260116.nc'
+fsurdat_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_land'
+fsurdat = f'{fsurdat_root}/surfdata_2026-incite-conus-1024x2-pg2_simyr2010_c260325_updated.nc'
 
-# map_file_lnd2rof = 'cpl/gridmaps/ne30pg2/map_ne30pg2_to_r05_mono.200220.nc'
-# map_file_rof2lnd = 'cpl/gridmaps/ne30pg2/map_r05_to_ne30pg2_mono.200220.nc'
+map_file_lnd2rof = 'cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_traave.20260810.nc'
+# map_file_rof2lnd = 'cpl/gridmaps/conus1024x2v1pg2/map_r0125_to_conus1024x2v1pg2_traave.20260810.nc'
 
-# num_years = 20
-# # stop_date = datetime.datetime(2010, 10, 1)
-# # stop_date = datetime.datetime(1950, 1, 1)
-# stop_date = datetime.datetime(1850, 1, 1)
-# start_date = datetime.datetime(stop_date.year-num_years, stop_date.month, stop_date.day)
-# stop_date_str = stop_date.strftime("%Y-%m-%d")
-# start_date_str = start_date.strftime("%Y-%m-%d")
-# case = f'ELM_spinup.{compset}.{grid}.{num_years}-yr.{stop_date_str}'
+num_years = 1
+stop_date = datetime.datetime(2012, 1, 1)
+start_date = datetime.datetime(stop_date.year-num_years, stop_date.month, stop_date.day)
+stop_date_str = stop_date.strftime("%Y-%m-%d")
+start_date_str = start_date.strftime("%Y-%m-%d")
 
-case = f'ELM_spinup.{compset}.{grid}.dummy.2010'
+case = f'ELM_spinup.2026-INCITE-CONUS-RRM.{compset}.{grid}';         use_fineTOP = False
+# case = f'ELM_spinup.2026-INCITE-CONUS-RRM.{compset}.{grid}.fineTOP'; use_fineTOP = True
 
 #---------------------------------------------------------------------------------------------------
 def set_namelist(fsurdat):
-   nfile = 'user_nl_eam'
-   file = open(nfile,'w') 
-   file.write(' empty_htapes = .true. \n') 
    #----------------------------------------------------------------------------
-   nfile = 'user_nl_elm'
-   file = open(nfile,'w')
+   file = open('user_nl_mosart','w') 
+   file.write('''
+ &mosart_inparm
+  do_rtm = .false.
+ /
+''') 
+   file.close()
+   #----------------------------------------------------------------------------
+   # file = open('user_nl_eam','w') 
+   # file.write(' empty_htapes = .true. \n') 
+   # file.close()
+   #----------------------------------------------------------------------------
+   file = open('user_nl_elm','w')
    file.write(f' fsurdat = \'{fsurdat}\'\n')
    file.write(f' finidat = \'\'\n') # this need to be blank to force cold-start mode
+   if use_fineTOP:
+      file.write(f" use_finetop_rad    = .true.")
+      file.write(f" use_top_solar_rad  = .false.")
+   else:
+      file.write(f" use_finetop_rad    = .false.")
+      file.write(f" use_top_solar_rad  = .true.")
+   file.write(f" hist_empty_htapes  = .true.")
+   file.write(f" hist_fincl1 = 'FSDS','FSA','FSR','FIRE','Rnet','EFLX_LH_TOT','FSH'")
+   file.write(f" hist_nhtfrq = -1")
+   file.write(f" hist_mfilt  = 24")
    file.close()
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
@@ -90,8 +142,17 @@ if config:
    # run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={(max_mpi_per_node*atm_nthrds)}')
    #----------------------------------------------------------------------------
    set_namelist(fsurdat)
+   #----------------------------------------------------------------------------
    if 'map_file_lnd2rof' in globals(): run_cmd(f'./xmlchange --file env_run.xml LND2ROF_FMAPNAME={map_file_lnd2rof}' )
    if 'map_file_rof2lnd' in globals(): run_cmd(f'./xmlchange --file env_run.xml ROF2LND_FMAPNAME={map_file_rof2lnd}' )
+   #----------------------------------------------------------------------------
+   # map_file_atm2rof1 = 'cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_traave.20260810.nc'
+   # map_file_atm2rof2 = 'cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_trfv2.20260810.nc'
+   # map_file_atm2rof3 = 'cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_trbilin.20260810.nc'
+   # if 'map_file_atm2rof1' in globals(): run_cmd(f'./xmlchange --file env_run.xml ATM2ROF_FMAPNAME={map_file_atm2rof1}')
+   # if 'map_file_atm2rof2' in globals(): run_cmd(f'./xmlchange --file env_run.xml ATM2ROF_FMAPNAME_NONLINEAR={map_file_atm2rof2}')
+   # if 'map_file_atm2rof3' in globals(): run_cmd(f'./xmlchange --file env_run.xml ATM2ROF_SMAPNAME={map_file_atm2rof3}')
+   #----------------------------------------------------------------------------
    if clean : run_cmd('./case.setup --clean')
    run_cmd('./case.setup --reset')
 #---------------------------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jun 29 2026
 
 # clean        = True
 # newcase      = True
-# config       = True
+config       = True
 build        = True
 submit       = True
 # continue_run = True
@@ -33,7 +33,8 @@ submit       = True
 # stop_opt,stop_n,resub,walltime = 'nsteps',6,0,'0:30:00' #; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00' #; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'nmonths',1,12*5,'2:00:00' # ne30 / 4-nodes
+# stop_opt,stop_n,resub,walltime = 'nmonths',1,12*5,'2:00:00' # ne30 / 4-nodes
+stop_opt,stop_n,resub,walltime = 'nmonths',3,4*5-1,'2:00:00' # ne30 / 4-nodes
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'2:00:00' # ne4
 #---------------------------------------------------------------------------------------------------
 ### EAMxx ZM process testing
@@ -60,8 +61,16 @@ src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/add-ZM-in-cloud-wat
 # add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm_rad=True)
 # add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm_rad=False)
 
-add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=True)
-add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False)
+# build test
+# add_case(prefix='2026-ZM-ICW-01', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm_rad=True)
+
+# tests of ZM in-cloud water treatment
+# add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=True)
+# add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False)
+# add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, c0=0.001)
+# add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, c0=0.0001)
+# add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, c0=0.0)
+add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, alt_zm_call=True)
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -187,6 +196,13 @@ def main(opts):
       if not opts.get('zm_rad',False):
          run_cmd(f'./atmchange -b cld_fraction::do_zm_deep_cldfrac=false')
          run_cmd(f'./atmchange -b rrtmgp::do_zm_cloud_in_rad=false')
+      #-------------------------------------------------------------------------
+      if opts.get('c0') is not None:
+         run_cmd(f'./atmchange -b physics::zm::c0_lnd={opts["c0"]}')
+         run_cmd(f'./atmchange -b physics::zm::c0_ocn={opts["c0"]}')
+      #-------------------------------------------------------------------------
+      if opts.get('alt_zm_call',False):
+         run_cmd(f'./atmchange physics::atm_procs_list=mac_aero_mic,zm,rrtmgp') # default => zm,mac_aero_mic,rrtmgp
    #------------------------------------------------------------------------------------------------
    if build : 
       if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
