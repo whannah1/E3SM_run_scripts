@@ -4,7 +4,17 @@ import os, subprocess as sp, glob, datetime, sys
 class clr:END,RED,GREEN,YELLOW,MAGENTA,CYAN,BOLD = '\033[0m','\033[31m','\033[32m','\033[33m','\033[35m','\033[36m','\033[1m'
 def print_line(): print(' '*2+'-'*80)
 def run_cmd(cmd): print('\n  '+clr.GREEN+cmd+clr.END); os.system(cmd); return
-st_archive, clear_zppy_status, check_zppy_status, run_zppy_chk, run_zppy = False, False, False, False, False
+flags = {
+    'st_archive'        : False,
+    'clear_zppy_status' : False,
+    'check_zppy_status' : False,
+    'run_zppy_chk'      : False,
+    'run_zppy'          : True,
+    # zppy config flags
+    'zppy_climo_active' : False,
+    'zppy_ts_active'    : False,
+    'zppy_diags_active' : True,
+}
 #---------------------------------------------------------------------------------------------------
 opt_list = []
 def add_case( **kwargs ):
@@ -12,15 +22,14 @@ def add_case( **kwargs ):
     for k, val in kwargs.items(): case_opts[k] = val
     opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
-# st_archive        = True
-# clear_zppy_status = True
-check_zppy_status = True
-# run_zppy_chk      = True
-# run_zppy          = True
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option('--chk',action='store_true', dest='chk_flag', default=False,help='enable check_zppy_status and disable all other flags')
+(opts, args) = parser.parse_args()
 
-zppy_climo_active    = True
-zppy_ts_active       = True
-zppy_diags_active    = True
+if opts.chk_flag:
+    flags = { k: False for k in flags }
+    flags['check_zppy_status'] = True
 #---------------------------------------------------------------------------------------------------
 acct = 'e3sm'
 username = 'whannah'
@@ -34,8 +43,8 @@ web_address     = f'https://web.lcrc.anl.gov/public/e3sm/diagnostic_output/{user
 scratch_path='/lcrc/group/e3sm/ac.whannah/scratch/chrys/from_olcf'
 map_file = os.getenv('HOME')+f'/maps/map_ne30pg2_to_90x180_aave.nc'
 
-add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010-SCREAMv1', root=scratch_path,yr1='0001',yr2='0006',map_file=map_file)
-add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE',root=scratch_path,yr1='0001',yr2='0006',map_file=map_file)
+add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010-SCREAMv1', root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
+add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE',root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
 
 #---------------------------------------------------------------------------------------------------
 # common zppy stuff
@@ -50,17 +59,17 @@ def main(opts):
     # diags_script = 'run_e3sm_diags.py'
     # run_cmd(f'python {diags_script}')
     #-----------------------------------------------------------------------------------------------
-    if st_archive:
+    if flags['st_archive']:
         os.chdir(f'{case_root}/case_scripts')
         run_cmd(f'./xmlchange DOUT_S_ROOT={case_root}/archive ')
         run_cmd('./case.st_archive')
     #-----------------------------------------------------------------------------------------------
-    if clear_zppy_status:
+    if flags['clear_zppy_status']:
         status_files = glob.glob(f'{case_root}/post/scripts/*status')
         for file_name in status_files:
             os.remove(file_name)
     #-----------------------------------------------------------------------------------------------
-    if check_zppy_status:
+    if flags['check_zppy_status']:
         status_path = f'{case_root}/post/scripts'
         print(' '*4+clr.END+status_path+clr.END)
         status_files = glob.glob(f'{status_path}/*status')
@@ -95,7 +104,7 @@ def main(opts):
                 for line in msg.split('\n'): print(' '*8+line)
     #-----------------------------------------------------------------------------------------------
     # preliminary check to ensure all file variables are there
-    if run_zppy_chk:
+    if flags['run_zppy_chk']:
         import netCDF4
         diag_var_list_list = get_diag_vars(opts)
         file_prefix_list = [ file_prefix_1ma, file_prefix_1da ]
@@ -109,7 +118,7 @@ def main(opts):
                     if diag_var not in file_var_list:
                         raise ValueError(f'variable {diag_var} not found in {file_prefix} output stream!')
     #-----------------------------------------------------------------------------------------------
-    if run_zppy:
+    if flags['run_zppy']:
         # Clear status files that don't indicate "OK"
         status_files = glob.glob(f'{case_root}/post/scripts/*status')
         for file_name in status_files:
@@ -234,7 +243,7 @@ partition = compute
 environment_commands = "source {unified_env}"
 
 [climo]
-active = {zppy_climo_active}
+active = {flags['zppy_climo_active']}
 walltime = "1:00:00"
 years = "{yr1}:{yr2}:{nyr}",
 
@@ -249,7 +258,7 @@ years = "{yr1}:{yr2}:{nyr}",
   vars = "{vars_1ma}"
 
 [ts]
-active = {zppy_ts_active}
+active = {flags['zppy_ts_active']}
 walltime = "0:30:00"
 years = "{yr1}:{yr2}:{ts_nyr}",
 
@@ -293,7 +302,7 @@ years = "{yr1}:{yr2}:{ts_nyr}",
 # '''
     config_txt += f'''
 [e3sm_diags]
-active = {zppy_diags_active}
+active = {flags['zppy_diags_active']}
 years = "{yr1}:{yr2}:{nyr}",
 {(f'ts_num_years = {ts_nyr}' if run_ts else '')}
 ref_start_yr = 1979
@@ -301,6 +310,7 @@ ref_final_yr = 2016
 walltime = "24:00:00"
 
   [[ atm_monthly_{dst_grid}_aave ]]
+  case = "output"
   short_name = '{short_name}'
   grid = '{dst_grid}'
   sets = {get_diag_sets(opts)}

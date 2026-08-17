@@ -37,9 +37,11 @@ tests = [
         # 'SMS_Ln5_P768x1.ne64pg2_ne64pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'ERS_Ld5.ne4pg2_oQU480.F2010xx-ZM.chrysalis_intel',
-        'ERS_D_Ld5.ne4pg2_oQU480.F2010xx-ZM.chrysalis_intel',
+        # 'ERS_D_Ld5.ne4pg2_oQU480.F2010xx-ZM.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne30pg2_ne30pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010.chrysalis_intel',
+        'ERS_Ld5.ne4pg2_oQU480.F2010xx-ZM',
+        # 'ERS_Ld3.ne4pg2_oQU480.F2010xx-ZM',
         ]
 
 
@@ -84,26 +86,26 @@ timestamp = '{:%Y-%m-%d_%H%M%S}'.format(now)
 
 print('\n'+timestamp+'')
 
-case_dir = home+'/E3SM/test_cases/'+timestamp
+# case_dir = home+'/E3SM/test_cases/'+timestamp
+case_dir = f'{output_root}/{timestamp}'
 
 if generate : case_dir = case_dir+'_baseline'
 
 for test in tests :
 
     if not os.path.exists(case_dir) : os.makedirs(case_dir)
-    log_file = case_dir+'/'+timestamp+'.'+test+'.log'
+    log_file = f'{case_dir}/{timestamp}.{test}.log'
 
     
-    cmd = 'nohup '+src_dir+'/cime/scripts/create_test   '+test
-    cmd = cmd+' --test-root '+case_dir             
-    cmd = cmd+' --project   '+project              
-    cmd = cmd+' --wait -j2 '
-    cmd = cmd+' --no-run '
+    cmd = 'nohup '+src_dir+'/cime/scripts/create_test '+test
+    cmd = cmd+f' --test-root {case_dir}'
+    cmd = cmd+f' --project {project}'
+    cmd = cmd+' --wait -j2'
+    # cmd = cmd+' --no-run'
     # cmd = cmd+' --baseline-root '+output_root+'/baselines '  
-    cmd = cmd+' --output-root   '+output_root+' '
+    cmd = cmd+f' --output-root {case_dir} '
     cmd +=' --input-dir /lcrc/group/e3sm/data/inputdata'
 
-    # if 'FSCM5A97' in test : cmd = cmd+' --queue debug '
     # cmd = cmd+' --queue debug '
     
     if generate : 

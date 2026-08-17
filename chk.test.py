@@ -1,67 +1,32 @@
 #!/usr/bin/env python3
-#=============================================================================================================
-#  May, 2018 - Walter Hannah - Lawrence Livermore National Lab
-#  This script checks the status of the latest regression test
-#=============================================================================================================
-import sys
-import os
-import fileinput
-# import numpy as np
-from glob import glob
-import subprocess as sp
-home = os.getenv('HOME')
-
+#---------------------------------------------------------------------------------------------------
+import sys, os, fileinput, subprocess as sp, glob
+import chk_methods
+host = chk_methods.get_host()
+home = chk_methods.home
+tclr = chk_methods.tclr
+#---------------------------------------------------------------------------------------------------
 from optparse import OptionParser
 parser = OptionParser()
-
 # parser.add_option('--no-indent',action='store_false', dest='indent_flag', default=True,help='do not indent long variables')
 parser.add_option('-n',dest='num_test',default=1,help='sets number of tests to search for. Only considers tests newer than newest baseline.')
 parser.add_option('-b',action='store_true', dest='show_base', default=False,help='show recent baseline status instead of test')
 parser.add_option('-t',action='store_true', dest='truncate_flag', default=False,help='truncate output for small screens')
 parser.add_option('-m',dest='method',default=0,help='Method of checking tests - 0=parse logs, 1=use cs.status script')
 parser.add_option('--no-color',action='store_false', dest='use_color', default=True,help='disable colored output')
-
 (opts, args) = parser.parse_args()
-
+#---------------------------------------------------------------------------------------------------
 num_test = int(opts.num_test)
-
 method = int(opts.method)
-
-
-
-# workdir = os.getenv('MEMBERWORK')
-# workdir = '/lustre/atlas/scratch/hannah6/'
-
-#=============================================================================================================
-#=============================================================================================================
-# Set up terminal colors
-class bcolor:
-    # HEADER    = '\033[95m'
-    # BLUE      = '\033[94m'
-    # GREEN     = '\033[92m'
-    # RED       = '\033[91m'
-    # WARN      = '\033[93m'
-    # FAIL      = '\033[91m'
-    ENDC      = '\033[0m'
-    # BOLD      = '\033[1m'
-    # UNDERLINE = '\033[4m'
-    BLACK    = '\033[30m'
-    RED      = '\033[31m'
-    GREEN    = '\033[32m'
-    YELLOW   = '\033[33m'
-    BLUE     = '\033[34m'
-    MAGENTA  = '\033[35m'
-    CYAN     = '\033[36m'
-    WHITE    = '\033[37m'
-
-def print_line(line_length=80,char='-'):
+#---------------------------------------------------------------------------------------------------
+def print_line(length=80,char='-'):
     dline = ''
-    for c in range(line_length): dline+= char
+    for c in range(length): dline+= char
     print(dline)
-
+#---------------------------------------------------------------------------------------------------
 def run_cmd(cmd,verbose=False,suppress_output=False,execute=True):
     if suppress_output : cmd = cmd + ' > /dev/null'
-    msg = bcolor.GREEN + cmd + bcolor.ENDC
+    msg = tclr.GRN + cmd + tclr.END
     if verbose: print(f'\n{msg}')
     if execute:
         (msg,err) = sp.Popen(cmd, stdout=sp.PIPE, shell=True, universal_newlines=True).communicate()
@@ -72,7 +37,9 @@ def run_cmd(cmd,verbose=False,suppress_output=False,execute=True):
 #=============================================================================================================
 
 # test_top_dir = '/lustre/atlas/proj-shared/cli115/hannah6'
-case_top_dir = home+'/E3SM/test_cases'
+# case_top_dir = home+'/E3SM/test_cases'
+
+case_top_dir = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
 
 # /ccs/home/hannah6/E3SM/test_cases/2018-05-07_225340/ERP_Ld3_P96.ne4_ne4.FSP1V1-TEST.titan_pgi.C.20180507_185340_cc07db/TestStatus
 
@@ -145,9 +112,9 @@ if method==1 :
 
         if num_test>1:
             print()
-            print_line(line_length=120,char='*')
+            print_line(length=120,char='*')
             print(f'test path: {test_dir}')
-            print_line(line_length=120,char='*')
+            print_line(length=120,char='*')
             print()
 
         msg = run_cmd(f'ls {test_dir}/cs.status* ')
@@ -165,16 +132,16 @@ if method==1 :
 
                 if opts.use_color :
                     clr = ''
-                    if 'FAIL'   in line : clr = bcolor.RED
-                    if 'NLFAIL' in line : clr = bcolor.GREEN
-                    if 'PASS'   in line : clr = bcolor.GREEN
-                    if 'PEND'   in line : clr = bcolor.YELLOW
-                    if 'DIFF'   in line : clr = bcolor.MAGENTA
-                    line = line.replace('FAIL',  clr+'FAIL'  +bcolor.ENDC)
-                    line = line.replace('NLFAIL',clr+'NLFAIL'+bcolor.ENDC)
-                    line = line.replace('PASS',  clr+'PASS'  +bcolor.ENDC)
-                    line = line.replace('PEND',  clr+'PEND'  +bcolor.ENDC)
-                    line = line.replace('DIFF',  clr+'DIFF'  +bcolor.ENDC)
+                    if 'FAIL'   in line : clr = tclr.RED
+                    if 'NLFAIL' in line : clr = tclr.GRN
+                    if 'PASS'   in line : clr = tclr.GRN
+                    if 'PEND'   in line : clr = tclr.YLW
+                    if 'DIFF'   in line : clr = tclr.MGN
+                    line = line.replace('FAIL',  clr+'FAIL'  +tclr.END)
+                    line = line.replace('NLFAIL',clr+'NLFAIL'+tclr.END)
+                    line = line.replace('PASS',  clr+'PASS'  +tclr.END)
+                    line = line.replace('PEND',  clr+'PEND'  +tclr.END)
+                    line = line.replace('DIFF',  clr+'DIFF'  +tclr.END)
 
                 if line.strip()!='': print(line)
 
@@ -194,9 +161,9 @@ else:
 
         if num_test>1:
             print()
-            print_line(line_length=120,char='*')
+            print_line(length=120,char='*')
             print(f'test path: {test_dir}')
-            print_line(line_length=120,char='*')
+            print_line(length=120,char='*')
             print()
 
         # if opts.show_base : 
@@ -232,7 +199,7 @@ else:
                         else:
                             break
                     for t in test_list: 
-                        tdir = glob(f'{test_dir}/{t}*')#[0]
+                        tdir = glob.glob(f'{test_dir}/{t}*')#[0]
                         if tdir==[]:
                             full_test_name.append('')
                         else:
@@ -241,7 +208,7 @@ else:
                 ### add full test name to line with short name
                 tl = (line0+test_cnt)
                 if l>line0 and l<=(line0+test_cnt):
-                    line = bcolor.YELLOW + line + bcolor.ENDC
+                    line = tclr.YLW + line + tclr.END
                     line = f'{line:80}  {full_test_name[l-line0-1]}'
 
                 ### add path to TestStatus.log and e3sm.log* files
@@ -260,36 +227,36 @@ else:
                 ### color the output of the log file
                 if opts.use_color :
                     clr = ''
-                    if 'FAIL'   in line : clr = bcolor.RED
-                    if 'NLFAIL' in line : clr = bcolor.GREEN
-                    if 'PASS'   in line : clr = bcolor.GREEN
-                    if 'DIFF'   in line : clr = bcolor.MAGENTA
-                    line = line.replace('FAIL', clr+'FAIL'  +bcolor.ENDC)
-                    line = line.replace('NLFAIL',clr+'NLFAIL'+bcolor.ENDC)
-                    line = line.replace('PASS',  clr+'PASS'  +bcolor.ENDC)
-                    line = line.replace('DIFF',  clr+'DIFF'  +bcolor.ENDC)
+                    if 'FAIL'   in line : clr = tclr.RED
+                    if 'NLFAIL' in line : clr = tclr.GRN
+                    if 'PASS'   in line : clr = tclr.GRN
+                    if 'DIFF'   in line : clr = tclr.MGN
+                    line = line.replace('FAIL', clr+'FAIL'  +tclr.END)
+                    line = line.replace('NLFAIL',clr+'NLFAIL'+tclr.END)
+                    line = line.replace('PASS',  clr+'PASS'  +tclr.END)
+                    line = line.replace('DIFF',  clr+'DIFF'  +tclr.END)
 
                     for err_str in ['Error','ERROR','error'] :
-                        line = line.replace(err_str,bcolor.RED+err_str+bcolor.ENDC)
+                        line = line.replace(err_str,tclr.RED+err_str+tclr.END)
 
                     txt = 'Waiting for tests to finish'
-                    line = line.replace(txt,bcolor.MAGENTA+txt+bcolor.ENDC)
+                    line = line.replace(txt,tclr.MGN+txt+tclr.END)
 
                     if "Starting" in line: continue
 
                     # if "RUNNING TESTS:" in line:
-                    #     line = line.replace("RUNNING TESTS:","RUNNING TESTS:"+bcolor.YELLOW)
+                    #     line = line.replace("RUNNING TESTS:","RUNNING TESTS:"+tclr.YLW)
 
                     if "Creating test directory" in line:
-                        line = line.replace("Creating test directory",bcolor.CYAN+"Creating test directory"+bcolor.ENDC)
+                        line = line.replace("Creating test directory",tclr.CYN+"Creating test directory"+tclr.END)
 
                     if "finished with status" in line:
-                        line = line.replace("Test \'","Test \'"+bcolor.YELLOW)
-                        line = line.replace("\' finished",bcolor.ENDC+"\' finished")
+                        line = line.replace("Test \'","Test \'"+tclr.YLW)
+                        line = line.replace("\' finished",tclr.END+"\' finished")
 
-                    line = line.replace('Finished',bcolor.CYAN+'finished'+bcolor.ENDC)
+                    line = line.replace('Finished',tclr.CYN+'finished'+tclr.END)
                     if 'finished with status' in line:
-                        line = line.replace('finished',bcolor.CYAN+'finished'+bcolor.ENDC)
+                        line = line.replace('finished',tclr.CYN+'finished'+tclr.END)
 
                 ### consturct the final string
                 tline = line
@@ -308,7 +275,7 @@ else:
                         msg = run_cmd(f'grep \'FAIL\' {status_file} ')
                         for msg_line in msg.rstrip().split('\n') :
                             if opts.use_color :
-                                msg_line = msg_line.replace('FAIL', bcolor.RED+'FAIL'+bcolor.ENDC)
+                                msg_line = msg_line.replace('FAIL', tclr.RED+'FAIL'+tclr.END)
                             lines_out = lines_out + '\n' + '      ' + msg_line 
                             out_cnt = out_cnt + 1
                 
@@ -324,7 +291,7 @@ else:
 #---------------------------------------------------------------
 
 print()
-# print_line(line_length=60)
+# print_line(length=60)
 
 
 #=============================================================================================================

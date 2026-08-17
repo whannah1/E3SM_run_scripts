@@ -14,9 +14,9 @@ def add_case( **kwargs ):
 #---------------------------------------------------------------------------------------------------
 # st_archive        = True
 # clear_zppy_status = True
-# check_zppy_status = True
+check_zppy_status = True
 # run_zppy_chk      = True
-run_zppy          = True
+# run_zppy          = True
 
 zppy_climo_active    = False
 zppy_ts_active       = True
