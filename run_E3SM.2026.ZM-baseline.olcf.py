@@ -23,6 +23,9 @@ INIT_ROOT=/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init
 SRC_FILE=${INIT_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.nc
 DST_FILE=${INIT_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.L128_v3.6.nc
 
+SRC_FILE=${INIT_ROOT}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.nc
+DST_FILE=${INIT_ROOT}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.L128_v3.6.nc
+
 ncremap -4 --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
 
 # # This doesn't work - same error as above without the -4 option
@@ -43,20 +46,22 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'cli115'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jul 21 2026 - 656bc155a9f990052e4b60b7f73a786ad978cdea
+# src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jul 21 2026 - 656bc155a9f990052e4b60b7f73a786ad978cdea
+src_dir  = f'{top_dir}/E3SM_SRC0/' # branch => master @ Aug 18 2026 - 11d24263fbe8326820c1ffb4f9673578163b7c9b
 
 # clean        = True
-newcase      = True
-config       = True
-build        = True
+# newcase      = True
+# config       = True
+# build        = True
 submit       = True
 # continue_run = True
 
-# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'nmonths',6,5*2-1,'6:00:00' # 5-years / ne256 / 128-nodes - DID NOT WORK!
 # stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3-1,'6:00:00' # 5-years / ne256 / 128-nodes
-stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3+2-1,'6:00:00' # 5-years + aug init / ne256 / 128-nodes
+# stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3+2-1,'6:00:00' # 5-years + aug init / ne256 / 128-nodes
+# stop_opt,stop_n,resub,walltime = 'nmonths',8,8-1,'12:00:00' # 5-years + aug init / ne256 / 256-nodes
 # stop_opt,stop_n,resub,walltime = 'nmonths',4,2-1,'6:00:00' # extra time to finish year 6
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'5:00:00'
@@ -64,16 +69,28 @@ stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3+2-1,'6:00:00' # 5-years + aug i
 ### EAMxx ZM process testing
 
 vert_root = '/lustre/orion/cli115/proj-shared/hannah6/files_vert'
-init_root = '/lustre/orion/cli115/proj-shared/hannah6/files_init'
+# init_root = '/lustre/orion/cli115/proj-shared/hannah6/files_init'
+init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
 
-kwargs_L128v36 = {'vgrid_name':'L128v3.6'}
-kwargs_L128v36['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.6_c20251112.nc'
-kwargs_L128v36['init_file']  = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.L128_v3.6.nc'
 
 # add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010-SCREAMv1' )
 # add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010xx-ZM-CICE' )
+# add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010xx-ZM-CICE', **kwargs_L128v36 ) <<< BAD
 
-add_case(prefix='2026-ZM-BASE-00', grid='ne256pg2_ne256pg2', num_nodes=128, compset='F2010xx-ZM-CICE', **kwargs_L128v36 )
+
+kwargs_default = {'grid':'ne256pg2_ne256pg2','num_nodes':256,'compset':'F2010xx-ZM-CICE'}
+kwargs_default['cosp'] = True
+kwargs_default['init_file']  = f'{init_root}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.nc'
+
+kwargs_L128v36 = kwargs_default.copy()
+kwargs_L128v36['vgrid_name'] = 'L128v3.6'
+kwargs_L128v36['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.6_c20251112.nc'
+kwargs_L128v36['init_file']  = f'{init_root}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.L128_v3.6.nc'
+
+# new set - updated branch and SPA file
+# add_case(prefix='2026-ZM-BASE-01', **kwargs_default )
+add_case(prefix='2026-ZM-BASE-01', **kwargs_L128v36 )
+# add_case(prefix='2026-ZM-BASE-01', **kwargs_L128v36, phys_order_swap=True )
 
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
 # add_case(prefix='2026-ZM-BASE-00', grid='ne4pg2_ne4pg2', num_nodes=1, compset='F2010xx-ZM-CICE' )
@@ -90,14 +107,14 @@ def get_case_name(opts):
    case_list = ['E3SM']
    for key,val in opts.items(): 
       if key in ['prefix','compset','arch']: case_list.append(val)
-      elif key in ['grid']:      case_list.append(get_grid_name(opts))
-      elif key in ['debug']:     continue
-      elif key in ['num_nodes']: case_list.append(f'NN_{val}')
-      elif key in ['num_tasks']: case_list.append(f'NT_{val}')
-      elif key in ['cosp'] and opts.get('cosp'):  case_list.append('COSP')
-      elif key in ['vgrid_name']:      case_list.append(f'{val}')
-      elif key in ['vgrid_file']:      continue
-      elif key in ['init_file']:       continue
+      elif key in ['grid']:         case_list.append(get_grid_name(opts))
+      elif key in ['debug']:        continue
+      elif key in ['num_nodes']:    case_list.append(f'NN_{val}')
+      elif key in ['num_tasks']:    case_list.append(f'NT_{val}')
+      elif key=='cosp' and opts.get('cosp',False):  case_list.append('COSP')
+      elif key in ['vgrid_name']:   case_list.append(f'{val}')
+      elif key in ['vgrid_file']:   continue
+      elif key in ['init_file']:    continue
       else:
          if isinstance(val, str):
             case_list.append(f'{key}_{val}')
@@ -168,6 +185,9 @@ def main(opts):
          if 'F2010xx-ZM' in opts['compset']:
             run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv')
             run_cmd(f'./atmchange -b zm::use_fortran_bridge=false')
+      #-------------------------------------------------------------------------
+      if opts.get('phys_order_swap',False):
+         run_cmd(f'./atmchange physics::atm_procs_list=mac_aero_mic,zm,rrtmgp') # default => zm,mac_aero_mic,rrtmgp
    #------------------------------------------------------------------------------------------------
    if build : 
       if opts.get('debug',False): run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
@@ -184,15 +204,21 @@ def main(opts):
       if 'ne4pg2_' in opts.get('grid'):
          init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
          init_file = f'{init_root}/screami_ne4np4L128_20241022.nc'
-         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
+         run_cmd(f'./atmchange initial_conditions::filename=\"{init_file}\"')
          run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE=0001-01-01')
       if 'ne256pg2_' in opts.get('grid'):
-         init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
+         # init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
          # init_file = f'{init_root}/screami_ne256np4L128_ifs-20200120_20220914.nc' # default
-         init_file = f'{init_root}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.nc'
-         run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
+         # init_file = f'{init_root}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.nc'
+         # run_cmd(f'./atmchange initial_conditions::Filename=\"{init_file}\"')
          run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE=0001-08-01')
          # run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_START={sst_yr}')
+      #-------------------------------------------------------------------------
+      if opts.get('vgrid_file') is not None: run_cmd(f'./atmchange vertical_coordinate_filename=\"{opts.get('vgrid_file')}\"')
+      if opts.get('init_file')  is not None: run_cmd(f'./atmchange initial_conditions::filename=\"{opts.get('init_file')}\"')
+      #-------------------------------------------------------------------------
+      if opts.get('vgrid_file')=='L128v3.6':
+         run_cmd(f'./atmchange -b homme::tom_sponge_start=15')
       #-------------------------------------------------------------------------
       if 'ne256pg2_' in opts.get('grid'):
          lnd_init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/lnd/clm2/initdata'
@@ -217,7 +243,7 @@ def main(opts):
             add_hist_file('scream_output_3hi.yaml',      get_hist_opts_3hi(opts) )
             add_hist_file('scream_output_1da.yaml',      get_hist_opts_1da(opts) )
             add_hist_file('scream_output_1ma.yaml',      get_hist_opts_1ma(opts) )
-            add_hist_file('scream_output_3ha_ne30.yaml', get_hist_opts_3ha_ne30(opts) )
+            add_hist_file('scream_output_1ha_ne30.yaml', get_hist_opts_1ha_ne30(opts) )
             add_hist_file('scream_output_1da_ne30.yaml', get_hist_opts_1da_ne30(opts) )
             add_hist_file('scream_output_1ma_ne30.yaml', get_hist_opts_1ma_ne30(opts) )
          hist_file_list_str = ','.join(hist_file_list)
@@ -392,7 +418,7 @@ output_control:
 '''
 #------------------------------------------------
 # 3-hr average output for diurnal cycle - ne30pg2
-def get_hist_opts_3ha_ne30(opts):
+def get_hist_opts_1ha_ne30(opts):
    return f'''
 filename_prefix: output.ne30pg2.1ha
 horiz_remap_file: {map_file}

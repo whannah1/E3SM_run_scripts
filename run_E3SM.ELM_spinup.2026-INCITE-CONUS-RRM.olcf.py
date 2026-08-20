@@ -47,14 +47,14 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'cli115'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => brhillman/2026-INCITE-CONUS-RRM-20260729
+src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => whannah/2026-INCITE-CONUS-RRM
 DIN_LOC_ROOT = '/lustre/orion/cli115/world-shared/e3sm/inputdata'
 
 # clean        = True
-newcase      = True
-config       = True
+# newcase      = True
+# config       = True
 build        = True
-# submit       = True
+submit       = True
 # continue_run = True
 
 
@@ -66,7 +66,7 @@ stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'0:30:00'
 
 # rest_opt,rest_n = 'nyears',1
 
-compset   = 'IERA5ELM' # ICRUELM / IERA5ELM
+compset   = 'IERA5ELM' # ICRUELM / IERA5ELM / IERA5ELMnoROF
 
 grid = 'conus1024x2v1pg2_RRSwISC6to18E3r5'
 num_nodes = 256
@@ -74,7 +74,10 @@ num_nodes = 256
 fsurdat_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_land'
 fsurdat = f'{fsurdat_root}/surfdata_2026-incite-conus-1024x2-pg2_simyr2010_c260325_updated.nc'
 
-map_file_lnd2rof = 'cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_traave.20260810.nc'
+maps_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_map'
+map_file_lnd2rof = f'{maps_root}/map_conus1024x2v1pg2_to_r0125_traave.20260529.nc'
+# map_file_lnd2rof = 'cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_traave.20260529.nc'
+# map_file_lnd2rof = 'cpl/gridmaps/conus1024x2v1pg2/map_conus1024x2v1pg2_to_r0125_traave.20260810.nc'
 # map_file_rof2lnd = 'cpl/gridmaps/conus1024x2v1pg2/map_r0125_to_conus1024x2v1pg2_traave.20260810.nc'
 
 num_years = 1
@@ -87,15 +90,17 @@ case = f'ELM_spinup.2026-INCITE-CONUS-RRM.{compset}.{grid}';         use_fineTOP
 # case = f'ELM_spinup.2026-INCITE-CONUS-RRM.{compset}.{grid}.fineTOP'; use_fineTOP = True
 
 #---------------------------------------------------------------------------------------------------
-def set_namelist(fsurdat):
-   #----------------------------------------------------------------------------
-   file = open('user_nl_mosart','w') 
-   file.write('''
+rof_namelist_txt = f'''
  &mosart_inparm
   do_rtm = .false.
  /
-''') 
-   file.close()
+'''
+#---------------------------------------------------------------------------------------------------
+def set_namelist(fsurdat):
+   #----------------------------------------------------------------------------
+   # file = open('user_nl_mosart','w') 
+   # file.write(rof_namelist_txt) 
+   # file.close()
    #----------------------------------------------------------------------------
    # file = open('user_nl_eam','w') 
    # file.write(' empty_htapes = .true. \n') 
@@ -128,7 +133,9 @@ if newcase:
    if os.path.isdir(case_root): exit(f'\n{clr.RED}This case already exists!{clr.END}\n')
    cmd = f'{src_dir}/cime/scripts/create_newcase --case {case} --project {acct}'
    cmd += f' --output-root {case_root} --script-root {case_root}/case_scripts'
-   cmd += f' --compset {compset} --res {grid} --handle-preexisting-dirs u'
+   cmd += f' --compset {compset} --handle-preexisting-dirs u'
+   # cmd += f' --res {grid}'
+   cmd += f' --res ELM_USRDAT'
    cmd += f' --pecount {atm_ntasks}x{atm_nthrds} --machine={machine} --compiler={compiler} '
    run_cmd(cmd)
 #---------------------------------------------------------------------------------------------------
@@ -142,6 +149,13 @@ if config:
    # run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={(max_mpi_per_node*atm_nthrds)}')
    #----------------------------------------------------------------------------
    set_namelist(fsurdat)
+   #----------------------------------------------------------------------------
+   # changes needed for ELM_USRDAT
+   domain_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_domain'
+   run_cmd(f'./xmlchange ATM_DOMAIN_PATH={domain_root}')
+   run_cmd(f'./xmlchange LND_DOMAIN_PATH={domain_root}')
+   run_cmd(f'./xmlchange ATM_DOMAIN_FILE=domain.lnd.2026-incite-conus-1024x2_RRSwISC6to18E3r5.20260610.nc')
+   run_cmd(f'./xmlchange LND_DOMAIN_FILE=domain.lnd.2026-incite-conus-1024x2_RRSwISC6to18E3r5.20260610.nc')
    #----------------------------------------------------------------------------
    if 'map_file_lnd2rof' in globals(): run_cmd(f'./xmlchange --file env_run.xml LND2ROF_FMAPNAME={map_file_lnd2rof}' )
    if 'map_file_rof2lnd' in globals(): run_cmd(f'./xmlchange --file env_run.xml ROF2LND_FMAPNAME={map_file_rof2lnd}' )

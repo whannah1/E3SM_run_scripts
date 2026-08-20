@@ -126,6 +126,7 @@ for tdir in dirs :
                 # check if we're dealing with EAM or EAMxx
                 comp = sp.check_output('./xmlquery --value COMP_ATM', shell=True,
                                        cwd=f'{case_root}/case_scripts', text=True)
+                if comp=='datm':   comp = 'eam'
                 if comp=='scream': comp = 'eamxx'
                 #---------------------------------------------------------------
                 # Get the names of all e3sm logs
