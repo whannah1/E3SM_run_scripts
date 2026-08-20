@@ -68,6 +68,7 @@ def get_scratch_path_list():
   all_path_list.append('/pscratch/sd/w/whannah/E3SMv3_dev')
   all_path_list.append(f'{home}/E3SM/scratch-llnl1')
   all_path_list.append(f'{home}/E3SM/scratch-llnl2')
+  all_path_list.append(f'{home}/E3SM/scratch-strong')
   #-----------------------------------------------------------------------------
   # only retain paths that exist
   scratch_path_list = []
