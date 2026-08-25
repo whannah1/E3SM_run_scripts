@@ -38,10 +38,13 @@ obs_path        = f'/lcrc/group/e3sm/diagnostics/observations/Atm/'
 test_data_path  = f'/lcrc/soft/climate/e3sm_diags_data/test_model_data_for_acme_diags/'
 html_path       = f'/lcrc/group/e3sm/public_html/diagnostic_output/{username}/'
 web_address     = f'https://web.lcrc.anl.gov/public/e3sm/diagnostic_output/{username}/'
+scratch_path    = f'/lcrc/group/e3sm/ac.whannah/scratch/chrys/from_olcf'
+machine         = f'chrysalis'
+partition       = f'compute'
 #---------------------------------------------------------------------------------------------------
 
-scratch_path='/lcrc/group/e3sm/ac.whannah/scratch/chrys/from_olcf'
-map_file = os.getenv('HOME')+f'/maps/map_ne30pg2_to_90x180_aave.nc'
+# map_file,,dst_grid = os.getenv('HOME')+f'/maps/map_ne30pg2_to_90x180_aave.nc','90x180'
+map_file,dst_grid = os.getenv('HOME')+f'/maps/map_ne30pg2_to_180x360_aave.nc','180x360'
 
 add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010-SCREAMv1', root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
 add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE',root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
@@ -51,7 +54,6 @@ add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE',root=scratc
 data_sub = 'archive/atm/hist'
 file_prefix_1ma = 'ne30pg2.1ma.AVERAGE.nmonths_x1'
 file_prefix_1da = 'ne30pg2.1da.AVERAGE.nhours_x24'
-dst_grid = '90x180'
 #---------------------------------------------------------------------------------------------------
 def main(opts):
     case_root = f"{opts['root']}/{opts['name']}"
@@ -238,8 +240,8 @@ input = {case_root}
 output = {case_root}
 case = {case_name}
 www = {html_path}
-machine = "chrysalis"
-partition = compute
+machine = "{machine}"
+partition = {partition}
 environment_commands = "source {unified_env}"
 
 [climo]
