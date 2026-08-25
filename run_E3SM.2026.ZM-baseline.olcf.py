@@ -9,37 +9,6 @@ def add_case( **kwargs ):
    for k, val in kwargs.items(): case_opts[k] = val
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
-''' Notes
-# interpolating land IC
-LND_IC_ROOT=/lustre/orion/cli115/world-shared/e3sm/inputdata/lnd/clm2/initdata
-LND_IC_SRC=${LND_IC_ROOT}/20240104.I2010CRUELM.ne256pg2.elm.r.2016-08-01-00000.nc
-LND_IC_DST=${LND_IC_ROOT}/20240104.I2010CRUELM.ne128pg2.elm.r.2016-08-01-00000.nc
-interpinic -i 
-
-#-------------------------------------------------------------------------------
-# vertical remap
-DST_VERT=/lustre/orion/cli115/proj-shared/hannah6/files_vert/SCREAM_L128_v3.6_c20251112.cdf5.nc
-INIT_ROOT=/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init
-SRC_FILE=${INIT_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.nc
-DST_FILE=${INIT_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.L128_v3.6.nc
-
-SRC_FILE=${INIT_ROOT}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.nc
-DST_FILE=${INIT_ROOT}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.L128_v3.6.nc
-
-ncremap -4 --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
-
-# # This doesn't work - same error as above without the -4 option
-# ncatted -O -a _FillValue,,o,d,1.0e36 ${DST_FILE} ${DST_FILE}.tmp
-# ncks -5 ${DST_FILE}.tmp ${DST_FILE}.tmp.cdf5
-# mv ${DST_FILE}.cdf5 ${DST_FILE}
-
-ncatted -O -a _FillValue,ps,d,, ${DST_FILE} ${DST_FILE}.tmp
-ncks -5 ${DST_FILE}.tmp ${DST_FILE}.tmp.cdf5
-mv ${DST_FILE}.tmp.cdf5 ${DST_FILE}
-rm ${DST_FILE}.tmp
-
-'''
-#---------------------------------------------------------------------------------------------------
 import os, datetime, subprocess as sp
 from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
@@ -54,10 +23,10 @@ src_dir  = f'{top_dir}/E3SM_SRC0/' # branch => master @ Aug 18 2026 - 11d24263fb
 # config       = True
 # build        = True
 submit       = True
-# continue_run = True
+continue_run = True
 
-stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'nmonths',1,0,'1:00:00'
 # stop_opt,stop_n,resub,walltime = 'nmonths',6,5*2-1,'6:00:00' # 5-years / ne256 / 128-nodes - DID NOT WORK!
 # stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3-1,'6:00:00' # 5-years / ne256 / 128-nodes
 # stop_opt,stop_n,resub,walltime = 'nmonths',4,5*3+2-1,'6:00:00' # 5-years + aug init / ne256 / 128-nodes
@@ -87,7 +56,7 @@ kwargs_L128v36['vgrid_name'] = 'L128v3.6'
 kwargs_L128v36['vgrid_file'] = f'{vert_root}/SCREAM_L128_v3.6_c20251112.nc'
 kwargs_L128v36['init_file']  = f'{init_root}/screami_ne256np4L128_era5-20190801-topoadjx6t_20230620.L128_v3.6.nc'
 
-# new set - updated branch and SPA file
+### new set - updated branch and SPA file
 # add_case(prefix='2026-ZM-BASE-01', **kwargs_default )
 add_case(prefix='2026-ZM-BASE-01', **kwargs_L128v36 )
 # add_case(prefix='2026-ZM-BASE-01', **kwargs_L128v36, phys_order_swap=True )
@@ -172,9 +141,13 @@ def main(opts):
       if clean : run_cmd('./case.setup --clean')
       run_cmd('./case.setup --reset')
       #-------------------------------------------------------------------------
-      # Enable COSP
-      if opts.get('cosp',False):
-         run_cmd(f'./atmchange physics::atm_procs_list+=cosp')
+      # Set the atm process list explicitly 
+      if opts.get('phys_order_swap',False):
+         atm_proc_list = ['mac_aero_mic','zm','rrtmgp'] # swap order of zm and mac_aero_mic
+      else:
+         atm_proc_list = ['zm','mac_aero_mic','rrtmgp']
+      if opts.get('cosp',False): atm_proc_list.append('cosp')
+      run_cmd(f'./atmchange physics::atm_procs_list={",".join(atm_proc_list)}')
       #-------------------------------------------------------------------------
       # Enable tendency calculation for output
       if not opts.get('debug',False):
@@ -185,9 +158,6 @@ def main(opts):
          if 'F2010xx-ZM' in opts['compset']:
             run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv')
             run_cmd(f'./atmchange -b zm::use_fortran_bridge=false')
-      #-------------------------------------------------------------------------
-      if opts.get('phys_order_swap',False):
-         run_cmd(f'./atmchange physics::atm_procs_list=mac_aero_mic,zm,rrtmgp') # default => zm,mac_aero_mic,rrtmgp
    #------------------------------------------------------------------------------------------------
    if build : 
       if opts.get('debug',False): run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
@@ -199,12 +169,12 @@ def main(opts):
       #-------------------------------------------------------------------------
       # use updated SPA data file - first baseline pair missed this
       DIN_LOC_ROOT = '/lustre/orion/cli115/world-shared/e3sm/inputdata'
-      run_cmd(f'./atmchange spa_data_file="{DIN_LOC_ROOT}/atm/scream/init/spa_v3.LR.F2010.2011-2025.c_20240405.nc"')
+      run_cmd(f'./atmchange -b spa_data_file="{DIN_LOC_ROOT}/atm/scream/init/spa_v3.LR.F2010.2011-2025.c_20240405.nc"')
       #-------------------------------------------------------------------------
       if 'ne4pg2_' in opts.get('grid'):
          init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
          init_file = f'{init_root}/screami_ne4np4L128_20241022.nc'
-         run_cmd(f'./atmchange initial_conditions::filename=\"{init_file}\"')
+         run_cmd(f'./atmchange -b initial_conditions::filename=\"{init_file}\"')
          run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE=0001-01-01')
       if 'ne256pg2_' in opts.get('grid'):
          # init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/atm/scream/init'
@@ -214,11 +184,11 @@ def main(opts):
          run_cmd(f'./xmlchange --file env_run.xml  RUN_STARTDATE=0001-08-01')
          # run_cmd(f'./xmlchange --file env_run.xml  SSTICE_YEAR_START={sst_yr}')
       #-------------------------------------------------------------------------
-      if opts.get('vgrid_file') is not None: run_cmd(f'./atmchange vertical_coordinate_filename=\"{opts.get('vgrid_file')}\"')
-      if opts.get('init_file')  is not None: run_cmd(f'./atmchange initial_conditions::filename=\"{opts.get('init_file')}\"')
+      if opts.get('vgrid_file') is not None: run_cmd(f'./atmchange -b vertical_coordinate_filename=\"{opts.get('vgrid_file')}\"')
+      if opts.get('init_file')  is not None: run_cmd(f'./atmchange -b initial_conditions::filename=\"{opts.get('init_file')}\"')
       #-------------------------------------------------------------------------
-      if opts.get('vgrid_file')=='L128v3.6':
-         run_cmd(f'./atmchange -b homme::tom_sponge_start=15')
+      if opts.get('vgrid_name')=='L128v3.6':
+         run_cmd(f'./atmchange -b tom_sponge_start=15')
       #-------------------------------------------------------------------------
       if 'ne256pg2_' in opts.get('grid'):
          lnd_init_root = '/lustre/orion/cli115/world-shared/e3sm/inputdata/lnd/clm2/initdata'
@@ -247,7 +217,7 @@ def main(opts):
             add_hist_file('scream_output_1da_ne30.yaml', get_hist_opts_1da_ne30(opts) )
             add_hist_file('scream_output_1ma_ne30.yaml', get_hist_opts_1ma_ne30(opts) )
          hist_file_list_str = ','.join(hist_file_list)
-         run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
+         run_cmd(f'./atmchange -b scorpio::output_yaml_files="{hist_file_list_str}"')
       #-------------------------------------------------------------------------
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
       if 'stop_opt' in globals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')

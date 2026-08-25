@@ -53,26 +53,30 @@ DIN_LOC_ROOT = '/lustre/orion/cli115/world-shared/e3sm/inputdata'
 # clean        = True
 # newcase      = True
 # config       = True
-build        = True
+# build        = True
 submit       = True
-# continue_run = True
+continue_run = True
 
 
-stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',1, 0,'0:30:00'
 # stop_opt,stop_n,resub,walltime = 'nmonths',1, 0,'2:00:00'
-# stop_opt,stop_n,resub,walltime = 'nyears',5, 0,'2:00'
-# stop_opt,stop_n,resub,walltime = 'nyears',1, 9-1,'2:00'
+# stop_opt,stop_n,resub,walltime = 'nmonths',6, 1,'12:00:00'
+stop_opt,stop_n,resub,walltime = 'nyears',1, 0,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'nyears',1, 10-1,'2:00'
 
 # rest_opt,rest_n = 'nyears',1
+rest_opt,rest_n = 'nmonths',1
 
-compset   = 'IERA5ELM' # ICRUELM / IERA5ELM / IERA5ELMnoROF
+compset   = 'IERA5ELM' # ICRUELM / IERA5ELM
 
 grid = 'conus1024x2v1pg2_RRSwISC6to18E3r5'
 num_nodes = 256
 # fsurdat = f'{DIN_LOC_ROOT}/lnd/clm2/surfdata_map/surfdata_ne128pg2_simyr2010_c260116.nc'
 fsurdat_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_land'
-fsurdat = f'{fsurdat_root}/surfdata_2026-incite-conus-1024x2-pg2_simyr2010_c260325_updated.nc'
+fsurdat_file = f'{fsurdat_root}/surfdata_2026-incite-conus-1024x2-pg2_simyr2010_c260325_updated.nc'
+
+finidat_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_init'
+finidat_file = f'{finidat_root}/conus1024x2v1pg2_RRSwISC6to18E3r5.elm.r.2020-01-20-00000.nc'
 
 maps_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_map'
 map_file_lnd2rof = f'{maps_root}/map_conus1024x2v1pg2_to_r0125_traave.20260529.nc'
@@ -90,13 +94,13 @@ case = f'ELM_spinup.2026-INCITE-CONUS-RRM.{compset}.{grid}';         use_fineTOP
 # case = f'ELM_spinup.2026-INCITE-CONUS-RRM.{compset}.{grid}.fineTOP'; use_fineTOP = True
 
 #---------------------------------------------------------------------------------------------------
-rof_namelist_txt = f'''
- &mosart_inparm
-  do_rtm = .false.
- /
-'''
+# rof_namelist_txt = f'''
+#  &mosart_inparm
+#   do_rtm = .false.
+#  /
+# '''
 #---------------------------------------------------------------------------------------------------
-def set_namelist(fsurdat):
+def set_namelist(fsurdat_file,finidat_file):
    #----------------------------------------------------------------------------
    # file = open('user_nl_mosart','w') 
    # file.write(rof_namelist_txt) 
@@ -107,8 +111,12 @@ def set_namelist(fsurdat):
    # file.close()
    #----------------------------------------------------------------------------
    file = open('user_nl_elm','w')
-   file.write(f' fsurdat = \'{fsurdat}\'\n')
-   file.write(f' finidat = \'\'\n') # this need to be blank to force cold-start mode
+   file.write(f' fsurdat = \'{fsurdat_file}\'\n')
+   if finidat_file is not None:
+      file.write(f' finidat = \'{finidat_file}\'\n')
+      # file.write(f' check_finidat_fsurdat_consistency=.false.')
+   else:
+      file.write(f' finidat = \'\'\n') # this need to be blank to force cold-start mode
    if use_fineTOP:
       file.write(f" use_finetop_rad    = .true.")
       file.write(f" use_top_solar_rad  = .false.")
@@ -117,8 +125,10 @@ def set_namelist(fsurdat):
       file.write(f" use_top_solar_rad  = .true.")
    file.write(f" hist_empty_htapes  = .true.")
    file.write(f" hist_fincl1 = 'FSDS','FSA','FSR','FIRE','Rnet','EFLX_LH_TOT','FSH'")
-   file.write(f" hist_nhtfrq = -1")
-   file.write(f" hist_mfilt  = 24")
+   # file.write(f" hist_nhtfrq = -1")
+   # file.write(f" hist_mfilt  = 24")
+   file.write(f" hist_nhtfrq = 0")
+   file.write(f" hist_mfilt  = 1")
    file.close()
 #---------------------------------------------------------------------------------------------------
 print('\n  case : '+case+'\n')
@@ -148,7 +158,7 @@ if config:
    run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={max_task_per_node}')
    # run_cmd(f'./xmlchange MAX_TASKS_PER_NODE={(max_mpi_per_node*atm_nthrds)}')
    #----------------------------------------------------------------------------
-   set_namelist(fsurdat)
+   set_namelist(fsurdat_file,finidat_file)
    #----------------------------------------------------------------------------
    # changes needed for ELM_USRDAT
    domain_root = '/lustre/orion/cli115/world-shared/e3sm/2026-INCITE-CONUS-RRM/files_domain'
@@ -177,7 +187,7 @@ if build:
 #---------------------------------------------------------------------------------------------------
 if submit:
    #----------------------------------------------------------------------------
-   set_namelist(fsurdat)
+   set_namelist(fsurdat_file,finidat_file)
    #----------------------------------------------------------------------------
    # if 'ncpl' in locals(): run_cmd(f'./xmlchange ATM_NCPL={str(ncpl)}')
    if 'queue'    in globals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')

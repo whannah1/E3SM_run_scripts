@@ -26,6 +26,35 @@ ncremap -6 --alg_typ=traave --grd_src=$SRC_GRID_FILE --grd_dst=$DST_GRID_FILE --
 
 '''
 #---------------------------------------------------------------------------------------------------
+''' Moving history files after short-term archive step
+
+ROOT=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch
+# CASE=E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP
+CASE=E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6
+# CASE=E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6.phys_order_swap_1
+
+mkdir -p ${ROOT}/${CASE}/archive/atm/hist
+mkdir -p ${ROOT}/${CASE}/archive/atm/hist_ne30
+mkdir -p ${ROOT}/${CASE}/archive/rest/rhist
+mv  ${ROOT}/${CASE}/run/*rhist*          ${ROOT}/${CASE}/archive/rest/rhist/
+mv  ${ROOT}/${CASE}/run/output.ne30pg2*  ${ROOT}/${CASE}/archive/atm/hist_ne30/
+mv  ${ROOT}/${CASE}/run/output.*         ${ROOT}/${CASE}/archive/atm/hist/
+
+mkdir -p ${ROOT}/${CASE}/archive/atm/yr0001
+mv  ${ROOT}/${CASE}/archive/atm/hist*/*.0001-*  ${ROOT}/${CASE}/archive/atm/yr0001/
+
+#-------------------------------------------------------------------------------
+
+ROOT=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch
+MAP_FILE=~/maps/map_ne30pg2_to_90x180_traave.nc
+REGRID_ARGS="--map=${MAP_FILE} --root=${ROOT} --sub=archive/atm/hist_ne30 --prefix=output.ne30pg2.1da.AVERAGE.nhours_x24"
+
+python ~/E3SM_analysis/regrid.eamxx.py ${REGRID_ARGS} --case=E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP
+python ~/E3SM_analysis/regrid.eamxx.py ${REGRID_ARGS} --case=E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6
+python ~/E3SM_analysis/regrid.eamxx.py ${REGRID_ARGS} --case=E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6.phys_order_swap_1
+
+'''
+#---------------------------------------------------------------------------------------------------
 class clr:END,RED,GREEN,YELLOW,MAGENTA,CYAN,BOLD = '\033[0m','\033[31m','\033[32m','\033[33m','\033[35m','\033[36m','\033[1m'
 def print_line(): print(' '*2+'-'*80)
 def run_cmd(cmd): print('\n  '+clr.GREEN+cmd+clr.END); os.system(cmd); return
@@ -69,9 +98,14 @@ web_address     = f'https://???/public/e3sm/diagnostic_output/{username}/'
 scratch_path='/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch'
 map_file = '/lustre/orion/cli115/proj-shared/hannah6/files_map/map_ne256pg2_to_180x360_traave.nc'
 
-# add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010-SCREAMv1', root=scratch_path,yr1='0001',yr2='0005',map_file=map_file)
-# add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE',root=scratch_path,yr1='0001',yr2='0005',map_file=map_file)
-add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE.L128v3.6',root=scratch_path,yr1='0001',yr2='0005',map_file=map_file)
+# add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010-SCREAMv1',          root=scratch_path,yr1='0001',yr2='0005',map_file=map_file)
+# add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE',         root=scratch_path,yr1='0001',yr2='0005',map_file=map_file)
+# add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE.L128v3.6',root=scratch_path,yr1='0001',yr2='0005',map_file=map_file)
+
+kwargs = {'root':scratch_path,'yr1':'0001','yr2':'0005','map_file':map_file}
+# add_case(**kwargs,name='E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP')
+add_case(**kwargs,name='E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6')
+# add_case(**kwargs,name='E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6.phys_order_swap_1')
 
 #---------------------------------------------------------------------------------------------------
 # common zppy stuff
