@@ -24,12 +24,12 @@ flags = {
     # 'run_zppy_chk'      : True,
     'run_zppy'          : True,
     ### zppy config flags
-    # 'zppy_climo_active'         : True,
-    # 'zppy_climo_diurnal_active' : True,
-    # 'zppy_ts_active'            : True,
+    'zppy_climo_active'         : True,
+    'zppy_climo_diurnal_active' : True,
+    'zppy_ts_active'            : True,
     'zppy_diags_active'         : True,
     'zppy_diags_monthly_active' : True,
-    # 'zppy_diags_tc_active'      : True,
+    # 'zppy_diags_tc_active'      : True, # < this doesn't work - need diags update
 }
 #---------------------------------------------------------------------------------------------------
 opt_list = []
@@ -64,9 +64,15 @@ conda_env_run   = f'conda run -p /global/homes/w/whannah/.conda/envs/zppy_env'
 # map_file,,dst_grid = os.getenv('HOME')+f'/maps/map_ne30pg2_to_90x180_aave.nc','90x180'
 map_file,dst_grid = os.getenv('HOME')+f'/maps/map_ne30pg2_to_180x360_aave.nc','180x360'
 
-add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010-SCREAMv1',          root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
+# add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010-SCREAMv1',          root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
 # add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE',         root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
 # add_case(name='E3SM.2026-ZM-BASE-00.ne256pg2.NN_128.F2010xx-ZM-CICE.L128v3.6',root=scratch_path,yr1='0002',yr2='0006',map_file=map_file)
+
+kwargs = {'root':scratch_path,'yr1':'0002','yr2':'0006','map_file':map_file}
+add_case(**kwargs,name='E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP')
+add_case(**kwargs,name='E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6')
+add_case(**kwargs,name='E3SM.2026-ZM-BASE-01.ne256pg2.NN_256.F2010xx-ZM-CICE.COSP.L128v3.6.phys_order_swap_1')
+
 
 #---------------------------------------------------------------------------------------------------
 # common zppy stuff
@@ -129,16 +135,18 @@ def main(opts):
     # preliminary check to ensure all file variables are there
     if flags.get('run_zppy_chk',False):
         import netCDF4
-        print('  starting file')
+        print('  starting pre-zppy file check')
         diag_var_list_list = get_diag_vars(opts)
         file_prefix_list = [ file_prefix_1ma, file_prefix_1da, file_prefix_1ha ]
         if len(diag_var_list_list)!=len(file_prefix_list):
             len_var = len(diag_var_list_list)
             len_pfx = len(file_prefix_list)
             raise ValueError(f'list lengths for var ({len_var}) and prefix ({len_pfx}) lists must match!')
+        file_cnt = 0
         for f,file_prefix in enumerate(file_prefix_list):
             diag_var_list = diag_var_list_list[f].split(',')
             test_file_list = sorted(glob.glob(f'{case_root}/{data_sub}/*{file_prefix}*'))
+            file_cnt += len(test_file_list)
             if len(test_file_list)==0:
                 msg = f'file list is empty!'
                 msg += f'\nsearch str: {case_root}/{data_sub}/*{file_prefix}*'
@@ -149,7 +157,9 @@ def main(opts):
                 for diag_var in diag_var_list:
                     if diag_var not in file_var_list:
                         raise ValueError(f'variable {diag_var} not found in {file_prefix} output stream!')
-        print('  file check complete!')
+        print(f'    # file types    : {len(file_prefix_list)} ')
+        print(f'    # files present : {file_cnt}')
+        print(f'  file check complete!')
     #-----------------------------------------------------------------------------------------------
     if flags.get('run_zppy',False):
         # Clear status files that don't indicate "OK"
