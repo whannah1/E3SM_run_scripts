@@ -15,31 +15,41 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'e3sm'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => whannah/eam/2026-gwd-updates
 
 # clean        = True
-# newcase      = True
-# config       = True
+newcase      = True
+config       = True
 build        = True
 submit       = True
 # continue_run = True
 
-# debug_mode = False
-
 queue = 'debug'  # regular / debug
 
-# stop_opt,stop_n,resub,walltime = 'nsteps',2,0,'0:30:00'
-stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
+# stop_opt,stop_n,resub,walltime = 'nsteps',6,0,'0:10:00'; queue='debug'
+# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue='debug'
+stop_opt,stop_n,resub,walltime = 'ndays',32,0,'1:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',91*2,0,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
 #---------------------------------------------------------------------------------------------------
-### EAMxx GWD process testing
+# EAM testing for stealth features
 
-add_case(prefix='2026-GW-DEV-00', compset='F2010', grid='ne4pg2_oQU480', num_nodes=1)
+src_dir = f'{top_dir}/E3SM_SRC1' # branch => whannah/eam/2026-gwd-updates
+# add_case(prefix='2026-GW-DEV-EAM-00', compset='F2010', grid='ne4pg2_oQU480', num_nodes=1)
 
-# add_case(prefix='2026-GW-DEV-00', compset='F2010-SCREAMv1', grid='ne4pg2_oQU480', num_nodes=1, use_gw=True, debug=True)
-# add_case(prefix='2026-GW-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, debug=True)
+# add_case(prefix='2026-GW-DEV-EAM-00', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8, use_rr=False)
+# add_case(prefix='2026-GW-DEV-EAM-00', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8, use_rr=True)
+
+# manually disable taucd scaling
+# add_case(prefix='2026-GW-DEV-EAM-01', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8, use_rr=True) 
+
+# # refactor how RR scaling works taucd scaling still diabled
+# add_case(prefix='2026-GW-DEV-EAM-02', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8, use_rr=True)
+
+# # same as 02 but enable taucd scaling
+# add_case(prefix='2026-GW-DEV-EAM-03', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8, use_rr=True)
+
+# same as 03 - update tapering limits - eff_res_grid_num_max = 20
+add_case(prefix='2026-GW-DEV-EAM-04', compset='F2010', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=8, use_rr=True)
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -50,8 +60,6 @@ def get_grid_name(opts):
    return grid_name
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
-   # global debug_mode
-   #----------------------------------------------------------------------------
    debug_mode = False
    if 'debug' in opts: debug_mode = opts['debug']
    case_list = ['E3SM']
@@ -78,12 +86,12 @@ def main(opts):
 
    print(f'\n  case : {case}\n')
    #------------------------------------------------------------------------------------------------
-   print(f' clean        : {clean}')
-   print(f' newcase      : {newcase}')
-   print(f' config       : {config}')
-   print(f' build        : {build}')
-   print(f' submit       : {submit}')
-   print(f' continue_run : {continue_run}')
+   # print(f' clean        : {clean}')
+   # print(f' newcase      : {newcase}')
+   # print(f' config       : {config}')
+   # print(f' build        : {build}')
+   # print(f' submit       : {submit}')
+   # print(f' continue_run : {continue_run}')
    #------------------------------------------------------------------------------------------------
    if 'num_nodes' in opts and 'num_tasks' in opts:
       raise ValueError('cannot specify both num_nodes and num_tasks!')
@@ -94,6 +102,12 @@ def main(opts):
    if 'debug' in opts: debug_mode = opts['debug']
    #------------------------------------------------------------------------------------------------
    # exit()
+   #------------------------------------------------------------------------------------------------
+   comp = None
+   if opts['compset'] in ['F2010']:
+      comp = 'eam'
+   else:
+      comp = 'eamxx'
    #------------------------------------------------------------------------------------------------
    case_root = f'/lcrc/group/e3sm/ac.whannah/scratch/chrys/{case}'
 
@@ -130,45 +144,35 @@ def main(opts):
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       #-------------------------------------------------------------------------
-      if clean : run_cmd('./case.setup --clean')
+      if clean : run_cmd('./case.setup --clean-all')
       run_cmd('./case.setup --reset')
       #-------------------------------------------------------------------------
-      if 'use_gw' in opts:
-         if opts['use_gw']:
-            run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=gw')
-            # run_cmd(f'./atmchange -b use_gw_convect=True')
-            # run_cmd(f'./atmchange -b use_gw_frontal=True')
-            run_cmd(f'./atmchange -b use_gw_orographic=True')
+      if opts.get('use_gw',False):
+         run_cmd(f'./atmchange physics::atm_procs_list+=gw')
    #------------------------------------------------------------------------------------------------
    if build : 
       if debug_mode: run_cmd('./xmlchange --file env_build.xml --id DEBUG --val TRUE ')
-      if clean : run_cmd('./case.build --clean')
-      run_cmd('./xmlchange CICE_CPPDEFS="-DCCSMCOUPLED -Dcoupled -Dncdf -DNCAT=1 -DNXGLOB=1791 -DNYGLOB=1 -DNTR_AERO=0 -DMODAL_AER"')
-      run_cmd('./case.build --clean ice')
+      if clean : run_cmd('./case.build --clean-all')
+      # run_cmd('./case.build --clean ice')
       run_cmd('./case.build')
       # run_cmd('./case.build --clean ice  && ./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
       #-------------------------------------------------------------------------
-      if opts['compset'] in ['F2010']:
-         # EAM namelist options
-         nfile = 'user_nl_eam'
-         file = open(nfile,'w') 
-         file.write(eam_opts)
+      if comp=='eam':
+         file=open('user_nl_eam','w')
+         # file.write(f'ncdata = \'{init_file_eam}\'\n')
+         file.write(f"avgflag_pertape = 'A','A'\n")
+         file.write(f"nhtfrq = 0,-24\n")
+         file.write(f"mfilt = 1,1\n")
+         file.write(f"fincl1 = 'PS', 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'")
+         file.write(f",'UTGWORO','BUTGWSPEC','UTGWSPEC'")
+         file.write(f'\n')
+         if opts.get('use_rr'):
+            file.write(f"use_gw_front_rr_scaling = .true.\n")
+         else:
+            file.write(f"use_gw_front_rr_scaling = .false.\n")
          file.close()
-      else:
-         hist_file_list = []
-         def add_hist_file(hist_file,txt):
-            file=open(hist_file,'w'); file.write(txt); file.close()
-            hist_file_list.append(hist_file)
-         #----------------------------------------------------------------------
-         # add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_inst)
-         # hist_file_list_str = ','.join(hist_file_list)
-         # run_cmd(f'./atmchange Scorpio::output_yaml_files="{hist_file_list_str}"')
-         #----------------------------------------------------------------------
-         print()
-         print(clr.RED+'WARNING - all output is disabled for debugging!'+clr.END)
-         print()
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
@@ -186,60 +190,6 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    # Print the case name again
    print(f'\n  case : {case}\n') 
-
-#---------------------------------------------------------------------------------------------------
-eam_opts = f'''
- avgflag_pertape = 'A','A'
- nhtfrq = 0,-24
- mfilt  = 1,1
- fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
-'''
-#---------------------------------------------------------------------------------------------------
-field_txt_2D = '\n'
-# field_txt_2D += '      - precip_total_surf_mass_flux'
-# field_txt_2D += '      - LiqWaterPath'
-# field_txt_2D += '      - surf_sens_flux'
-# field_txt_2D += '      - surf_evap'
-# field_txt_2D += '      - surf_mom_flux'
-field_txt_2D += '      - U_at_model_bot'
-# field_txt_2D += '      - V_at_model_bot'
-# field_txt_2D += '      - ash'
-
-
-# hist_opts_2D_inst = f'''
-# %YAML 1.1
-# ---
-# filename_prefix: output.scream.2D.1hr
-# Averaging Type: Instant
-# Max Snapshots Per File: 24
-# Fields:
-#    Physics PG2:
-#       Field Names:{field_txt_2D}
-# output_control:
-#    Frequency: 1
-#    frequency_units: nhours
-#    MPI Ranks in Filename: false
-# Restart:
-#    force_new_file: true
-# '''
-
-hist_opts_2D_inst = f'''
-%YAML 1.1
----
-filename_prefix: output.scream.2D
-Averaging Type: Instant
-Max Snapshots Per File: 48
-Fields:
-   Physics PG2:
-      Field Names:{field_txt_2D}
-output_control:
-   Frequency: 1
-   frequency_units: nsteps
-   MPI Ranks in Filename: false
-Restart:
-   force_new_file: true
-'''
-
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
    for n in range(len(opt_list)):

@@ -1,4 +1,16 @@
 --------------------------------------------------------------------------------
+# TODO
+
+- [ ] EAMxx: `taucd` unscaled-by-effgw issue (found via NCAR review + copilot PR
+      comment on gw_drag.F90) needs to be addressed in the EAMxx C++ gw port too,
+      once/if RR scaling (effgw_loc_in / gw_rossby_radius_ratio) gets ported there.
+      As of 2026-09-03 the C++ gw_drag_prof_impl.hpp only takes a scalar effgw,
+      no per-column override, so this doesn't apply yet - but flag it so whoever
+      ports RR scaling doesn't reintroduce the same gap.
+      (Fortran-side narrow fix applied in gw_drag.F90 on whannah/eam/2026-gwd-updates,
+      scales taucd by effgw_cm_var/effgw_cm right after the CM gw_drag_prof call.)
+
+--------------------------------------------------------------------------------
 
 ```
 diff --git a/components/eam/src/physics/cam/gw/gw_common.F90 b/components/eam/src/physics/cam/gw/gw_common.F90
@@ -34,6 +46,19 @@ index 3080401ded..6b7df64b8f 100644
 ```
 
 --------------------------------------------------------------------------------
+# Interactive Job Commands
+
+```shell
+# Perlmutter
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
+salloc --nodes 1 --qos interactive --time 4:00:00 --constraint gpu --account=e3sm
+
+# chrysalis
+salloc --nodes 1 --qos interactive --time 4:00:00 --account=e3sm
+srun --pty --nodes=1 --time=04:00:00 /bin/bash
+```
+
+--------------------------------------------------------------------------------
 # LCRC
 
 ```shell
@@ -55,7 +80,7 @@ make -j 256
 cd $CASE_ROOT/run
 # mkdir -p  timing/checkpoints
 # srun --mpi=pmi2 -l -n 96 -N 2 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe
-valgrind srun --mpi=pmi2 -l -n 96 -N 1 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe  &> tmp_log
+# valgrind srun --mpi=pmi2 -l -n 96 -N 1 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe  &> tmp_log
 
 ```
 
@@ -97,6 +122,28 @@ cd $CASE_ROOT/run
 
 cd $CASE_ROOT/run
 valgrind srun --mpi=pmi2 -l -n 1 -N 1 --kill-on-bad-exit --cpu_bind=cores  -c 2 -m plane=64 $CASE_ROOT/bld/e3sm.exe  &> tmp_log
+
+```
+
+--------------------------------------------------------------------------------
+# Unit Tests - LCRC
+
+```shell
+E3SM_SRC=~/E3SM/E3SM_SRC2
+TEST_ROOT=/lcrc/group/e3sm/ac.whannah/scratch/gw_dev/tests
+mach=chrysalis
+comp=intel
+
+cd ${TEST_ROOT}/full_debug
+
+eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=128 && export OMP_PROC_BIND=spread;
+
+${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
+
+cd ${TEST_ROOT}/full_debug/src/physics/gw/tests
+make -j128
+
+./gw_tests
 
 ```
 

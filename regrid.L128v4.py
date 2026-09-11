@@ -10,28 +10,48 @@ after running this script make sure permissions are correct:
 chmod go+r ${DIN_LOC_ROOT}/atm/scream/init_tmp/*
 '''
 #---------------------------------------------------------------------------------------------------
-DIN_LOC_ROOT = '/lcrc/group/acme/public_html/inputdata'
+'''
+/lcrc/group/e3sm/data/inputdata/atm/scream/init
+/lcrc/group/e3sm/public_html/inputdata/atm/scream/init
+'''
+#---------------------------------------------------------------------------------------------------
+DIN_LOC_ROOT = '/lcrc/group/e3sm/public_html/inputdata'
 
 SRC_ROOT = f'{DIN_LOC_ROOT}/atm/scream/init'
 DST_ROOT = f'{DIN_LOC_ROOT}/atm/scream/init_tmp'
-
-file_list = []
-file_list.append(f'{SRC_ROOT}/screami_ne4np4L128_20241022.nc')
-file_list.append(f'{SRC_ROOT}/screami_ne30np4L128_20221004.nc')
-file_list.append(f'{SRC_ROOT}/eamxxi_ne32np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc')
-file_list.append(f'{SRC_ROOT}/eamxxi_ne64np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc')
-file_list.append(f'{SRC_ROOT}/screami_ne120np4L128_20230215.nc')
-file_list.append(f'{SRC_ROOT}/eamxxi_ne128np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc')
-file_list.append(f'{SRC_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.nc')
-file_list.append(f'{SRC_ROOT}/screami_ne256np4L128_era5_aer_c20240929.nc')
-file_list.append(f'{SRC_ROOT}/screami_ne512np4L128_20220823.nc')
-file_list.append(f'{SRC_ROOT}/screami_ne1024np4L128_era5-20131001-topoadj-16x_20220914.nc')
-file_list.append(f'{SRC_ROOT}/screami_mam4xx_ne1024np4L128_20240513.nc')
-file_list.append(f'{SRC_ROOT}/screami_ne1024np4L128_ifs-20200120-topoadjx6t_20221011.nc')
-
 DST_VERT = f'{SRC_ROOT}/vertical_coordinates_L128v4_c20260820.nc'
 
-DST_DATESTAMP = '20260825'
+file_list = []
+# # original batch
+# DST_DATESTAMP = '20260825'
+# file_list.append(f'{SRC_ROOT}/screami_ne4np4L128_20241022.nc')
+# file_list.append(f'{SRC_ROOT}/screami_ne30np4L128_20221004.nc')
+# file_list.append(f'{SRC_ROOT}/eamxxi_ne32np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc')
+# file_list.append(f'{SRC_ROOT}/eamxxi_ne64np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc')
+# file_list.append(f'{SRC_ROOT}/screami_ne120np4L128_20230215.nc')
+# file_list.append(f'{SRC_ROOT}/eamxxi_ne128np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20251001.nc')
+# file_list.append(f'{SRC_ROOT}/screami_ne256np4L128_ifs-20200120_20220914.nc')
+# file_list.append(f'{SRC_ROOT}/screami_ne256np4L128_era5_aer_c20240929.nc')
+# file_list.append(f'{SRC_ROOT}/screami_ne512np4L128_20220823.nc')
+# file_list.append(f'{SRC_ROOT}/screami_ne1024np4L128_era5-20131001-topoadj-16x_20220914.nc')
+# file_list.append(f'{SRC_ROOT}/screami_mam4xx_ne1024np4L128_20240513.nc')
+# file_list.append(f'{SRC_ROOT}/screami_ne1024np4L128_ifs-20200120-topoadjx6t_20221011.nc')
+
+# new batch after Luca's PR #8606 to switch horiz_winds => U/V
+DST_DATESTAMP = '20260911'
+file_list.append(f'{SRC_ROOT}/screami_ne4np4L128_20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_ne30np4L128_20260813.nc')
+file_list.append(f'{SRC_ROOT}/eamxxi_ne32np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20260813.nc')
+file_list.append(f'{SRC_ROOT}/eamxxi_ne64np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_ne120np4L128_20260813.nc')
+file_list.append(f'{SRC_ROOT}/eamxxi_ne128np4L128.v3.LR.amip_0101.eam.i.2000-01-01-00000.20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_ne256np4L128_ifs-20200120_20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_ne256np4L128_era5_aer_c20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_ne512np4L128_20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_ne1024np4L128_era5-20131001-topoadj-16x_20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_mam4xx_ne1024np4L128_20260813.nc')
+file_list.append(f'{SRC_ROOT}/screami_ne1024np4L128_ifs-20200120-topoadjx6t_20260813.nc')
+
 
 #---------------------------------------------------------------------------------------------------
 os.makedirs(DST_ROOT,exist_ok=True)
@@ -41,7 +61,8 @@ for SRC_FILE in file_list:
   if not os.path.exists(SRC_FILE): raise OSError(f'file is missing:\n  {SRC_FILE}\n')
   SRC_DATESTAMP = SRC_FILE[-3-8:-3]
   DST_FILE = SRC_FILE
-  DST_FILE = DST_FILE.replace('L128_','L128v4_')
+  if 'L128_' in SRC_FILE: DST_FILE = DST_FILE.replace('L128_','L128v4_')
+  if 'L128.' in SRC_FILE: DST_FILE = DST_FILE.replace('L128.','L128v4_')
   DST_FILE = DST_FILE.replace(SRC_DATESTAMP,DST_DATESTAMP)
   DST_FILE = DST_FILE.replace(SRC_ROOT,DST_ROOT)
   DST_FILE_LIST.append(DST_FILE)

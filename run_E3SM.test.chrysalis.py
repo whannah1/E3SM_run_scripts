@@ -17,13 +17,13 @@ output_root = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'; generate = True # generate baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_BASE'                  # just run tests, no comparison
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1'                  # just run tests, no comparison
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'                  # just run tests, no comparison
 
 # baseline_branch_name = 'custom_baseline'
 baseline_branch_name = 'master'
 
 verbose      = True      # print commands
-# debug_script = True      # do not submit test - for debugging this script
+debug_script = True      # do not submit test - for debugging this script
 
 # tests = ['e3sm_mmf_integration']
 # tests = ['e3sm_developer']
@@ -40,8 +40,9 @@ tests = [
         # 'ERS_D_Ld5.ne4pg2_oQU480.F2010xx-ZM.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne30pg2_ne30pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010.chrysalis_intel',
-        'ERS_Ld5.ne4pg2_oQU480.F2010xx-ZM',
+        # 'ERS_Ld5.ne4pg2_oQU480.F2010xx-ZM',
         # 'ERS_Ld3.ne4pg2_oQU480.F2010xx-ZM',
+        'ERS_Ln9.ne4_ne4.F2000-SCREAMv1-AQP1.chrysalis_intel.eamxx-output-preset-2--eamxx-L72'
         ]
 
 
