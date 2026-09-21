@@ -13,8 +13,8 @@ output_root = '/pscratch/sd/w/whannah/e3sm_scratch/perlmutter/tests'
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'; generate = True # generate baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'; compare  = True # compare to baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_BASE'                  # just run tests, no comparison
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'                  # just run tests, no comparison
-# src_dir = '/pscratch/sd/w/whannah/tmp_e3sm_src'
+# src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'                  # just run tests, no comparison
+src_dir = '/pscratch/sd/w/whannah/tmp_e3sm_src'; compare  = True
 
 
 verbose      = True      # print commands
@@ -26,16 +26,16 @@ master_branch_name = 'master'
 # tests = ['e3sm_developer']
 # tests = ['e3sm_atm_developer']
 # tests = ['mmf_tmp']
-# tests = ['e3sm_mmf']
+tests = ['homme_integration']
 
-tests = [ 
-        # 'ERP_Ld3.ne4pg2_oQU480.F2010.pm-cpu_gnu',
-        'ERP_Ld3.ne4pg2_oQU480.F2010.pm-cpu_intel',
-        'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype0',
-        # 'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype1',
-        # 'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype4',
-        'SMS_R_Ld5.ne4_ne4.FSCM-ARM97.pm-cpu_intel.eam-scm',
-        ]
+# tests = [ 
+#         # 'ERP_Ld3.ne4pg2_oQU480.F2010.pm-cpu_gnu',
+#         'ERP_Ld3.ne4pg2_oQU480.F2010.pm-cpu_intel',
+#         'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype0',
+#         # 'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype1',
+#         # 'SMS.ne4pg2_oQU480.F2010.pm-cpu_intel.eam-preqx_ftype4',
+#         'SMS_R_Ld5.ne4_ne4.FSCM-ARM97.pm-cpu_intel.eam-scm',
+#         ]
 
 
 # tests = [ 

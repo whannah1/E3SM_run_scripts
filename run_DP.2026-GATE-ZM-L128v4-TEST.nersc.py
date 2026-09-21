@@ -34,7 +34,7 @@ ncremap --ps_nm=ps --vrt_fl=${DST_VERT} --in_fl=${SRC_FILE} --out_fl=${DST_FILE}
 newcase,config,set_bld_params,build,clean,submit,continue_run = False,False,False,False,False,False,False
 
 acct = 'e3sm' # e3sm / m4310 (scidac)
-src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/eamxx/zm-cloud-top-ascent-limiter
+src_dir  = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/eamxx/support-new-L128
 
 # clean        = True
 newcase        = True
@@ -44,7 +44,9 @@ build          = True
 submit         = True
 # continue_run = True
 
-queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:30:00'
+# queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',1,0,'0:30:00'
+# queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',1,0,'0:30:00'
+queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',5,0,'0:30:00'
 # queue,stop_opt,stop_n,resub,walltime = 'debug','ndays',10,1,'0:30:00' # useful for full runs @ ne9
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',20,0,'2:00:00'
 # queue,stop_opt,stop_n,resub,walltime = 'regular','ndays',40,0,'5:00:00' # <<<<
@@ -61,188 +63,71 @@ horiz_remap_root = '/global/homes/w/whannah/maps'
 # init_L128 = '/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/screami_ne30np4L128_20221004.nc'
 # init_L144 = '/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/screami_ne30np4L128_20221004.L144.nc'
 #---------------------------------------------------------------------------------------------------
-# build list of cases to run
+L128v4_kwargs = {}
+# L128v4_kwargs['prefix'] = 'DP.2026-GATE-L128v4-00' # 
+# L128v4_kwargs['prefix'] = 'DP.2026-GATE-L128v4-01' # retest successful cases after branch update 
+L128v4_kwargs['prefix'] = 'DP.2026-GATE-L128v4-02' # new test after claude refactored some stuff in HOMME
+L128v4_kwargs['arch'] = 'GPU'
 
-common_kwargs = {}
-
-# common_kwargs['prefix'] = 'DP.2026-CTAL-GATE-00' # initial C++ test of cloud-top ascent limiter
-common_kwargs['prefix'] = 'DP.2026-CTAL-GATE-01' # fix time step params and ocn_surface_flux_scheme
-
-common_kwargs['arch'] = 'GPU'
-
-# ### default control cases
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt= 1.25*60, enable_zm=False ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.50*60, enable_zm=False ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.00*60, enable_zm=False ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=False ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=20.00*60, enable_zm=False ) # dx = 40.00 / 60.00 (np4/pg2)
-
-# ### ZM w/o cloud-top ascent limiter
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt= 1.25*60, enable_zm=True ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.50*60, enable_zm=True ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.00*60, enable_zm=True ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=20.00*60, enable_zm=True ) # dx = 40.00 / 60.00 (np4/pg2)
-
-# ### ZM w/ cloud-top ascent limiter - mcta=3
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.50*60, enable_zm=True, mcta=3 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.00*60, enable_zm=True, mcta=3 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True, mcta=3 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=20.00*60, enable_zm=True, mcta=3 ) # dx = 40.00 / 60.00 (np4/pg2)
-
-# ### ZM w/ cloud-top ascent limiter - mcta=2
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt= 1.25*60, enable_zm=True, mcta=2 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.50*60, enable_zm=True, mcta=2 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.00*60, enable_zm=True, mcta=2 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.00*60, enable_zm=True, mcta=2 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=20.00*60, enable_zm=True, mcta=2 ) # dx = 40.00 / 60.00 (np4/pg2)
-
-
-# these don't work becuase the coupler time step must be integer seconds
-
-### these got messed up - need to rebuild/resubmit
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=3, mit=10*60 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 7.500*60, enable_zm=False ) # dx = 15.38 / 23.08 (np4/pg2)
-
-### these still don't work 
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt= 1.600*60, enable_zm=False ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt= 1.600*60, enable_zm=True ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt= 1.600*60, enable_zm=True, mcta=3 ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt= 1.600*60, enable_zm=True, mcta=3, mit=10*60 ) # dx =  4.00 /  6.00 (np4/pg2)
-
-
-
-### default control cases
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=False ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=False ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=False ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=False ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=False ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=False ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=False ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=False ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=False ) # dx = 40.00 / 60.00 (np4/pg2)
-
-### ZM w/o cloud-top ascent limiter
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True ) # dx = 40.00 / 60.00 (np4/pg2)
-
-### ZM w/ cloud-top ascent limiter - mcta=3
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=3 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, mcta=3 ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, mcta=3 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, mcta=3 ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, mcta=3 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, mcta=3 ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, mcta=3 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, mcta=3 ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, mcta=3 ) # dx = 40.00 / 60.00 (np4/pg2)
-
-### ZM w/ cloud-top ascent limiter - mcta=2
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=2 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, mcta=2 ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, mcta=2 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, mcta=2 ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, mcta=2 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, mcta=2 ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, mcta=2 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, mcta=2 ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, mcta=2 ) # dx = 40.00 / 60.00 (np4/pg2)
-
-
-### ZM w/ cloud-top ascent limiter - mcta=3 + mit=10*60 (600)
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=3, mit=10*60 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, mcta=3, mit=10*60 ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, mcta=3, mit=10*60 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, mcta=3, mit=10*60 ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, mcta=3, mit=10*60 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, mcta=3, mit=10*60 ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, mcta=3, mit=10*60 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, mcta=3, mit=10*60 ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, mcta=3, mit=10*60 ) # dx = 40.00 / 60.00 (np4/pg2)
-
-### ZM w/ cloud-top ascent limiter - mcta=3 + mit=60*60 (3600)
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=3, mit=60*60 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, mcta=3, mit=60*60 ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, mcta=3, mit=60*60 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, mcta=3, mit=60*60 ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, mcta=3, mit=60*60 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, mcta=3, mit=60*60 ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, mcta=3, mit=60*60 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, mcta=3, mit=60*60 ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, mcta=3, mit=60*60 ) # dx = 40.00 / 60.00 (np4/pg2)
-
-### ZM w/ cloud-top ascent limiter - mcta=2 + mit=60*60 (3600)
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, mcta=2, mit=60*60 ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, mcta=2, mit=60*60 ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, mcta=2, mit=60*60 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, mcta=2, mit=60*60 ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, mcta=2, mit=60*60 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, mcta=2, mit=60*60 ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, mcta=2, mit=60*60 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, mcta=2, mit=60*60 ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, mcta=2, mit=60*60 ) # dx = 40.00 / 60.00 (np4/pg2)
-
-
-### ZM w/o cloud-top ascent limiter - higher CAPE/DCAPE limits
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, cpt=, dct= ) # dx =  2.99 /  4.48 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, cpt=, dct= ) # dx =  4.00 /  6.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, cpt=, dct= ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, cpt=, dct= ) # dx =  8.00 / 12.00 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=, dct= ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, cpt=, dct= ) # dx = 15.38 / 23.08 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, cpt=, dct= ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, cpt=, dct= ) # dx = 28.57 / 42.86 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, cpt=, dct= ) # dx = 40.00 / 60.00 (np4/pg2)
-
-# test out DCAPE limits
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.001 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.005 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.01 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.05 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.1 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=0.5 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=0, dct=1.0 )
-
-# # add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt= 10, dct=0 )
-# # add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt= 50, dct=0 )
-# # add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=100, dct=0 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=200, dct=0 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=300, dct=0 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=400, dct=0 )
-# # add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=500, dct=0 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=600, dct=0 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=700, dct=0 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=800, dct=0 )
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=900, dct=0 )
-
-### ZM w/ cloud-top ascent limiter + constant dt to mimic behavior across RRM scales
-# add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 )
-# add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 ) # dx =  5.88 /  8.82 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 ) # dx = 11.76 / 17.65 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 ) # dx = 22.22 / 33.33 (np4/pg2)
-# add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt= 1.25*60, enable_zm=True, mcta=3 ) # dx = 40.00 / 60.00 (np4/pg2)
-
+# driver test following Peter B's observation of weird behavior
+add_case(**L128v4_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, driver='mct' ) # dx =  4.00 /  6.00 (np4/pg2)
+add_case(**L128v4_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, driver='moab' ) # dx =  4.00 /  6.00 (np4/pg2)
 
 ### quick test for new vert grid
-add_case(**common_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, enable_zm=True, cpt=, dct= ) # dx =  2.99 /  4.48 (np4/pg2)
-add_case(**common_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, enable_zm=True, cpt=, dct= ) # dx =  4.00 /  6.00 (np4/pg2)
-add_case(**common_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, enable_zm=True, cpt=, dct= ) # dx =  5.88 /  8.82 (np4/pg2)
-add_case(**common_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, enable_zm=True, cpt=, dct= ) # dx =  8.00 / 12.00 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, enable_zm=True, cpt=, dct= ) # dx = 11.76 / 17.65 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, enable_zm=True, cpt=, dct= ) # dx = 15.38 / 23.08 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, enable_zm=True, cpt=, dct= ) # dx = 22.22 / 33.33 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, enable_zm=True, cpt=, dct= ) # dx = 28.57 / 42.86 (np4/pg2)
-add_case(**common_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, enable_zm=True, cpt=, dct= ) # dx = 40.00 / 60.00 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75 ) # dx =  2.99 /  4.48 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100 ) # dx =  4.00 /  6.00 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60 ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60 ) # dx =  8.00 / 12.00 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60 ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60 ) # dx = 15.38 / 23.08 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60 ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60 ) # dx = 28.57 / 42.86 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60 ) # dx = 40.00 / 60.00 (np4/pg2)
+
+
+# add_case(**L128v4_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, spg='old' ) # dx =  2.99 /  4.48 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, spg='old' ) # dx =  4.00 /  6.00 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, spg='old' ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, spg='old' ) # dx =  8.00 / 12.00 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, spg='old' ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, spg='old' ) # dx = 15.38 / 23.08 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, spg='old' ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='old' ) # dx = 28.57 / 42.86 (np4/pg2)
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, spg='old' ) # dx = 40.00 / 60.00 (np4/pg2)
+
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt1' )
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt2' )
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt3' )
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt4' )
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt5' )
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt6' )
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt7' )
+# add_case(**L128v4_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='alt8' )
+
+L128v1_kwargs = {}
+L128v1_kwargs['prefix'] = 'DP.2026-GATE-L128v1-00' # 
+L128v1_kwargs['arch'] = 'GPU'
+# add_case(**L128v1_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75 ) # dx =  2.99 /  4.48 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100 ) # dx =  4.00 /  6.00 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60 ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60 ) # dx =  8.00 / 12.00 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60 ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60 ) # dx = 15.38 / 23.08 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60 ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60 ) # dx = 28.57 / 42.86 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60 ) # dx = 40.00 / 60.00 (np4/pg2)
+
+
+
+# add_case(**L128v1_kwargs, num_nodes=4, ne= 67, lx=600, dt=       75, spg='old' ) # dx =  2.99 /  4.48 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=3, ne= 50, lx=600, dt=      100, spg='old' ) # dx =  4.00 /  6.00 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=2, ne= 34, lx=600, dt= 2.500*60, spg='old' ) # dx =  5.88 /  8.82 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=2, ne= 25, lx=600, dt= 3.750*60, spg='old' ) # dx =  8.00 / 12.00 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne= 17, lx=600, dt= 5.000*60, spg='old' ) # dx = 11.76 / 17.65 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne= 13, lx=600, dt= 6.000*60, spg='old' ) # dx = 15.38 / 23.08 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne=  9, lx=600, dt=10.000*60, spg='old' ) # dx = 22.22 / 33.33 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne=  7, lx=600, dt=12.000*60, spg='old' ) # dx = 28.57 / 42.86 (np4/pg2)
+# add_case(**L128v1_kwargs, num_nodes=1, ne=  5, lx=600, dt=15.000*60, spg='old' ) # dx = 40.00 / 60.00 (np4/pg2)
 
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
@@ -254,10 +139,10 @@ def main(opts):
    ne          = opts['ne']
    dtime       = opts['dt']
    #----------------------------------------------------------------------------
-   # calculate nu_top based on scaling ne1024 default
-   ne1024_dx = 360*111e3/(1024*4*3)
-   approx_dx = int( domain_len / (ne*3.0) )
-   nu_top    = 1e4*(approx_dx/ne1024_dx)
+   # # calculate nu_top based on scaling ne1024 default
+   # ne1024_dx = 360*111e3/(1024*4*3)
+   # approx_dx = int( domain_len / (ne*3.0) )
+   # nu_top    = 1e4*(approx_dx/ne1024_dx)
    #----------------------------------------------------------------------------
    # print(); print(f'approx_dx: {approx_dx}')
    # print(f'nu_top   : {nu_top}')
@@ -326,6 +211,9 @@ def main(opts):
       cmd += f' --compset {compset}'
       cmd += f' --res ne30pg2_ne30pg2 '
       cmd += f' --project {acct} '
+      if opts.get('driver'):
+         if opts.get('driver')=='mct' : cmd += f' --driver mct'
+         if opts.get('driver')=='moab': cmd += f' --driver moab'
       if arch=='GPU': cmd += f' -mach pm-gpu -compiler gnugpu '
       if arch=='CPU': cmd += f' -mach pm-cpu -compiler gnu '
       cmd += f' -pecount {atm_ntasks}x{atm_nthrds} '
@@ -340,6 +228,9 @@ def main(opts):
    if config :
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
+      #-------------------------------------------------------------------------
+      if 'L128v1' in opts.get('prefix'):
+         run_cmd(f'./xmlchange EAMXX_VGRID=L128v1')
       #-------------------------------------------------------------------------
       run_cmd(f'./xmlchange RUN_STARTDATE="1974-08-30",START_TOD="0"')
       run_cmd(f'./xmlchange PTS_MULTCOLS_MODE="TRUE",PTS_MODE="TRUE",PTS_LAT="0.0",PTS_LON="0.0"')
@@ -375,7 +266,7 @@ def main(opts):
       run_cmd(f'./atmchange -b cubed_sphere_map=2 ')
       run_cmd(f'./atmchange -b iop_file={din_loc_root}/atm/cam/scam/iop/GATEIDEAL_iopfile_4scam_extended.nc ')
       run_cmd(f'./atmchange -b nu=0.216784 ')
-      run_cmd(f'./atmchange -b nu_top={nu_top} ')
+      # run_cmd(f'./atmchange -b nu_top={nu_top} ')
       # if opts['ne']== 67: run_cmd(f'./atmchange -b nu_top=1e4 ') # default
       # if opts['ne']==200: run_cmd(f'./atmchange -b nu_top=3333 ')
       run_cmd(f'./atmchange -b se_ftype=2 ')
@@ -430,7 +321,31 @@ def main(opts):
       run_cmd('./case.build --clean ice')
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
-   if submit : 
+   if submit :
+      if opts.get('spg')=='old':
+         run_cmd(f'./atmchange -b laplace_scaling=0')
+         run_cmd(f'./atmchange -b nu_top=1.0e4')
+      if opts.get('spg')=='alt1':
+         run_cmd(f'./atmchange -b laplace_scaling=1')
+         run_cmd(f'./atmchange -b nu_top=5e-7')
+      if opts.get('spg')=='alt2':
+         run_cmd(f'./atmchange -b nu_top=3e-7')
+      if opts.get('spg')=='alt3':
+         run_cmd(f'./atmchange -b nu_top=9e-7')
+      if opts.get('spg')=='alt4':
+         run_cmd(f'./atmchange -b nu_top=1e-7')
+      if opts.get('spg')=='alt5':
+         run_cmd(f'./atmchange -b tom_sponge_start=50')
+         run_cmd(f'./atmchange -b nu_top=5e-8')
+      if opts.get('spg')=='alt6':
+         run_cmd(f'./atmchange -b tom_sponge_start=50')
+         run_cmd(f'./atmchange -b nu_top=5e-6')
+      # if opts.get('spg')=='alt7':
+      #    run_cmd(f'./atmchange -b tom_sponge_start=50')
+      #    run_cmd(f'./atmchange -b nu_top=8e-6')
+      # if opts.get('spg')=='alt8':
+      #    run_cmd(f'./atmchange -b tom_sponge_start=50')
+      #    run_cmd(f'./atmchange -b nu_top=5e-6')
       #-------------------------------------------------------------------------
       hist_file_list = []
       def add_hist_file(hist_file,txt):
@@ -584,6 +499,7 @@ default_field_txt_2D = '''
       - SW_flux_up_at_model_top
       - SW_flux_dn_at_model_top
       - LW_flux_up_at_model_top
+      - T_mid_at_model_top
 '''
 
 default_field_txt_3D = '''

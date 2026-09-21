@@ -15,7 +15,9 @@ nsmooth = 40
 
 fix_lowest_spacing = True
 
-ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/L128_for_E3SMv4_c20260820.nc'
+ofile = 'vertical_coordinates_L128v4_c20260820.nc'
+# ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/L128_for_E3SMv4_c20260820.nc'
+
 dk_list = [10,38, 4, 12, 12, 12, 12, 12,   6,   6,   4,]
 dz_list = [20,40,80,260,320,380,440,500,1000,1800,2400,]
 
@@ -129,8 +131,28 @@ def main():
     ds['hybm'].attrs['long_name'] = 'hybrid B coefficient at layer midpoints'
     ds['hyai'].attrs['long_name'] = 'hybrid A coefficient at layer interfaces'
     ds['hybi'].attrs['long_name'] = 'hybrid B coefficient at layer interfaces'
-    ds.attrs['nsmooth'] = nsmooth
+    ds.attrs['nsmooth']           = str(nsmooth)
+    ds.attrs['fix_lowest_spacing']= str(fix_lowest_spacing)
+    ds.attrs['dk_list']           = str(dk_list)
+    ds.attrs['dz_list']           = str(dz_list)
+    ds.attrs['creator_name']      = 'Walter Hannah'
+    ds.attrs['creator_email']     = 'hannah6@llnl.gov'
+    ds.attrs['institution']       = 'LLNL'
+    ds.attrs['project']           = 'E3SM'
+    ds.attrs['source']            = 'generated from python script (2026_generate_L128_for_E3SMv4.py)'
+    ds.attrs['dev_url']           = 'https://e3sm.atlassian.net/wiki/spaces/EAMXX/pages/6537019425/A+New+L128+Vertical+Grid+for+v4'
+    # # Save the script as a global attribute
+    # with open(__file__, 'r') as f:
+    #     script_content = f.read()  # Read the current script
+    # ds.attrs['provenance_script'] = script_content
     ds.to_netcdf(ofile)
+    ds.close()
+    #---------------------------------------------------------------------------
+    # convert to cdf5
+    cmd = f'ncks -5 -O {ofile} {ofile}'
+    print(); print(f'{tclr.GREEN}{cmd}{tclr.END}')
+    os.system(cmd)
+    print()
     #---------------------------------------------------------------------------
     print()
     print(f'  Grid Summary')

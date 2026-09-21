@@ -20,9 +20,11 @@ add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',          n='L128 d
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc', n='L128 v3.1',c='green')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.2_c20251112.nc', n='L128 v3.2',c='blue')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.3_c20251112.nc', n='L128 v3.3',c='magenta')
-add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc', n='L128 v3.4',c='magenta')
-add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.5_c20251112.nc', n='L128 v3.5',c='green')
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc', n='L128 v3.4',c='magenta')
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.5_c20251112.nc', n='L128 v3.5',c='green')
 add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.6_c20251112.nc', n='L128 v3.6',c='cyan')
+
+add_grid('/pscratch/sd/o/odiazib/share/vertical_coordinates_L192_20260608.nc',n='L192',d=0,c='magenta')
 
 
 print()

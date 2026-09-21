@@ -9,6 +9,10 @@ def add_case( **kwargs ):
    for k, val in kwargs.items(): case_opts[k] = val
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
+'''
+nohup python -u run_E3SM.2026.L128v4-test.nersc.py > run_E3SM.2026.L128v4-test.nersc.out &
+'''
+#---------------------------------------------------------------------------------------------------
 import os, datetime, subprocess as sp
 from shutil import copy2
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
@@ -18,27 +22,38 @@ top_dir = os.getenv('HOME')+'/E3SM'
 src_dir = f'{top_dir}/E3SM_SRC1' # branch => whannah/eamxx/support-new-L128
 
 # clean        = True
-newcase      = True
-config       = True
-build        = True
+# newcase      = True
+# config       = True
+# build        = True
 submit       = True
 # continue_run = True
 
-stop_opt,stop_n,resub,walltime = 'nsteps',10,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'nsteps',12,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+stop_opt,stop_n,resub,walltime = 'ndays',5,0,'1:30:00'
 
 #---------------------------------------------------------------------------------------------------
 
-kwargs = {'prefix':'2026-L128-TEST-00','compset':'F2010-SCREAMv1'}
+# kwargs = {'prefix':'2026-L128-TEST-00','compset':'F2010-SCREAMv1'}
 
 # add_case(**kwargs, arch='GPU', num_nodes=1,   grid='ne4pg2_ne4pg2')
 # add_case(**kwargs, arch='GPU', num_nodes=2,   grid='ne30pg2_ne30pg2')
-add_case(**kwargs, arch='GPU', num_nodes=2,   grid='ne32pg2_ne32pg2')
-add_case(**kwargs, arch='GPU', num_nodes=4,   grid='ne64pg2_ne64pg2')
-add_case(**kwargs, arch='GPU', num_nodes=16,  grid='ne120pg2_ne120pg2')
-add_case(**kwargs, arch='GPU', num_nodes=16,  grid='ne128pg2_ne128pg2')
-add_case(**kwargs, arch='GPU', num_nodes=64,  grid='ne256pg2_ne256pg2')
-add_case(**kwargs, arch='GPU', num_nodes=256, grid='ne512pg2_ne512pg2')
-add_case(**kwargs, arch='GPU', num_nodes=512, grid='ne1024pg2_ne1024pg2')
+# add_case(**kwargs, arch='GPU', num_nodes=2,   grid='ne32pg2_ne32pg2')
+# add_case(**kwargs, arch='GPU', num_nodes=4,   grid='ne64pg2_ne64pg2')
+# add_case(**kwargs, arch='GPU', num_nodes=16,  grid='ne120pg2_ne120pg2')
+# add_case(**kwargs, arch='GPU', num_nodes=16,  grid='ne128pg2_ne128pg2')
+# add_case(**kwargs, arch='GPU', num_nodes=64,  grid='ne256pg2_ne256pg2')
+# add_case(**kwargs, arch='GPU', num_nodes=256, grid='ne512pg2_ne512pg2')
+# add_case(**kwargs, arch='GPU', num_nodes=512, grid='ne1024pg2_ne1024pg2')
+
+# kwargs = {'prefix':'2026-L128-TEST-01'}
+kwargs = {'prefix':'2026-L128-TEST-02'} # use branch w/ new L128 as default
+add_case(**kwargs, compset='F2010-SCREAMv1', arch='GPU',num_nodes=64,grid='ne256pg2_ne256pg2')
+add_case(**kwargs, compset='F2010-SCREAMv1', arch='GPU',num_nodes=64,grid='ne256pg2_ne256pg2',dt_ver=1)
+add_case(**kwargs, compset='F2010-SCREAMv1', arch='GPU',num_nodes=64,grid='ne256pg2_ne256pg2',dt_ver=2)
+
+# add_case(**kwargs, compset='F2010xx-ZM-CICE',arch='GPU',num_nodes=64,grid='ne256pg2_ne256pg2',dt_ver=1)
+# add_case(**kwargs, compset='F2010xx-ZM-CICE',arch='GPU',num_nodes=64,grid='ne256pg2_ne256pg2',dt_ver=2)
 
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
@@ -115,10 +130,31 @@ def main(opts):
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
-      #-------------------------------------------------------------------------
-      # use updated SPA data file
-      DIN_LOC_ROOT = '/lustre/orion/cli115/world-shared/e3sm/inputdata'
-      run_cmd(f'./atmchange -b spa_data_file="{DIN_LOC_ROOT}/atm/scream/init/spa_v3.LR.F2010.2011-2025.c_20240405.nc"')
+      if opts.get('dt_ver') is not None:
+         if opts.get('dt_ver')==1:
+            run_cmd('./xmlchange ATM_NCPL=288') # 300 sec
+            run_cmd('./atmchange -b physics::mac_aero_mic::number_of_subcycles=2') # 150 sec / 2.5 min
+            run_cmd('./atmchange -b se_tstep=37.5')
+            run_cmd('./atmchange -b dt_remap_factor=2')
+            run_cmd('./atmchange -b dt_tracer_factor=8')
+            run_cmd('./atmchange -b hypervis_subcycle_q=8')
+            run_cmd('./atmchange -b semi_lagrange_trajectory_nsubstep=2')
+            run_cmd('./atmchange -b nu_top=5e-7')                  # could be tuned: 3e-7 to 8e-7)
+            run_cmd('./atmchange -b laplace_scaling=1')
+            run_cmd('./atmchange -b tom_sponge_start=15')          # adjust so at least 10% of levels
+            run_cmd('./atmchange -b hypervis_subcycle_tom=1')      # default - but update runscript if needed
+         if opts.get('dt_ver')==2:
+            run_cmd('./xmlchange ATM_NCPL=192') # 450 sec
+            run_cmd('./atmchange -b physics::mac_aero_mic::number_of_subcycles=3') # 150 sec / 2.5 min
+            run_cmd('./atmchange -b se_tstep=37.5')
+            run_cmd('./atmchange -b dt_remap_factor=2')
+            run_cmd('./atmchange -b dt_tracer_factor=12')
+            run_cmd('./atmchange -b hypervis_subcycle_q=12')
+            run_cmd('./atmchange -b semi_lagrange_trajectory_nsubstep=2')
+            run_cmd('./atmchange -b nu_top=5e-7')                  # could be tuned: 3e-7 to 8e-7)
+            run_cmd('./atmchange -b laplace_scaling=1')
+            run_cmd('./atmchange -b tom_sponge_start=15')          # adjust so at least 10% of levels
+            run_cmd('./atmchange -b hypervis_subcycle_tom=1')      # default - but update runscript if needed
       #-------------------------------------------------------------------------
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
       if 'stop_opt' in globals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
