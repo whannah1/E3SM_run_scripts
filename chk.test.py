@@ -16,6 +16,15 @@ parser.add_option('-m',dest='method',default=0,help='Method of checking tests - 
 parser.add_option('--no-color',action='store_false', dest='use_color', default=True,help='disable colored output')
 (opts, args) = parser.parse_args()
 #---------------------------------------------------------------------------------------------------
+'''
+method 0: parse log file created by my own test scripts
+method 1: use cs.status script
+method 2: 
+
+
+/pscratch/sd/w/whannah/e3sm_scratch/perlmutter/tests/HOMMEBFB_P24.f19_g16_rx1.A.pm-cpu_intel.C.20260921_074005_g961u6/cs.status
+'''
+#---------------------------------------------------------------------------------------------------
 num_test = int(opts.num_test)
 method = int(opts.method)
 #---------------------------------------------------------------------------------------------------
@@ -36,17 +45,15 @@ def run_cmd(cmd,verbose=False,suppress_output=False,execute=True):
 #=============================================================================================================
 #=============================================================================================================
 
-# test_top_dir = '/lustre/atlas/proj-shared/cli115/hannah6'
-# case_top_dir = home+'/E3SM/test_cases'
+case_top_dir = None
+if host=='nersc': case_top_dir = '/pscratch/sd/w/whannah/e3sm_scratch/perlmutter/tests'
+if host=='alcf':  case_top_dir = None
+if host=='olcf':  case_top_dir = '/lustre/atlas/proj-shared/cli115/hannah6'
+if host=='lcrc':  case_top_dir = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
+if host=='llnl':  case_top_dir = None
 
-case_top_dir = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
-
-# /ccs/home/hannah6/E3SM/test_cases/2018-05-07_225340/ERP_Ld3_P96.ne4_ne4.FSP1V1-TEST.titan_pgi.C.20180507_185340_cc07db/TestStatus
-
-# /lustre/atlas/proj-shared/cli115/hannah6/
-# ERP_Ld3_P96.ne4_ne4.FSP1V1-TEST.titan_pgi.C.20180507_185340_cc07db
-# /run/
-# ERP_Ld3_P96.ne4_ne4.FSP1V1-TEST.titan_pgi.C.20180507_185340_cc07db.cpl.hi.0001-01-04-00000.nc.cprnc.out
+if case_top_dir is None:
+    raise ValueError(f'case_top_dir cannot be None!')
 
 #---------------------------------------------------------------
 # Find the most recent test and baseline case directories

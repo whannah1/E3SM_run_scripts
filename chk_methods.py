@@ -61,6 +61,7 @@ def get_scratch_path_list():
   all_path_list.append(f'{home}/E3SM/scratch_v3')
   all_path_list.append(f'{home}/E3SM/scratch_pm')
   all_path_list.append(f'{home}/E3SM/scratch_pm-cpu')
+  all_path_list.append(f'{home}/E3SM/scratch_pm-cpu/2026-SCIDAC')
   all_path_list.append(f'{home}/E3SM/scratch_pm-gpu')
   all_path_list.append(f'{home}/E3SM/scratch_scream_pm-cpu')
   all_path_list.append(f'{home}/E3SM/scratch_scream_pm-gpu')

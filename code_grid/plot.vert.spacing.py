@@ -14,17 +14,19 @@ def add_grid(file_path, **kwargs):
     opt_list.append(case_opts)
 #-------------------------------------------------------------------------------
 
-add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',                n='L80 EAMv3 default',d=0,c='gray')
-add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',          n='L128 default',d=0,c='black'  )
+# add_grid(f'{home}/HICCUP/files_vert/L80_for_E3SMv3.nc',                n='L80 EAMv3 default',d=0,c='gray')
+add_grid(f'{home}/HICCUP/files_vert/vert_coord_E3SM_L128.nc',          n='L128 default',d=0,c='black' )
+add_grid(f'/global/cfs/cdirs/e3sm/inputdata/atm/scream/init/vertical_coordinates_L128v4_c20260820.nc', n='L128v4',d=0,c='magenta' )
+add_grid(f'{home}/E3SM/vert_grid_files/TEST_L128v4_c20260925.nc',      n='L128 hybrid test',d=0,c='green' )
+
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.0_c20251112.nc', n='L128 v3.0',c='red')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.1_c20251112.nc', n='L128 v3.1',c='green')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.2_c20251112.nc', n='L128 v3.2',c='blue')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.3_c20251112.nc', n='L128 v3.3',c='magenta')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.4_c20251112.nc', n='L128 v3.4',c='magenta')
 # add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.5_c20251112.nc', n='L128 v3.5',c='green')
-add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.6_c20251112.nc', n='L128 v3.6',c='cyan')
-
-add_grid('/pscratch/sd/o/odiazib/share/vertical_coordinates_L192_20260608.nc',n='L192',d=0,c='magenta')
+# add_grid(f'{home}/E3SM/vert_grid_files/SCREAM_L128_v3.6_c20251112.nc', n='L128 v3.6',c='cyan')
+# add_grid('/pscratch/sd/o/odiazib/share/vertical_coordinates_L192_20260608.nc',n='L192',d=0,c='magenta')
 
 
 print()
@@ -164,8 +166,10 @@ if ax2 is not None:
     y_pad2 = (mlev_max2 - mlev_min2) * 0.05
     # ax2.set_xlim(dlev_min, dlev_max2 + x_pad2)
     # ax2.set_ylim(mlev_min2, mlev_max2)# + y_pad2)
-    ax2.set_xlim(0, 200)
-    ax2.set_ylim(0, 3)# + y_pad2)
+    # ax2.set_xlim(0, 200)
+    # ax2.set_ylim(0, 3)# + y_pad2)
+    ax2.set_xlim(0, 100)
+    ax2.set_ylim(0, 1.0)# + y_pad2)
 
 # Pressure axis: invert and log scale
 if not use_height:

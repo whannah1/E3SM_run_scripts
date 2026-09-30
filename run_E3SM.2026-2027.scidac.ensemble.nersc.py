@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #---------------------------------------------------------------------------------------------------
-import os, datetime, subprocess as sp, numpy as np, hashlib
-from shutil import copy2
+import os, sys, datetime, subprocess as sp, numpy as np, hashlib
+# from shutil import copy2
 #---------------------------------------------------------------------------------------------------
 class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
 def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
@@ -37,17 +37,22 @@ src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1' # branch => whannah/scidac-2026-en
 # config_exe   = True
 # build_exe    = True
 
+print()
+print('EXITING to avoid accidental messing up the existing runs')
+print()
+
 # newcase        = True # create the case via create_newcase
 # config         = True # configure the case via case.setup
-set_runopt     = True # update run-time parameters - including run length
-submit         = True # only runs case.submit
+# set_runopt     = True # update run-time parameters - including run length
+# submit         = True # only runs case.submit
 # continue_run   = True
 
 queue = 'regular' # regular / debug
 
-stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',365,  0,  '2:00:00' #  1 year
-# stop_opt,stop_n,resub,walltime = 'ndays',365*5,1,'10:00:00' # 10 years
+# stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',365,  0,  '2:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',365*10,0,'20:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',365*3,0,'4:00:00'
 
 #---------------------------------------------------------------------------------------------------
 compset        = 'F20TR'
@@ -70,10 +75,10 @@ kwargs = {'prefix':'E3SM.2026-SCIDAC-ENS','g':'ne30','num_nodes':4}
 # add_case(exe=True,**kwargs)
 
 add_case(**kwargs,member='000',EF= 0.350000000000000, CF=10.000000000000000, HD= 0.500000000000000, HM= 2.500000000000000, PS=700.000000000000000, FT= 7.492500000000000, FE= 1.000000000000000, OB= 0.002500000000000, OE= 0.375000000000000)
-# add_case(**kwargs,member='001',EF= 0.153906250000000, CF=11.950146006778899, HD= 0.340908125934825, HM= 1.386686482771510, PS=645.068240509100974, FT= 8.785402655214879, FE= 0.055468750000000, OB= 0.000118281457302, OE= 0.219531250000000)
-# add_case(**kwargs,member='002',EF= 0.427343750000000, CF=13.148540397448400, HD= 0.554350625713866, HM= 1.695702001073850, PS=713.524114441170013, FT= 8.998670249596650, FE= 0.471093750000000, OB= 0.000665145514444, OE= 0.296093750000000)
-# add_case(**kwargs,member='003',EF= 0.832031250000000, CF=17.122984978774401, HD= 0.655532031326977, HM= 3.315790130121800, PS=863.150577718101999, FT=22.387813015973201, FE= 0.624218750000000, OB= 0.001821447536396, OE= 0.088281250000000)
-# add_case(**kwargs,member='004',EF= 0.952343750000000, CF=21.298199014235902, HD= 1.239565682465750, HM= 4.715054564454500, PS=946.157454364757996, FT=37.947077797617098, FE= 0.930468750000000, OB= 0.009763000989628, OE= 0.066406250000000)
+add_case(**kwargs,member='001',EF= 0.153906250000000, CF=11.950146006778899, HD= 0.340908125934825, HM= 1.386686482771510, PS=645.068240509100974, FT= 8.785402655214879, FE= 0.055468750000000, OB= 0.000118281457302, OE= 0.219531250000000)
+add_case(**kwargs,member='002',EF= 0.427343750000000, CF=13.148540397448400, HD= 0.554350625713866, HM= 1.695702001073850, PS=713.524114441170013, FT= 8.998670249596650, FE= 0.471093750000000, OB= 0.000665145514444, OE= 0.296093750000000)
+add_case(**kwargs,member='003',EF= 0.832031250000000, CF=17.122984978774401, HD= 0.655532031326977, HM= 3.315790130121800, PS=863.150577718101999, FT=22.387813015973201, FE= 0.624218750000000, OB= 0.001821447536396, OE= 0.088281250000000)
+add_case(**kwargs,member='004',EF= 0.952343750000000, CF=21.298199014235902, HD= 1.239565682465750, HM= 4.715054564454500, PS=946.157454364757996, FT=37.947077797617098, FE= 0.930468750000000, OB= 0.009763000989628, OE= 0.066406250000000)
 # add_case(**kwargs,member='005',EF= 0.241406250000000, CF=14.933664082088701, HD= 0.712850740772644, HM= 4.263841945628070, PS=645.068240509100974, FT=14.891153405782500, FE= 0.667968750000000, OB= 0.005759922853514, OE= 0.383593750000000)
 # add_case(**kwargs,member='006',EF= 0.383593750000000, CF= 6.126381646888590, HD= 0.996821407334335, HM= 2.757380636621300, PS=713.524114441170013, FT= 6.748050711864770, FE= 1.017968750000000, OB= 0.002315172383515, OE= 0.372656250000000)
 # add_case(**kwargs,member='007',EF= 0.613281250000000, CF=21.992985387391101, HD= 0.260700793196363, HM= 1.971868596466020, PS=835.059385651895013, FT=37.047735809163001, FE= 0.285156250000000, OB= 0.000976300098963, OE= 0.405468750000000)
@@ -308,6 +313,9 @@ def run_ens_member(opts):
       if 'queue'    in globals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
       if 'resub'    in globals(): run_cmd(f'./xmlchange RESUBMIT={resub}')
       if 'walltime' in globals(): run_cmd(f'./xmlchange JOB_WALLCLOCK_TIME={walltime}')
+      #-------------------------------------------------------------------------
+      run_cmd(f'./xmlchange REST_OPTION=nyears ')
+      run_cmd(f'./xmlchange REST_N=1 ')
       #-------------------------------------------------------------------------
       # if 'disable_bfb' in globals() and     disable_bfb: run_cmd('./xmlchange BFBFLAG=FALSE')
       # if 'disable_bfb' in globals() and not disable_bfb: run_cmd('./xmlchange BFBFLAG=TRUE')

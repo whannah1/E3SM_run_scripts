@@ -3,7 +3,7 @@ import sys, os, datetime
 generate, compare, verbose, debug_script = False, False, False, False
 #===================================================================================================
 #===================================================================================================
-### Perlmutter
+# Perlmutter
 # project = 'e3sm_g' # m1517 / e3sm_g
 project = 'm4842' # e3sm / m3312 / m3305/ m4842 (SOHIP)
 output_root = '/pscratch/sd/w/whannah/e3sm_scratch/perlmutter/tests'
@@ -14,7 +14,7 @@ output_root = '/pscratch/sd/w/whannah/e3sm_scratch/perlmutter/tests'
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'; compare  = True # compare to baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_BASE'                  # just run tests, no comparison
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC4'                  # just run tests, no comparison
-src_dir = '/pscratch/sd/w/whannah/tmp_e3sm_src'; compare  = True
+src_dir = '/pscratch/sd/w/whannah/tmp_e3sm_src'
 
 
 verbose      = True      # print commands
@@ -72,7 +72,7 @@ tests = ['homme_integration']
 #         ]
 
 
-### non-BFB tests
+# # non-BFB tests
 # tests = ['PGN_P96x1.ne4pg2_ne4pg2.F-MMF1.cori-knl_intel',
 #          'TSC_P96x1.ne4pg2_ne4pg2.F-MMF1.cori-knl_intel',
 #          'MVK_P96x1.ne4pg2_ne4pg2.F-MMF1.cori-knl_intel',]
@@ -84,57 +84,53 @@ if debug_script : verbose = True
 now = datetime.datetime.utcnow()
 timestamp = '{:%Y-%m-%d_%H%M%S}'.format(now)
 
-print('\n'+timestamp+'')
+print(f'\n{timestamp}')
 
-case_dir = os.getenv('HOME')+'/E3SM/test_cases/'+timestamp
+# case_dir = os.getenv('HOME')+'/E3SM/test_cases/'+timestamp
+case_dir = f'{output_root}/{timestamp}'
 
 if generate : case_dir = case_dir+'_baseline'
 
 for test in tests :
 
     if not os.path.exists(case_dir) : os.makedirs(case_dir)
-    log_file = case_dir+'/'+timestamp+'.'+test+'.log'
+    log_file = f'{case_dir}/{timestamp}.{test}.log'
     
-    cmd = 'nohup '+src_dir+'/cime/scripts/create_test   '+test
-    cmd = cmd+' --test-root '+case_dir
-    cmd = cmd+' --project   '+project
-    cmd = cmd+' --wait -j2 '                       
+    cmd = f'nohup {src_dir}/cime/scripts/create_test {test}'
+    cmd += f' --test-root {case_dir}'
+    cmd += f' --output-root {case_dir} '
+    cmd += f' --project {project}'
+    cmd += f' --wait -j2 '                       
     # cmd = cmd+' --baseline-root '+output_root+'/baselines '
-    
-    if 'output_root' in globals(): cmd = cmd+' --output-root   '+output_root+' '
 
     if generate : 
-        cmd = cmd+' --generate '
-        cmd = cmd+' --allow-baseline-overwrite '
-        cmd = cmd+f' -b {master_branch_name} '
+        cmd += f' --generate '
+        cmd += f' --allow-baseline-overwrite '
+        cmd += f' -b {master_branch_name} '
     if compare :
-        cmd = cmd+' -c '
-        cmd = cmd+f' -b {master_branch_name} '
+        cmd += ' -c '
+        cmd += f' -b {master_branch_name} '
 
-    cmd = cmd+' --queue debug '
-    cmd = cmd+' --walltime 00:30:00 '
+    # cmd += f' --queue debug --walltime 00:30:00 '
+    cmd += f' --queue regular --walltime 01:00:00 '
 
-    # cmd = cmd+' --queue regular '
-    # cmd = cmd+' --walltime 01:00:00 '
-
-    cmd = cmd+'  >& '+log_file+' &'
+    cmd += f'  >& {log_file} &'
 
     #--------------------------------------------
     # Machine-specific configurations
     #--------------------------------------------
-    ### use regular queue for debug run since they need a longer wall clock limit
+    # # use regular queue for debug run since they need a longer wall clock limit
     # if debug_test :
     #     cmd = cmd+' --queue regular '
     # else :
     #     cmd = cmd+' --queue debug '
-
     #--------------------------------------------
     #--------------------------------------------
 
-    ### print the command for starting the test
+    # print the command for starting the test
     if verbose : print('\n'+cmd+'')
 
-    ## submit the test
+    # submit the test
     if not debug_script : os.system(cmd)
 
 print

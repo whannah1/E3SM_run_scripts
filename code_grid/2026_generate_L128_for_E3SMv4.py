@@ -21,6 +21,11 @@ ofile = 'vertical_coordinates_L128v4_c20260820.nc'
 dk_list = [10,38, 4, 12, 12, 12, 12, 12,   6,   6,   4,]
 dz_list = [20,40,80,260,320,380,440,500,1000,1800,2400,]
 
+
+ofile = os.getenv('HOME')+f'/E3SM/vert_grid_files/TEST_L128v4_c20260925.nc'
+
+replace_with_old_lev = True # test impact of near-surface leves
+
 #-------------------------------------------------------------------------------
 def main():
     #---------------------------------------------------------------------------
@@ -36,6 +41,33 @@ def main():
             dz.append(dz_list[d])
             # print(f'{kk}  {zlev[kk]:10.1}  {dz_list[d]}')
             kk += 1
+    # #---------------------------------------------------------------------------
+    # it = 10
+    # if replace_with_old_lev:
+    #     orig_zlev = zlev.copy()
+    #     ds_L128v1 = xr.open_dataset('/global/homes/w/whannah/HICCUP/files_vert/vert_coord_E3SM_L128.nc')
+    #     v1p = ds_L128v1['ilev'][::-1].values
+    #     v1z = np.log(v1p/1e3) * -6740.
+    #     nlev = len(v1z)
+    #     v1dz_list = np.zeros(nlev)
+    #     v4dz_list = np.zeros(nlev)
+    #     for k in range(nlev-1):
+    #         v1dz_list[k] = v1z[k+1] - v1z[k]
+    #         v4dz_list[k] = zlev[k+1] - zlev[k]
+    #     v4dz_list[:it] = v1dz_list[:it]
+    #     for k in range(len(v1z)-1):
+    #         zlev[k+1] = zlev[k]+v4dz_list[k]
+    #     prev_z = None
+    #     for i,z in enumerate(zlev[:it+3]):
+    #         if i==0:
+    #             print(f'{i}  {(129-i)}  {z:8.2f}')
+    #         else:
+    #             dz_loc = z - prev_z
+    #             print(f'{i}  {(129-i)}  {z:8.2f}  {dz_loc:10.4f}')
+    #         prev_z = z
+    #     print()
+    #     # print(f'zlev max: {np.max(orig_zlev)}   {np.max(zlev)}   {np.max(v1zlevi)}')
+    #     # exit()
     #---------------------------------------------------------------------------
     # get pressure from height using curve fit from climatology to 
     ilev = np.exp( -1*zlev/(6740.) ) * 1000
@@ -51,8 +83,86 @@ def main():
         for k in range(smth_k_beg,smth_k_end):
             zlev_smoothed[k] = ( 0.25*zs_tmp[k-1] + 0.5*zs_tmp[k] + 0.25*zs_tmp[k+1] )
     zlev = zlev_smoothed
+    #---------------------------------------------------------------------------
+    it = 15
+    if replace_with_old_lev:
+        orig_zlev = zlev.copy()
+        ds_L128v1 = xr.open_dataset('/global/homes/w/whannah/HICCUP/files_vert/vert_coord_E3SM_L128.nc')
+        v1p = ds_L128v1['ilev'][::-1].values
+        v1z = np.log(v1p/1e3) * -6740.
+        nlev = len(v1z)
+        v1dz_list = np.zeros(nlev)
+        v4dz_list = np.zeros(nlev)
+        for k in range(nlev-1):
+            v1dz_list[k] = v1z[k+1] - v1z[k]
+            v4dz_list[k] = zlev[k+1] - zlev[k]
+        v4dz_list[:it] = v1dz_list[:it]
+        for k in range(len(v1z)-1):
+            zlev[k+1] = zlev[k]+v4dz_list[k]
+        prev_z = None
+        for i,z in enumerate(zlev[:it+3]):
+            if i==0:
+                print(f'{i}  {(129-i)}  {z:8.2f}')
+            else:
+                dz_loc = z - prev_z
+                print(f'{i}  {(129-i)}  {z:8.2f}  {dz_loc:10.4f}')
+            prev_z = z
+        print()
+        # print(f'zlev max: {np.max(orig_zlev)}   {np.max(zlev)}   {np.max(v1zlevi)}')
+        # exit()
+    # #---------------------------------------------------------------------------
+    # it = 10
+    # if replace_with_old_lev:
+    #     orig_zlev = zlev.copy()
+    #     ds_L128v1 = xr.open_dataset('/global/homes/w/whannah/HICCUP/files_vert/vert_coord_E3SM_L128.nc')
+    #     v1plevi = ds_L128v1['ilev'][::-1].values
+    #     v1zlevi = np.log(v1plevi/1e3) * -6740.
+    #     tmp_zlev = zlev.copy()
+    #     tmp_zlev[:it] = v1zlevi[:it]
+    #     v1dz = v1zlevi[it+1] - v1zlevi[it]
+    #     v4dz = zlev[it+1] - zlev[it]
+    #     print()
+    #     print(f'v1dz: {v1dz}')
+    #     print(f'v4dz: {v4dz}')
+    #     tmp_zlev[it+1:] = zlev[it+1:] + (v1zlevi[it+1] - zlev[it+1]) + (v1dz - v4dz)
+    #     zlev = tmp_zlev
+    #     print()
+    #     prev_z = None
+    #     for i,z in enumerate(zlev[:it+3]):
+    #         if i==0:
+    #             print(f'{i}  {(129-i)}  {z:8.2f}')
+    #         else:
+    #             dz_loc = z - prev_z
+    #             print(f'{i}  {(129-i)}  {z:8.2f}  {dz_loc:10.4f}')
+    #         prev_z = z
+    #     print()
+    #     print(f'zlev max: {np.max(orig_zlev)}   {np.max(zlev)}   {np.max(v1zlevi)}')
+    #     # exit()
+    #---------------------------------------------------------------------------
     ilev = np.exp( -1*zlev/(6740.) ) * 1000
     ilev = ilev[::-1]
+    # #---------------------------------------------------------------------------
+    # it = -7
+    # if replace_with_old_lev:
+    #     dp = ilev[it] - ilev[it-1]
+    #     print()
+    #     print(f'dp: {dp}')
+    #     ds_L128v1 = xr.open_dataset('/global/homes/w/whannah/HICCUP/files_vert/vert_coord_E3SM_L128.nc')
+    #     tmp_ilev = ilev.copy()
+    #     tmp_ilev[it:] = ds_L128v1['ilev'][it:]
+    #     tmp_ilev[:it] = ilev[:it] - dp
+    #     ilev = tmp_ilev
+    #     print()
+    #     prev_p = None
+    #     for i,p in enumerate(ilev[it-3:]):
+    #         if i==0:
+    #             print(f'{i}  {(129-i)}  {p:8.2f}')
+    #         else:
+    #             dp_loc = prev_p - p
+    #             print(f'{i}  {(129-i)}  {p:8.2f}  {dp_loc:10.4f}')
+    #         prev_p = p
+    #     print()
+    #     # exit()
     #---------------------------------------------------------------------------
     # Generate hybrid vertical grid
     [ai,bi] = compute_hybrid_coef_from_pressure(ilev*1e2)

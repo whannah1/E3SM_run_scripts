@@ -10,7 +10,8 @@ do_case_build=false
 do_case_submit=true
 #-------------------------------------------------------------------------------
 readonly MACHINE="pm-gpu"
-readonly CHECKOUT="260909"
+# readonly CHECKOUT="260909"
+readonly CHECKOUT="20260924"
 readonly BRANCH="master"
 readonly CHERRY=( )
 readonly COMPILER="gnugpu"
@@ -20,7 +21,8 @@ readonly COMPSET="F2010xx-ZM-CICE"
 readonly RESOLUTION="ne256pg2_ne256pg2"
 
 # readonly CODE_ROOT="/pscratch/sd/t/terai/E3SM_code/master_260825/" #To change to path of own scratch
-readonly CODE_ROOT="/pscratch/sd/w/whannah/E3SM_code/master_260909"
+# readonly CODE_ROOT="/pscratch/sd/w/whannah/E3SM_code/master_260909"
+readonly CODE_ROOT="/pscratch/sd/w/whannah/E3SM_code/conv-gw-fix_rebase_20260924" # branch => whannah/eamxx/conv-gw-fix
 readonly PROJECT="e3sm"                                          #To change to own account
 
 readonly TUNINGSET="splitform_TMSoff_Recipe2_updated_GWD"
@@ -45,19 +47,19 @@ readonly NUM_PES=128
 readonly PEL_SIM=$(( 4 * NUM_PES ))
 readonly PELAYOUT=${PEL_SIM}"x1"
 #-------------------------------------------------------------------------------
-# readonly WALLTIME="18:00:00"
-# readonly STOP_OPTION="nmonths"
-# readonly STOP_N="12"
-# readonly RESUBMIT="4"
+readonly WALLTIME="18:00:00"
+readonly STOP_OPTION="nmonths"
+readonly STOP_N="12"
+readonly RESUBMIT="4"
 
 readonly REST_OPTION="nmonths"
 readonly REST_N="3"
 readonly DO_SHORT_TERM_ARCHIVING=false
 
-readonly WALLTIME="00:30:00"
-readonly STOP_OPTION="nsteps"
-readonly STOP_N="12"
-readonly RESUBMIT="0"
+# readonly WALLTIME="00:30:00"
+# readonly STOP_OPTION="nsteps"
+# readonly STOP_N="12"
+# readonly RESUBMIT="0"
 
 #-------------------------------------------------------------------------------
 umask 022 # Make directories created by this script world-readable
@@ -172,34 +174,38 @@ runtime_options() {
 
     # Set temperature cut off in dycore threshold to 180K
     # ./atmchange physics::atm_procs_list="zm,mac_aero_mic,rrtmgp,cosp"
-    ./atmchange physics::atm_procs_list="zm,mac_aero_mic,gw,rrtmgp,cosp"
-    ./atmchange physics::cosp::cosp_frequency_units="hours"
-    ./atmchange physics::cosp::cosp_frequency=1
-    # use GHG levels more appropriate for sim
-    # Average from 19940101 - 20150101
-    ./atmchange co2vmr=377.2e-6
-    ./atmchange ch4vmr=1786.6e-9
-    ./atmchange n2ovmr=318.6e-9
-    ./atmchange orbital_year=-9999
+    ./atmchange -b physics::atm_procs_list="zm,mac_aero_mic,gw,rrtmgp,cosp"
+    ./atmchange -b physics::cosp::cosp_frequency_units="hours"
+    ./atmchange -b physics::cosp::cosp_frequency=1
+    # use GHG levels more appropriate for sim - Average from 19940101 - 20150101
+    ./atmchange -b co2vmr=377.2e-6
+    ./atmchange -b ch4vmr=1786.6e-9
+    ./atmchange -b n2ovmr=318.6e-9
+    ./atmchange -b orbital_year=-9999
     ./xmlchange CCSM_CO2_PPMV=377.2 # use CO2 the same in land model
 
     ./atmchange -b tom_sponge_start=15
-    ./atmchange theta_advect_form=2
-    ./atmchange pgrad_correction=0
-    ./atmchange physics::mac_aero_mic::atm_procs_list="shoc,cld_fraction,spa,p3"
-    ./atmchange spa_data_file="${input_data_dir}/atm/scream/init/spa_v3.LR.F2010.2011-2025.c_20240405.nc"
+    ./atmchange -b laplace_scaling=1
+    ./atmchange -b nu_top=5e-7
 
-    ./atmchange spa_ccn_to_nc_factor=750.0
-    ./atmchange length_fac=0.51
-    ./atmchange autoconversion_prefactor=2960.0
-    ./atmchange autoconversion_qc_exponent=2.42
+    ./atmchange -b theta_advect_form=2
+    ./atmchange -b pgrad_correction=0
+    ./atmchange -b physics::mac_aero_mic::atm_procs_list="shoc,cld_fraction,spa,p3"
+    ./atmchange -b spa_data_file="${input_data_dir}/atm/scream/init/spa_v3.LR.F2010.2011-2025.c_20240405.nc"
+
+    ./atmchange -b spa_ccn_to_nc_factor=750.0
+    ./atmchange -b length_fac=0.51
+    ./atmchange -b autoconversion_prefactor=2960.0
+    ./atmchange -b autoconversion_qc_exponent=2.42
 
     # initial condition files
     ./atmchange -b vertical_coordinate_filename="${input_data_dir}/atm/scream/init/vertical_coordinates_L128v4_c20260820.nc"
-    ./atmchange -b initial_conditions::filename="${input_data_dir}/atm/scream/init/screami_ne256np4L128v4_ifs-20200120_20260825.nc"
+    ./atmchange -b initial_conditions::filename="/pscratch/sd/w/whannah/HICCUP/files_init/eamxxi_ne256np4L128v4_ERA5-20190101_c20260922.nc"
+    # ./atmchange -b initial_conditions::filename="/global/cfs/cdirs/e3sm/inputdata/atm/scream/init_tmp/eamxxi_ne256np4L128v4_ERA5-20190101_c20260922.nc"
 
     ./atmchange -b use_gw_orographic=false
     ./atmchange -b use_gw_convect=true
+    ./atmchange -b gw_convect_hcf=2
 #-------------------------------------------------------------------------------
 # Additional settings for land
 cat << EOF >> user_nl_elm
