@@ -17,19 +17,20 @@ acct = 'e3sm'
 top_dir  = os.getenv('HOME')+'/E3SM/'
 
 # clean        = True
-newcase      = True
-config       = True
-build        = True
+# newcase      = True
+# config       = True
+# build        = True
 submit       = True
-# continue_run = True
+continue_run = True
 
 # debug_mode = False
 
 # queue = 'debug'  # regular / debug
 
-stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:10:00'; queue='debug'
+# stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:10:00'; queue='debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue='debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'1:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',32,2-1,'1:10:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
 #---------------------------------------------------------------------------------------------------
@@ -38,7 +39,16 @@ stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:10:00'; queue='debug'
 # add_case(prefix='2026-ZM-DEV-00',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="old")
 
 src_dir=f'{top_dir}/E3SM_SRC0/' # branch => whannah/eamxx/mcsp-momentum-update (rebased @ Sep 1)
-add_case(prefix='2026-ZM-DEV-00',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="new")
+# add_case(prefix='2026-ZM-DEV-00',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="new")
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="new") # test new momentum timescale
+
+# test new momentum timescale
+add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.1)
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.01)
+add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.0)
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.01)
+add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.1)
+
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -124,6 +134,30 @@ def main(opts):
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
    if submit :
+      if opts.get('mscp')=='new': run_cmd(f'./atmchange -b mcsp_use_full_shear=true ')
+      if opts.get('mscp')=='old': run_cmd(f'./atmchange -b mcsp_use_full_shear=false ')
+      if opts.get('mcsp_mom_coeff') is not None:
+         run_cmd(f'./atmchange -b mcsp_mom_coeff={opts.get("mcsp_mom_coeff")}')
+      #-------------------------------------------------------------------------
+      # Enable process tendencies for output
+      run_cmd(f'./atmchange -b physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv,horiz_winds')
+      run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv,horiz_winds')
+      # run_cmd(f'./atmchange -b physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
+      # run_cmd(f'./atmchange -b physics::rrtmgp::compute_tendencies=T_mid')
+      # run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid,qv')
+      #-------------------------------------------------------------------------
+      hist_file_list = []
+      def add_hist_file(hist_file,txt):
+         file=open(hist_file,'w'); file.write(txt); file.close()
+         hist_file_list.append(hist_file)
+      #-------------------------------------------------------------------------
+      add_hist_file('output_1ma.yaml',      get_hist_opts_1ma(opts) )
+      hist_file_list_str = ','.join(hist_file_list)
+      run_cmd(f'./atmchange -b scorpio::output_yaml_files="{hist_file_list_str}"')
+      #----------------------------------------------------------------------
+      # # disable history output
+      # run_cmd(f'./atmchange scorpio::output_yaml_files=""')
+      # print();print(f'{clr.RED}WARNING - all output is disabled for debugging!{clr.END}');print()
       #-------------------------------------------------------------------------
       # Set some run-time stuff
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
@@ -140,10 +174,104 @@ def main(opts):
       run_cmd('./case.submit')
    #------------------------------------------------------------------------------------------------
    # Print the case name again
-   print(f'\n  case : {case}\n') 
+   print(f'\n  case : {case}\n')
+#---------------------------------------------------------------------------------------------------
+# monthly mean output - native grid
+def get_hist_opts_1ma(opts):
+   return f'''
+filename_prefix: output.1ma
+averaging_type: average
+max_snapshots_per_file: 1
+fields:
+   physics_pg2:
+      field_names:
+         - ps
+         - SeaLevelPressure
+         # precipitation
+         - precip_total_surf_mass_flux
+         - precip_liq_surf_mass_flux
+         - precip_ice_surf_mass_flux
+         # water paths
+         - VapWaterPath
+         - LiqWaterPath
+         - IceWaterPath
+         - RainWaterPath
+         # radiation
+         - SW_flux_up_at_model_top
+         - SW_flux_dn_at_model_top
+         - LW_flux_up_at_model_top
+         - SW_flux_up_at_model_bot
+         - SW_flux_dn_at_model_bot
+         - LW_flux_up_at_model_bot
+         - LW_flux_dn_at_model_bot
+         - LW_clrsky_flux_up_at_model_top
+         - SW_clrsky_flux_up_at_model_top
+         - SW_clrsky_flux_dn_at_model_top
+         - ShortwaveCloudForcing
+         - LongwaveCloudForcing
+         # 3D variables
+         - T_mid
+         - z_mid
+         - U
+         - V
+         - omega
+         - pseudo_density
+         - RelativeHumidity
+         - qv
+         - qc
+         - qr
+         - qi
+         - qm
+         - nc
+         - ni
+         - nr
+         # misc 2D fields
+         - T_2m
+         # - surf_radiative_T
+         - wind_speed_10m
+         # - U_at_850hPa
+         # - U_at_200hPa
+         - surf_sens_flux
+         - surf_evap
+         - surf_mom_flux
+         - cldfrac_liq
+         - cldfrac_ice_for_analysis
+         - cldfrac_tot_for_analysis
+         # # process stendencies
+         # - p3_T_mid_tend
+         # - p3_qv_tend
+         - shoc_T_mid_tend
+         - shoc_qv_tend
+         - shoc_horiz_winds_tend
+         # - homme_T_mid_tend
+         # - homme_qv_tend
+         # - rrtmgp_T_mid_tend
+         - zm_T_mid_tend
+         - zm_qv_tend
+         - zm_horiz_winds_tend
+         # - zm_detr_qc
+         # - zm_detr_qi
+         # ZM diagnostic fields
+         - zm_prec
+         - zm_activity
+         - zm_cape
+         # - zm_dcape
+         - zm_depth
+         - mcsp_ds_out
+         - mcsp_dq_out
+         - mcsp_du_out
+         - mcsp_freq
+         - mcsp_shear
+         # - evap_ds_out
+         # - evap_dq_out
+output_control:
+   frequency: 1
+   frequency_units: nmonths
+'''
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
    for n in range(len(opt_list)):
       main( opt_list[n] )
+
 #---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------

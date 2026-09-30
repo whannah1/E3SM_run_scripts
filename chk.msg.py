@@ -81,7 +81,7 @@ for tdir in dirs :
         is_test_flag = False
         is_test_flag = any( f'{test_type}_' in case for test_type in ['SMS','ERS','ERP'])
 
-        if ('E3SM' in case 
+        if  ('E3SM' in case 
             or 'SCREAM' in case 
             or 'DP.' in case 
             or 'ELM_spinup' in case 
@@ -92,7 +92,8 @@ for tdir in dirs :
             or 'SOHIP' in case 
             or '2025-EACB' in case 
             or is_test_flag
-            or opts.alt_search_str in case) and 'old_' not in case :
+            or opts.alt_search_str in case
+            ) : #and 'old_' not in case :
 
             found = True
             if search_strings : 

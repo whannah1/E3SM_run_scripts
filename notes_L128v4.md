@@ -30,6 +30,6 @@ ${DIN_LOC_ROOT}/atm/scream/init/screami_ne1024np4L128_ifs-20200120-topoadjx6t_20
 
 
 ```shell
-mv -n /lcrc/group/acme/public_html/inputdata/atm/scream/init_tmp/* \
-      /lcrc/group/acme/public_html/inputdata/atm/scream/init/
+mv -n /lcrc/group/e3sm/public_html/inputdata/atm/scream/init_tmp/* \
+      /lcrc/group/e3sm/public_html/inputdata/atm/scream/init/
 ```

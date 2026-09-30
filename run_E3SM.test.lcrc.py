@@ -17,7 +17,8 @@ output_root = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'; generate = True # generate baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_BASE'                  # just run tests, no comparison
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'                  # just run tests, no comparison
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1'                  # just run tests, no comparison
+# src_dir = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/tmp_e3sm_src'
 
 # baseline_branch_name = 'custom_baseline'
 baseline_branch_name = 'master'
@@ -42,7 +43,9 @@ tests = [
         # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010.chrysalis_intel',
         # 'ERS_Ld5.ne4pg2_oQU480.F2010xx-ZM',
         # 'ERS_Ld3.ne4pg2_oQU480.F2010xx-ZM',
-        'ERS_Ln9.ne4_ne4.F2000-SCREAMv1-AQP1.chrysalis_intel.eamxx-output-preset-2--eamxx-L72'
+        # 'SMS_Ln9.ne4pg2_oQU480.F2010xx-ZM',
+        # 'ERS_Ln9.ne4_ne4.F2000-SCREAMv1-AQP1.chrysalis_intel.eamxx-output-preset-2--eamxx-L72'
+        'ERS.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_intel.eamxx-prod',
         ]
 
 
@@ -97,8 +100,9 @@ for test in tests :
     if not os.path.exists(case_dir) : os.makedirs(case_dir)
     log_file = f'{case_dir}/{timestamp}.{test}.log'
 
-    
-    cmd = 'nohup '+src_dir+'/cime/scripts/create_test '+test
+     
+    # cmd = f'PYTHONUNBUFFERED=1 nohup {src_dir}/cime/scripts/create_test {test}'
+    cmd = f'nohup python -u {src_dir}/cime/scripts/create_test {test}'
     cmd = cmd+f' --test-root {case_dir}'
     cmd = cmd+f' --project {project}'
     cmd = cmd+' --wait -j2'
@@ -118,8 +122,8 @@ for test in tests :
         cmd = cmd+f' -b {baseline_branch_name} '
         # cmd = cmd+f' -b whannah/atm/aqua_planet_fix '
 
-    cmd = cmd+' --walltime 00:30:00 '
-    cmd = cmd+'  >& '+log_file+' &'
+    cmd = cmd+f' --walltime 00:30:00 '
+    cmd = cmd+f'  >& {log_file} &'
 
     #--------------------------------------------
     # Machine-specific configurations
