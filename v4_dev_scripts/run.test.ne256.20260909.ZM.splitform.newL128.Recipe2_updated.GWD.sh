@@ -203,9 +203,9 @@ runtime_options() {
     ./atmchange -b initial_conditions::filename="/pscratch/sd/w/whannah/HICCUP/files_init/eamxxi_ne256np4L128v4_ERA5-20190101_c20260922.nc"
     # ./atmchange -b initial_conditions::filename="/global/cfs/cdirs/e3sm/inputdata/atm/scream/init_tmp/eamxxi_ne256np4L128v4_ERA5-20190101_c20260922.nc"
 
-    ./atmchange -b use_gw_orographic=false
+    ./atmchange -b use_gw_orographic=true
     ./atmchange -b use_gw_convect=true
-    ./atmchange -b gw_convect_hcf=2
+    ./atmchange -b gw_convect_hcf=10
 #-------------------------------------------------------------------------------
 # Additional settings for land
 cat << EOF >> user_nl_elm

@@ -33,7 +33,9 @@ src_dir = f'{top_dir}/E3SM_SRC2' # branch => whannah/scidac-2026-v4-tuning
 submit       = True
 # continue_run = True
 
-stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00'
+# stop_opt,stop_n,resub,walltime,queue = 'ndays',2,0,'0:30:00','debug'
+# stop_opt,stop_n,resub,walltime,queue = 'ndays',10,0,'1:00:00','regular'
+stop_opt,stop_n,resub,walltime,queue = 'ndays',365,4-1,'32:00:00','regular'
 
 #---------------------------------------------------------------------------------------------------
 
@@ -41,8 +43,8 @@ kwargs = {'prefix':'2026-SCIDAC-V4-00','compset':'F2010xx-ZM-CICE'}
 kwargs.update({'arch':'GPU','num_nodes':64,'grid':'ne256pg2_ne256pg2'})
 
 add_case(**kwargs,gw='oc',cpt=0,gcc=10,gce=0.35,gch=0.50,gcm=2.5)
-# add_case(**kwargs,gw='oc',cpt=0,gcc= 6,gce=0.35,gch=0.50,gcm=2.5)
-# add_case(**kwargs,gw='oc',cpt=0,gcc= 2,gce=0.35,gch=0.50,gcm=2.5)
+add_case(**kwargs,gw='oc',cpt=0,gcc= 6,gce=0.35,gch=0.50,gcm=2.5)
+add_case(**kwargs,gw='oc',cpt=0,gcc= 2,gce=0.35,gch=0.50,gcm=2.5)
 
 # add_case(**kwargs,gw='oc',cpt=200,gcc=10,gce=0.35,gch=0.50,gcm=2.5)
 # add_case(**kwargs,gw='oc',cpt=200,gcc= 6,gce=0.35,gch=0.50,gcm=2.5)
@@ -133,7 +135,7 @@ def main(opts):
       run_cmd(f'./xmlchange SCREAM_ATMCHANGE_BUFFER=""') # reset the buffer
       #-------------------------------------------------------------------------
       init_root = '/global/cfs/cdirs/e3sm/inputdata/atm/scream/init'
-      run_cmd(f'./atmchange -b initial_conditions::filename=\"{init_root}/eamxxi_ne128np4L128v4_ERA5-20190101_c20260922.nc\"')
+      run_cmd(f'./atmchange -b initial_conditions::filename=\"{init_root}/eamxxi_ne256np4L128v4_ERA5-20190101_c20260922.nc\"')
       run_cmd(f'./atmchange -b vertical_coordinate_filename=\"{init_root}/vertical_coordinates_L128_20220927.nc\"')
       # sponge layer
       run_cmd(f'./atmchange -b tom_sponge_start=15 ')
@@ -167,7 +169,7 @@ def main(opts):
       run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv,horiz_winds')
       run_cmd(f'./atmchange -b physics::gw::compute_tendencies=horiz_winds')
       run_cmd(f'./atmchange -b physics::rrtmgp::compute_tendencies=T_mid')
-      run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid')
+      run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid,qv')
       #-------------------------------------------------------------------------
       hist_file_list = []
       def add_hist_file(hist_file,txt):
@@ -216,7 +218,7 @@ fields:
          - LiqWaterPath
          - IceWaterPath
          - RainWaterPath
-         - LW_flux_up_at_model_bot
+         - LW_flux_up_at_model_top
          - T_2m
          - U_at_850hPa
          - U_at_200hPa

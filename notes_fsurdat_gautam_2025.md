@@ -66,7 +66,7 @@ and do a find/replace for following
 cd src
 
 # Compile the code using instructions lines 1 -40 on
-# https://gist.github.com/bishtgautam/712261d33d650dac70c9a8dbfa094899.
+# https://gist.github.com/bishtgautam/712261d33d650dac70c9a8dbfa094899
 # Don't do the srun command.
 ```
 
