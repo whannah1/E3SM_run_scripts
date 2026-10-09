@@ -105,10 +105,8 @@ def main(opts):
    arch = 'CPU'
    if 'arch' in opts: arch = opts['arch']
    #----------------------------------------------------------------------------
-   if 'num_nodes' in opts and 'num_tasks' in opts:
-      raise ValueError('cannot specify both num_nodes and num_tasks!')
-   if 'num_nodes' not in opts and 'num_tasks' not in opts:
-      raise ValueError('you must specify either num_nodes of num_tasks!')
+   if 'num_nodes' in opts and 'num_tasks' in opts: raise ValueError('cannot specify both num_nodes and num_tasks!')
+   if 'num_nodes' not in opts and 'num_tasks' not in opts: raise ValueError('you must specify either num_nodes of num_tasks!')
    #----------------------------------------------------------------------------
    # return
    #----------------------------------------------------------------------------
