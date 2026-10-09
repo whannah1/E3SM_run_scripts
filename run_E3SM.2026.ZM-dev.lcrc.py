@@ -30,9 +30,9 @@ continue_run = True
 # stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:10:00'; queue='debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue='debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',32,2-1,'1:10:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,3-1,'1:10:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
-# stop_opt,stop_n,resub,walltime = 'ndays',365,4-1,'4:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',365,2-1,'12:00:00'
 #---------------------------------------------------------------------------------------------------
 
 # src_dir=f'{top_dir}/E3SM_SRC2/' # branch => master @ Sep 1
@@ -43,11 +43,13 @@ src_dir=f'{top_dir}/E3SM_SRC0/' # branch => whannah/eamxx/mcsp-momentum-update (
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="new") # test new momentum timescale
 
 # test new momentum timescale
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.3)
 add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.1)
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.01)
 add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.0)
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.01)
 add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.1)
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.3)
 
 
 #---------------------------------------------------------------------------------------------------

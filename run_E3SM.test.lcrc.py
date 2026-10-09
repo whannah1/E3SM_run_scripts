@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
-#============================================================================================================================
-#   Jan, 2017   Walter Hannah    Lawrence Livermore National Lab
-#   Automated ECP testing procesdure
 #==================================================================================================
-import sys
-import os
-import datetime
+import sys, os, datetime
+class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
 home = os.getenv('HOME')
 generate, compare, verbose, debug_script = False, False, False, False
 #==================================================================================================
@@ -24,7 +20,7 @@ src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1'                  # just run tests,
 baseline_branch_name = 'master'
 
 verbose      = True      # print commands
-debug_script = True      # do not submit test - for debugging this script
+debug_script = False      # do not submit test - for debugging this script
 
 # tests = ['e3sm_mmf_integration']
 # tests = ['e3sm_developer']
@@ -46,6 +42,7 @@ tests = [
         # 'SMS_Ln9.ne4pg2_oQU480.F2010xx-ZM',
         # 'ERS_Ln9.ne4_ne4.F2000-SCREAMv1-AQP1.chrysalis_intel.eamxx-output-preset-2--eamxx-L72'
         'ERS.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_intel.eamxx-prod',
+        # 'ERS_Ln9.ne4_ne4.F2000-SCREAMv1-AQP1.chrysalis_intel.eamxx-output-preset-2--eamxx-L72'
         ]
 
 
@@ -99,31 +96,27 @@ for test in tests :
 
     if not os.path.exists(case_dir) : os.makedirs(case_dir)
     log_file = f'{case_dir}/{timestamp}.{test}.log'
-
-     
-    # cmd = f'PYTHONUNBUFFERED=1 nohup {src_dir}/cime/scripts/create_test {test}'
-    cmd = f'nohup python -u {src_dir}/cime/scripts/create_test {test}'
-    cmd = cmd+f' --test-root {case_dir}'
-    cmd = cmd+f' --project {project}'
-    cmd = cmd+' --wait -j2'
-    # cmd = cmd+' --no-run'
-    # cmd = cmd+' --baseline-root '+output_root+'/baselines '  
-    cmd = cmd+f' --output-root {case_dir} '
-    cmd +=' --input-dir /lcrc/group/e3sm/data/inputdata'
-
-    # cmd = cmd+' --queue debug '
     
-    if generate : 
-        cmd = cmd+' --generate '
-        cmd = cmd+' --allow-baseline-overwrite '
-        cmd = cmd+f' -b {baseline_branch_name} '
-    if compare :
-        cmd = cmd+' -c '
-        cmd = cmd+f' -b {baseline_branch_name} '
-        # cmd = cmd+f' -b whannah/atm/aqua_planet_fix '
+    cmd = f'PYTHONUNBUFFERED=1 nohup {src_dir}/cime/scripts/create_test {test}'
+    cmd += f' --test-root {case_dir}'
+    cmd += f' --output-root {case_dir} '
+    cmd += f' --project {project}'
+    cmd += f' --wait -j2 '                       
+    # cmd = cmd+' --baseline-root '+output_root+'/baselines '
+    # cmd +=' --input-dir /lcrc/group/e3sm/data/inputdata'
 
-    cmd = cmd+f' --walltime 00:30:00 '
-    cmd = cmd+f'  >& {log_file} &'
+    if generate : 
+        cmd += f' --generate '
+        cmd += f' --allow-baseline-overwrite '
+        cmd += f' -b {master_branch_name} '
+    if compare :
+        cmd += ' -c '
+        cmd += f' -b {master_branch_name} '
+
+    # cmd += f' --queue debug --walltime 00:30:00 '
+    cmd += f' --queue regular --walltime 01:00:00 '
+
+    cmd += f'  >& {log_file} &'
 
     #--------------------------------------------
     # Machine-specific configurations
@@ -137,12 +130,15 @@ for test in tests :
     #--------------------------------------------
     #--------------------------------------------
 
-    ### print the command for starting the test
+    # print the command for starting the test
     if verbose : print('\n'+cmd+'')
 
-    ## submit the test
-    if not debug_script : os.system(cmd)
+    # submit the test
+    if debug_script:
+        print(f'\n{clr.RED}debug_script = True -> test will NOT be submitted{clr.END}\n')
+    else:
+        os.system(cmd)
 
-print
+print()
 #==================================================================================================
 #==================================================================================================

@@ -33,6 +33,11 @@ total_len   = indent_len + xmlfile_len + param_len
 # use multiple lines for variables with long values
 status_len_limit = 80
 #---------------------------------------------------------------------------------------------------
+print()
+print(f'  opts.sub      : {opts.sub}')
+print(f'  opts.file_type: {opts.file_type}')
+print()
+#---------------------------------------------------------------------------------------------------
 # Specify what we want to see in the output 
 
 scratch_path_list = chk_methods.get_scratch_path_list()
@@ -77,6 +82,14 @@ for tdir in dirs :
         if found :
             file_list = glob.glob(f'{tdir}/{opts.sub}/*{opts.file_type}*')
             file_list.sort()
+
+
+            # remove restart history files
+            file_list_tmp = []
+            for f,file_name in enumerate(file_list):
+                if '.rhist.' not in file_list[f]:
+                    file_list_tmp.append(file_name)
+            file_list = file_list_tmp
 
             # build the output message
             msg_tmp = ''
