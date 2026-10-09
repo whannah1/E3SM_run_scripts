@@ -11,16 +11,19 @@ def add_case( **kwargs ):
 #---------------------------------------------------------------------------------------------------
 '''NOTES
 branch whannah/scidac-2026-v4-tuning was made on Sep 29 using:
-=> master @ Sep 29
+=> initial branch => master @ Sep 29
 => merge whannah/eamxx/conv-gw-fix
 => merge whannah/eamxx/fix-zm-non-bfb
 => merge whannah/eamxx/mcsp-momentum-update
+=> rebase => master @ OCt 8
+=> merge whannah/eamxx/add-rayleigh-friction
+=> merge whannah/eamxx/gw-bug-fixes
 
 nohup python -u run_E3SM.2026.scidac.v4-test.nersc.py > run_E3SM.2026.scidac.v4-test.nersc.py.out &
 '''
 #---------------------------------------------------------------------------------------------------
 import os, datetime, subprocess as sp
-newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
+newcase,config,build,clean,set_run_opts,submit,continue_run = False,False,False,False,False,False,False
 
 acct = 'm4310'
 top_dir = os.getenv('HOME')+'/E3SM'
@@ -30,12 +33,13 @@ src_dir = f'{top_dir}/E3SM_SRC2' # branch => whannah/scidac-2026-v4-tuning
 # newcase      = True
 # config       = True
 # build        = True
+set_run_opts = True
 submit       = True
 # continue_run = True
 
 # stop_opt,stop_n,resub,walltime,queue = 'ndays',2,0,'0:30:00','debug'
-# stop_opt,stop_n,resub,walltime,queue = 'ndays',10,0,'1:00:00','regular'
-stop_opt,stop_n,resub,walltime,queue = 'ndays',365,4-1,'32:00:00','regular'
+stop_opt,stop_n,resub,walltime,queue = 'ndays',10,0,'1:00:00','regular'
+# stop_opt,stop_n,resub,walltime,queue = 'ndays',365,4-1,'32:00:00','regular'
 
 #---------------------------------------------------------------------------------------------------
 
@@ -43,16 +47,13 @@ kwargs = {'prefix':'2026-SCIDAC-V4-00','compset':'F2010xx-ZM-CICE'}
 kwargs.update({'arch':'GPU','num_nodes':64,'grid':'ne256pg2_ne256pg2'})
 
 add_case(**kwargs,gw='oc',cpt=0,gcc=10,gce=0.35,gch=0.50,gcm=2.5)
-add_case(**kwargs,gw='oc',cpt=0,gcc= 6,gce=0.35,gch=0.50,gcm=2.5)
-add_case(**kwargs,gw='oc',cpt=0,gcc= 2,gce=0.35,gch=0.50,gcm=2.5)
+add_case(**kwargs,gw='oc',cpt=0,gcc= 5,gce=0.35,gch=0.50,gcm=2.5)
+
+add_case(**kwargs,gw='oc',cpt=0,gcc=10,gce=0.35,gch=1.00,gcm=2.5)
+add_case(**kwargs,gw='oc',cpt=0,gcc= 5,gce=0.35,gch=1.00,gcm=2.5)
 
 # add_case(**kwargs,gw='oc',cpt=200,gcc=10,gce=0.35,gch=0.50,gcm=2.5)
-# add_case(**kwargs,gw='oc',cpt=200,gcc= 6,gce=0.35,gch=0.50,gcm=2.5)
-# add_case(**kwargs,gw='oc',cpt=200,gcc= 2,gce=0.35,gch=0.50,gcm=2.5)
-
-# add_case(**kwargs,gw='oc',cpt=400,gcc=10,gce=0.35,gch=0.50,gcm=2.5)
-# add_case(**kwargs,gw='oc',cpt=400,gcc= 6,gce=0.35,gch=0.50,gcm=2.5)
-# add_case(**kwargs,gw='oc',cpt=400,gcc= 2,gce=0.35,gch=0.50,gcm=2.5)
+# add_case(**kwargs,gw='oc',cpt=200,gcc= 5,gce=0.35,gch=0.50,gcm=2.5)
 
 #---------------------------------------------------------------------------------------------------
 def get_case_name(opts):
@@ -120,7 +121,8 @@ def main(opts):
    #------------------------------------------------------------------------------------------------
    os.chdir(f'{case_root}/case_scripts')
    #------------------------------------------------------------------------------------------------
-   if config : 
+   if config:
+      run_cmd(f'./xmlchange EAMXX_VGRID=L128v4')
       run_cmd(f'./xmlchange EXEROOT={case_root}/bld ')
       run_cmd(f'./xmlchange RUNDIR={case_root}/run ')
       run_cmd('./case.setup --reset')
@@ -131,21 +133,17 @@ def main(opts):
       run_cmd('./case.build --clean ice')
       run_cmd('./case.build')
    #------------------------------------------------------------------------------------------------
-   if submit :
+   if set_run_opts :
       run_cmd(f'./xmlchange SCREAM_ATMCHANGE_BUFFER=""') # reset the buffer
       #-------------------------------------------------------------------------
-      init_root = '/global/cfs/cdirs/e3sm/inputdata/atm/scream/init'
-      run_cmd(f'./atmchange -b initial_conditions::filename=\"{init_root}/eamxxi_ne256np4L128v4_ERA5-20190101_c20260922.nc\"')
-      run_cmd(f'./atmchange -b vertical_coordinate_filename=\"{init_root}/vertical_coordinates_L128_20220927.nc\"')
-      # sponge layer
-      run_cmd(f'./atmchange -b tom_sponge_start=15 ')
-      run_cmd(f'./atmchange -b laplace_scaling=1 ')
-      run_cmd(f'./atmchange -b nu_top=5e-7 ')
-      # split form
+      # # enable split-form
       run_cmd(f'./atmchange -b theta_advect_form=2 ')
       run_cmd(f'./atmchange -b pgrad_correction=0 ')
+      # # disable split-form
+      # run_cmd(f'./atmchange -b theta_advect_form=1 ')
+      # run_cmd(f'./atmchange -b pgrad_correction=1 ')
       #-------------------------------------------------------------------------
-      if opts.get('gw') is not None:  run_cmd(f'./atmchange -b physics::atm_procs_list=zm,gw,mac_aero_mic,rrtmgp')
+      if opts.get('gw') is not None:  run_cmd(f'./atmchange -b physics::atm_procs_list=rayleigh_friction,zm,gw,mac_aero_mic,rrtmgp')
       if 'o' in opts.get('gw'):       run_cmd(f'./atmchange -b physics::gw::use_gw_convect=True')
       if 'c' in opts.get('gw'):       run_cmd(f'./atmchange -b physics::gw::use_gw_orographic=True')
       if opts.get('gcc') is not None: run_cmd(f'./atmchange -b physics::gw::gw_convect_hcf={opts.get('gcc')}')
@@ -193,7 +191,8 @@ def main(opts):
       run_cmd(f'./xmlchange CHARGE_ACCOUNT={acct},PROJECT={acct}')
       if     continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=TRUE ')   
       if not continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=FALSE ')
-      #-------------------------------------------------------------------------
+   #------------------------------------------------------------------------------------------------
+   if submit :
       run_cmd('./case.submit')
    #------------------------------------------------------------------------------------------------
    # Print the case name again

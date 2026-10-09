@@ -46,8 +46,8 @@ acct = 'm4310'
 # clear_zppy_status = True
 # check_zppy_status = True
 # run_zppy          = True
-# cp_post_to_cfs    = True
-# calc_hovmoller    = True
+cp_post_to_cfs    = True
+calc_hovmoller    = True
 calc_climatology  = True
 # lt_archive_create = True
 # lt_archive_check  = True
@@ -78,8 +78,8 @@ def add_case( **kwargs ):
    opt_list.append(case_opts)
 #---------------------------------------------------------------------------------------------------
 
-nyr = 3
-# nyr = 10
+# nyr = 3
+nyr = 10
 
 # add_case(case='ERA5')
 
@@ -258,7 +258,7 @@ def main(opts):
    if check_zppy_status:
       status_path = f'{case_root}/post/scripts'
       print(' '*4+clr.END+status_path+clr.END)
-      status_files = glob.glob(f'{status_path}/*status')
+      status_files = glob.glob(f'{status_path}/*1995-{(1995+nyr-1)}*status')
       max_len = 0
       for file_path in status_files:
          file_name = file_path.replace(f'{status_path}/','')
@@ -409,34 +409,42 @@ def main(opts):
             if var=='U': ivar='ua'; input_file = f'{obs_root}/{obs_file_prefix}_ua_197901_201912.nc'
             if var=='T': ivar='ta'; input_file = f'{obs_root}/{obs_file_prefix}_ta_197901_201912.nc'
          else:
-            input_file = f'{case_root}/post/atm/90x180/clim/{nyr}yr/{case}_ANN_199501_{(1995+nyr-1)}12_climo.nc'
-         #----------------------------------------------------------------------
-         # print(); print(input_file); print(); exit()
-         #----------------------------------------------------------------------
-         ds = xr.open_mfdataset(input_file)
-         #----------------------------------------------------------------------
-         # print(); print(ds); print(); exit()
-         #----------------------------------------------------------------------
-         if case=='ERA5': ds = ds.sel(time=slice('1995',f'{(1995+nyr-1)}'))
+            # input_file = f'{case_root}/post/atm/90x180/clim/{nyr}yr/{case}_ANN_199501_{(1995+nyr-1)}12_climo.nc'
+            input_file_djf = f'{case_root}/post/atm/90x180/clim/{nyr}yr/{case}_DJF_199501_{(1995+nyr-1)}12_climo.nc'
+            input_file_jja = f'{case_root}/post/atm/90x180/clim/{nyr}yr/{case}_JJA_199506_{(1995+nyr-1)}08_climo.nc'
          #----------------------------------------------------------------------
          if case=='ERA5':
+            ds = xr.open_mfdataset(input_file)
+            ds = ds.sel(time=slice('1995',f'{(1995+nyr-1)}'))
             ds['plev'] = ds['plev']/1e2
-            # ds = ds.rename({'plev':'lev'})
-            data = ds[ivar].sel(plev=remap_lev_clm)
-            data = data.transpose('time','plev','lat','lon')
+            data_all = ds[ivar].sel(plev=remap_lev_clm)
+            data_all = data_all.transpose('time','plev','lat','lon')
+            data_djf = data_all.sel(time=ds['time.month'].isin([12,1,2]))
+            data_jja = data_all.sel(time=ds['time.month'].isin([6,7,8]))
+            area = ds['area']
          else:
-            data = hapy.vinth2p_simple( ds[var], ds['hyam'], ds['hybm'], remap_lev_clm*1e2, ds['PS'],
-                                        interp_type='log', extrapolate=False)
-            data = data.mean(dim='time')
-         area = ds['area']
-         data = (data*area).sum(dim=('lon')) / area.sum(dim=('lon'))
+            ds_djf = xr.open_mfdataset(input_file_djf)
+            ds_jja = xr.open_mfdataset(input_file_jja)
+            vinth2p_kwargs = {'interp_type':'log', 'extrapolate':False}
+            data_djf = hapy.vinth2p_simple(ds_djf[var],ds_djf['hyam'],ds_djf['hybm'],remap_lev_clm*1e2,ds_djf['PS'],**vinth2p_kwargs)
+            data_jja = hapy.vinth2p_simple(ds_jja[var],ds_jja['hyam'],ds_jja['hybm'],remap_lev_clm*1e2,ds_jja['PS'],**vinth2p_kwargs)
+            data_djf = data_djf.mean(dim='time')
+            data_jja = data_jja.mean(dim='time')
+            area = ds_djf['area']
+         #----------------------------------------------------------------------
+         data_djf = (data_djf*area).sum(dim=('lon')) / area.sum(dim=('lon'))
+         data_jja = (data_jja*area).sum(dim=('lon')) / area.sum(dim=('lon'))
          #----------------------------------------------------------------------
          # mask out antarctica
-         data = data.where( (data['lat']>-65) | (data['plev']<600e2) )
+         sp_mask_lev = 600e2
+         sp_mask_lat = -65
+         data_djf = data_djf.where( (data_djf['lat']>sp_mask_lat) | (data_djf['plev']<sp_mask_lev) )
+         data_jja = data_jja.where( (data_jja['lat']>sp_mask_lat) | (data_jja['plev']<sp_mask_lev) )
          #----------------------------------------------------------------------
          # print(); print(data); print(); exit()
          #----------------------------------------------------------------------
-         ds_out[var] = data
+         ds_out[f'{var}_DJF'] = data_djf
+         ds_out[f'{var}_JJA'] = data_jja
       #-------------------------------------------------------------------------
       # print(); print(ds_out); print(); exit()
       #-------------------------------------------------------------------------

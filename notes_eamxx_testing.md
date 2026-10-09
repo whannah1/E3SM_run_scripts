@@ -41,8 +41,9 @@ opt ==> release
 # CPU
 salloc --nodes 1 --qos interactive --time 4:00:00 --constraint cpu --account=e3sm
 
-E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
-TEST_ROOT=/pscratch/sd/w/whannah/dev_composable_diag/tests
+# E3SM_SRC=/pscratch/sd/w/whannah/tmp_e3sm_src
+E3SM_SRC=/global/homes/w/whannah/E3SM/E3SM_SRC0
+TEST_ROOT=/pscratch/sd/w/whannah/eamxx_dev/tests
 mach=pm-cpu; comp=gnu
 
 mkdir -p cd ${TEST_ROOT}/full_debug
@@ -50,11 +51,13 @@ cd ${TEST_ROOT}/full_debug
 
 eval $(${E3SM_SRC}/cime/CIME/Tools/get_case_env -c SMS.ne4pg2_ne4pg2.F2010-SCREAMv1.${mach}_${comp}) && export OMP_NUM_THREADS=1 && export CTEST_PARALLEL_LEVEL=128 && export OMP_PROC_BIND=spread;
 
+
 ${E3SM_SRC}/components/eamxx/scripts/test-all-eamxx -m ${mach} -t dbg --config-only -w ${TEST_ROOT}
 
 cd ${TEST_ROOT}/full_debug/src/share/diagnostics/tests
 make -j128
 
+# ctest -R "common_physics|rayleigh_friction"
 
 OMP_NUM_THREADS=1 gdb ./shoc_tests
 
