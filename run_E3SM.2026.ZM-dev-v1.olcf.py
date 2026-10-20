@@ -17,10 +17,11 @@ newcase,config,build,clean,submit,continue_run = False,False,False,False,False,F
 
 acct = 'cli115'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jun 29 2026
+# src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jun 29 2026
+src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Sep 17 2026
 
 # clean        = True
-# newcase      = True
+newcase      = True
 config       = True
 build        = True
 submit       = True
@@ -30,11 +31,11 @@ submit       = True
 
 # queue = 'regular'  # regular / debug
 
-# stop_opt,stop_n,resub,walltime = 'nsteps',6,0,'0:30:00' #; queue = 'debug'
+stop_opt,stop_n,resub,walltime = 'nsteps',12,0,'0:30:00' #; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00' #; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'nmonths',1,12*5,'2:00:00' # ne30 / 4-nodes
-stop_opt,stop_n,resub,walltime = 'nmonths',3,4*5-1,'2:00:00' # ne30 / 4-nodes
+# stop_opt,stop_n,resub,walltime = 'nmonths',3,4*5-1,'2:00:00' # ne30 / 4-nodes
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'2:00:00' # ne4
 #---------------------------------------------------------------------------------------------------
 ### EAMxx ZM process testing
@@ -56,7 +57,7 @@ stop_opt,stop_n,resub,walltime = 'nmonths',3,4*5-1,'2:00:00' # ne30 / 4-nodes
 # add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=12, zm='cxx')
 
 # in-cloud radiation mode tests
-src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/add-ZM-in-cloud-water-for-rad
+# src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/add-ZM-in-cloud-water-for-rad
 
 # add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm_rad=True)
 # add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm_rad=False)
@@ -70,7 +71,11 @@ src_dir  = f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/add-ZM-in-cloud-wat
 # add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, c0=0.001)
 # add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, c0=0.0001)
 # add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, c0=0.0)
-add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, alt_zm_call=True)
+# add_case(prefix='2026-ZM-ICW-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=4, zm_rad=False, alt_zm_call=True)
+
+
+# reproduce non-BFB reported by other
+add_case(prefix='2026-ZM-DEV-02', compset='F2010xx-ZM-CICE', grid='ne256pg2_ne256pg2', num_nodes=128)
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):

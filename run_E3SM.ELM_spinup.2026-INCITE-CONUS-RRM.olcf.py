@@ -42,6 +42,14 @@ ncremap -a trbilin --src_grd=${ATM_GRID} --dst_grd=${ROF_GRID} --map_file=${MAP_
 /lustre/orion/cli115/world-shared/e3sm/inputdata/cpl/gridmaps/conus1024x2v1pg2
 '''
 #---------------------------------------------------------------------------------------------------
+''' components/elm/cime_config/config_compsets.xml
++  <compset>
++    <alias>IERA5ELMTOP</alias>
++    <!-- <lname>2000_DATM%ERA5_ELM%CNPRDCTCBCTOP_SICE_SOCN_MOSART_SGLC_SWAV</lname> -->
++    <lname>2000_DATM%ERA5_ELM%SPTOP_SICE_SOCN_MOSART_SGLC_SWAV</lname>
++  </compset>
+'''
+#---------------------------------------------------------------------------------------------------
 import os, subprocess as sp, datetime
 newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
 
@@ -67,7 +75,7 @@ stop_opt,stop_n,resub,walltime = 'nyears',1, 0,'4:00:00'
 # rest_opt,rest_n = 'nyears',1
 rest_opt,rest_n = 'nmonths',1
 
-compset   = 'IERA5ELM' # ICRUELM / IERA5ELM
+compset   = 'IERA5ELMTOP' # ICRUELM / IERA5ELM / IERA5ELMTOP
 
 grid = 'conus1024x2v1pg2_RRSwISC6to18E3r5'
 num_nodes = 256
@@ -114,7 +122,7 @@ def set_namelist(fsurdat_file,finidat_file):
    file.write(f' fsurdat = \'{fsurdat_file}\'\n')
    if finidat_file is not None:
       file.write(f' finidat = \'{finidat_file}\'\n')
-      # file.write(f' check_finidat_fsurdat_consistency=.false.')
+      file.write(f' check_finidat_fsurdat_consistency=.false.')
    else:
       file.write(f' finidat = \'\'\n') # this need to be blank to force cold-start mode
    if use_fineTOP:
