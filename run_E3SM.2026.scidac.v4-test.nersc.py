@@ -30,27 +30,44 @@ top_dir = os.getenv('HOME')+'/E3SM'
 src_dir = f'{top_dir}/E3SM_SRC2' # branch => whannah/scidac-2026-v4-tuning
 
 # clean        = True
-# newcase      = True
-# config       = True
-# build        = True
+newcase      = True
+config       = True
+build        = True
 set_run_opts = True
 submit       = True
 # continue_run = True
 
 # stop_opt,stop_n,resub,walltime,queue = 'ndays',2,0,'0:30:00','debug'
-stop_opt,stop_n,resub,walltime,queue = 'ndays',10,0,'1:00:00','regular'
-# stop_opt,stop_n,resub,walltime,queue = 'ndays',365,4-1,'32:00:00','regular'
+stop_opt,stop_n,resub,walltime,queue = 'ndays',10,0,'4:00:00','regular'
+# stop_opt,stop_n,resub,walltime,queue = 'ndays',365,4-1,'28:00:00','regular'
 
 #---------------------------------------------------------------------------------------------------
 
 kwargs = {'prefix':'2026-SCIDAC-V4-00','compset':'F2010xx-ZM-CICE'}
-kwargs.update({'arch':'GPU','num_nodes':64,'grid':'ne256pg2_ne256pg2'})
 
-add_case(**kwargs,gw='oc',cpt=0,gcc=10,gce=0.35,gch=0.50,gcm=2.5)
-add_case(**kwargs,gw='oc',cpt=0,gcc= 5,gce=0.35,gch=0.50,gcm=2.5)
+# kwargs.update({'arch':'GPU','num_nodes':64,'grid':'ne256pg2_ne256pg2'}) # can't finsh 10-day in 1-hr
+kwargs.update({'arch':'GPU','grid':'ne256pg2_ne256pg2','num_nodes':128})
 
-add_case(**kwargs,gw='oc',cpt=0,gcc=10,gce=0.35,gch=1.00,gcm=2.5)
-add_case(**kwargs,gw='oc',cpt=0,gcc= 5,gce=0.35,gch=1.00,gcm=2.5)
+# add_case(**kwargs,gw='oc',cpt=0,gcc=10,gce=0.35,gch=0.50,gcm=2.5) # defaults
+# add_case(**kwargs,gw='oc',cpt=0,gcc= 5,gce=0.35,gch=0.50,gcm=2.5)
+# add_case(**kwargs,gw='oc',cpt=0,gcc=10,gce=0.35,gch=1.00,gcm=2.5)
+# add_case(**kwargs,gw='oc',cpt=0,gcc= 5,gce=0.35,gch=1.00,gcm=2.5)
+
+# revisit stability with various combinations
+kwargs = {'prefix':'2026-SCIDAC-V4-01','compset':'F2010xx-ZM-CICE'}
+kwargs.update({'arch':'GPU','grid':'ne256pg2_ne256pg2','num_nodes':64})
+# add_case(**kwargs,gw='c', spf=True, tms=True, rmf=2)
+# add_case(**kwargs,gw='c', spf=True, tms=False,rmf=2)
+# add_case(**kwargs,gw='c', spf=False,tms=True, rmf=2)
+# add_case(**kwargs,gw='c', spf=False,tms=False,rmf=2)
+# add_case(**kwargs,gw='o', spf=True, tms=True, rmf=2)
+# add_case(**kwargs,gw='o', spf=True, tms=False,rmf=2)
+add_case(**kwargs,gw='o', spf=False,tms=True, rmf=2)
+add_case(**kwargs,gw='o', spf=False,tms=False,rmf=2)
+# add_case(**kwargs,gw='oc',spf=True, tms=True, rmf=2)
+# add_case(**kwargs,gw='oc',spf=True, tms=False,rmf=2)
+# add_case(**kwargs,gw='oc',spf=False,tms=True, rmf=2)
+# add_case(**kwargs,gw='oc',spf=False,tms=False,rmf=2)
 
 # add_case(**kwargs,gw='oc',cpt=200,gcc=10,gce=0.35,gch=0.50,gcm=2.5)
 # add_case(**kwargs,gw='oc',cpt=200,gcc= 5,gce=0.35,gch=0.50,gcm=2.5)
@@ -64,8 +81,8 @@ def get_case_name(opts):
       elif key in ['compset']:   continue
       elif key in ['arch']:      continue
       elif key in ['debug']:     continue
-      elif key in ['num_nodes']: continue # case_list.append(f'NN_{val}')
-      elif key in ['num_tasks']: continue # case_list.append(f'NT_{val}')
+      elif key in ['num_nodes']: case_list.append(f'NN_{val}')
+      elif key in ['num_tasks']: case_list.append(f'NT_{val}')
       else:
          if isinstance(val, str):
             case_list.append(f'{key}_{val}')
@@ -136,12 +153,27 @@ def main(opts):
    if set_run_opts :
       run_cmd(f'./xmlchange SCREAM_ATMCHANGE_BUFFER=""') # reset the buffer
       #-------------------------------------------------------------------------
-      # # enable split-form
-      run_cmd(f'./atmchange -b theta_advect_form=2 ')
-      run_cmd(f'./atmchange -b pgrad_correction=0 ')
-      # # disable split-form
-      # run_cmd(f'./atmchange -b theta_advect_form=1 ')
-      # run_cmd(f'./atmchange -b pgrad_correction=1 ')
+      if opts.get('spf') is not None:
+         if opts.get('spf'):
+            # enable split-form
+            run_cmd(f'./atmchange -b theta_advect_form=2 ')
+            run_cmd(f'./atmchange -b pgrad_correction=0 ')
+         else:
+            # disable split-form
+            run_cmd(f'./atmchange -b theta_advect_form=1 ')
+            run_cmd(f'./atmchange -b pgrad_correction=1 ')
+      else:
+         # enable split-form by default
+         run_cmd(f'./atmchange -b theta_advect_form=2 ')
+         run_cmd(f'./atmchange -b pgrad_correction=0 ')
+      #-------------------------------------------------------------------------
+      if opts.get('tms') is not None:
+         if opts.get('tms'):
+            run_cmd('./atmchange physics::mac_aero_mic::atm_procs_list=tms,shoc,cld_fraction,spa,p3')
+         else:
+            run_cmd('./atmchange physics::mac_aero_mic::atm_procs_list=shoc,cld_fraction,spa,p3')
+      #-------------------------------------------------------------------------
+      if opts.get('rmf') is not None: run_cmd(f'./atmchange -b dt_remap_factor={opts.get('rmf')}')
       #-------------------------------------------------------------------------
       if opts.get('gw') is not None:  run_cmd(f'./atmchange -b physics::atm_procs_list=rayleigh_friction,zm,gw,mac_aero_mic,rrtmgp')
       if 'o' in opts.get('gw'):       run_cmd(f'./atmchange -b physics::gw::use_gw_convect=True')
@@ -182,17 +214,18 @@ def main(opts):
       # # disable history output
       # run_cmd(f'./atmchange scorpio::output_yaml_files=""')
       # print();print(f'{clr.RED}WARNING - all output is disabled for debugging!{clr.END}');print()
-      #-------------------------------------------------------------------------
+   #------------------------------------------------------------------------------------------------
+   if submit :
       if 'stop_opt' in globals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
       if 'stop_n'   in globals(): run_cmd(f'./xmlchange STOP_N={stop_n}')
       if 'resub'    in globals(): run_cmd(f'./xmlchange RESUBMIT={resub}')
       if 'queue'    in globals(): run_cmd(f'./xmlchange JOB_QUEUE={queue}')
       if 'walltime' in globals(): run_cmd(f'./xmlchange JOB_WALLCLOCK_TIME={walltime}')
       run_cmd(f'./xmlchange CHARGE_ACCOUNT={acct},PROJECT={acct}')
+      #-------------------------------------------------------------------------
       if     continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=TRUE ')   
       if not continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=FALSE ')
-   #------------------------------------------------------------------------------------------------
-   if submit :
+      #-------------------------------------------------------------------------
       run_cmd('./case.submit')
    #------------------------------------------------------------------------------------------------
    # Print the case name again
