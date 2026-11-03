@@ -70,6 +70,9 @@ def get_scratch_path_list():
   all_path_list.append(f'{home}/E3SM/scratch-llnl1')
   all_path_list.append(f'{home}/E3SM/scratch-llnl2')
   all_path_list.append(f'{home}/E3SM/scratch-strong')
+  # ALCF bundled ensemble
+  for bundle_dir in glob.glob('/lus/flare/projects/E3SM_Dec/whannah/scratch/bundles/*/cases'):
+    all_path_list.append(bundle_dir)
   #-----------------------------------------------------------------------------
   # only retain paths that exist
   scratch_path_list = []
