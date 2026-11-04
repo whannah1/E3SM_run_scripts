@@ -13,7 +13,7 @@ parser.add_option("--all",action="store_true", dest="use_all_logs", default=Fals
 parser.add_option("--nstep",action="store_true", dest="nstep_only", default=False,help="only print nstep values")
 parser.add_option("--partial",action="store_true", dest="allow_partial_match", default=False,help="allow partial matches of input search strings")
 # parser.add_option('-n',dest='num_file',default=5,help='sets number of files to print')
-parser.add_option('-n',dest='num_line',default='10',help='sets number of lines to print')
+parser.add_option('-n',dest='num_line',default='4',help='sets number of lines to print')
 parser.add_option('--alt',dest='alt_search_str',default='E3SM',help='Sets search string (i.e. "E3SM") to use when searching case name')
 (opts, args) = parser.parse_args()
 num_file = 1
