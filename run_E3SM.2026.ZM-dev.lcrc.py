@@ -19,38 +19,45 @@ top_dir  = os.getenv('HOME')+'/E3SM/'
 # clean        = True
 # newcase      = True
 # config       = True
-# build        = True
+build        = True
 submit       = True
-continue_run = True
+# continue_run = True
 
 # debug_mode = False
 
-# queue = 'debug'  # regular / debug
+queue = 'compute'  # regular / debug
 
 # stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:10:00'; queue='debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue='debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,3-1,'1:10:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',365,2-1,'12:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',365,0,'12:00:00'
 #---------------------------------------------------------------------------------------------------
 
 # src_dir=f'{top_dir}/E3SM_SRC2/' # branch => master @ Sep 1
 # add_case(prefix='2026-ZM-DEV-00',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="old")
 
-src_dir=f'{top_dir}/E3SM_SRC0/' # branch => whannah/eamxx/mcsp-momentum-update (rebased @ Sep 1)
+# src_dir=f'{top_dir}/E3SM_SRC0/' # branch => whannah/eamxx/mcsp-momentum-update (rebased @ Sep 1)
 # add_case(prefix='2026-ZM-DEV-00',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="new")
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM',grid='ne4pg2_oQU480',num_nodes=1,mscp="new") # test new momentum timescale
 
 # test new momentum timescale
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.3)
-add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.1)
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.1)
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=-0.01)
-add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.0)
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.0)
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.01)
-add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.1)
+# add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.1)
 # add_case(prefix='2026-ZM-DEV-01',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,mscp="new",mcsp_mom_coeff=0.3)
 
+src_dir=f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/zm-add-frac-turb-mix
+
+# test new momentum timescale
+# add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0)
+# add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0001)
+add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0005)
+add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0010)
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -141,9 +148,11 @@ def main(opts):
       if opts.get('mcsp_mom_coeff') is not None:
          run_cmd(f'./atmchange -b mcsp_mom_coeff={opts.get("mcsp_mom_coeff")}')
       #-------------------------------------------------------------------------
+      if opts.get('ftm') is not None: run_cmd(f'./atmchange -b physics::zm::frac_turb_mix={opts.get("ftm")}')
+      #-------------------------------------------------------------------------
       # Enable process tendencies for output
-      run_cmd(f'./atmchange -b physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv,horiz_winds')
-      run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv,horiz_winds')
+      # run_cmd(f'./atmchange -b physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv,horiz_winds')
+      # run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv,horiz_winds')
       # run_cmd(f'./atmchange -b physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
       # run_cmd(f'./atmchange -b physics::rrtmgp::compute_tendencies=T_mid')
       # run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid,qv')
@@ -189,15 +198,18 @@ fields:
       field_names:
          - ps
          - SeaLevelPressure
+         # ---------------------------------------------------------------------
          # precipitation
          - precip_total_surf_mass_flux
          - precip_liq_surf_mass_flux
          - precip_ice_surf_mass_flux
+         # ---------------------------------------------------------------------
          # water paths
          - VapWaterPath
          - LiqWaterPath
          - IceWaterPath
          - RainWaterPath
+         # ---------------------------------------------------------------------
          # radiation
          - SW_flux_up_at_model_top
          - SW_flux_dn_at_model_top
@@ -211,48 +223,53 @@ fields:
          - SW_clrsky_flux_dn_at_model_top
          - ShortwaveCloudForcing
          - LongwaveCloudForcing
+         # ---------------------------------------------------------------------
          # 3D variables
          - T_mid
          - z_mid
          - U
          - V
          - omega
-         - pseudo_density
-         - RelativeHumidity
-         - qv
-         - qc
-         - qr
-         - qi
-         - qm
-         - nc
-         - ni
-         - nr
+         # - pseudo_density
+         # - RelativeHumidity
+         # - qv
+         # - qc
+         # - qr
+         # - qi
+         # - qm
+         # - nc
+         # - ni
+         # - nr
+         # ---------------------------------------------------------------------
          # misc 2D fields
          - T_2m
-         # - surf_radiative_T
+         - surf_radiative_T
          - wind_speed_10m
-         # - U_at_850hPa
-         # - U_at_200hPa
          - surf_sens_flux
          - surf_evap
          - surf_mom_flux
          - cldfrac_liq
          - cldfrac_ice_for_analysis
          - cldfrac_tot_for_analysis
-         # # process stendencies
+         # ---------------------------------------------------------------------
+         # process stendencies
          # - p3_T_mid_tend
          # - p3_qv_tend
-         - shoc_T_mid_tend
-         - shoc_qv_tend
-         - shoc_horiz_winds_tend
+         # - shoc_T_mid_tend
+         # - shoc_qv_tend
+         # - shoc_horiz_winds_tend
          # - homme_T_mid_tend
          # - homme_qv_tend
          # - rrtmgp_T_mid_tend
-         - zm_T_mid_tend
-         - zm_qv_tend
-         - zm_horiz_winds_tend
-         # - zm_detr_qc
-         # - zm_detr_qi
+         # - zm_T_mid_tend
+         # - zm_qv_tend
+         # - zm_horiz_winds_tend
+         # - gw_horiz_winds_tend
+         # - gw_oro_tend_u
+         # - gw_conv_tend_u
+         - zm_detr_qc
+         - zm_detr_qi
+         # ---------------------------------------------------------------------
          # ZM diagnostic fields
          - zm_prec
          - zm_activity
@@ -264,8 +281,8 @@ fields:
          - mcsp_du_out
          - mcsp_freq
          - mcsp_shear
-         # - evap_ds_out
-         # - evap_dq_out
+         - evap_ds_out
+         - evap_dq_out
 output_control:
    frequency: 1
    frequency_units: nmonths
