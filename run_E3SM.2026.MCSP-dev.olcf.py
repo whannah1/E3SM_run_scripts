@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os, datetime, subprocess as sp
+from shutil import copy2
 #---------------------------------------------------------------------------------------------------
 class clr:END,RED,GREEN,MAGENTA,CYAN = '\033[0m','\033[31m','\033[32m','\033[35m','\033[36m'
 def run_cmd(cmd): print('\n'+clr.GREEN+cmd+clr.END) ; os.system(cmd); return
@@ -11,18 +13,18 @@ def add_case( **kwargs ):
 #---------------------------------------------------------------------------------------------------
 ''' Notes '''
 #---------------------------------------------------------------------------------------------------
-import os, datetime, subprocess as sp
-from shutil import copy2
-newcase,config,build,clean,submit,continue_run = False,False,False,False,False,False
+newcase,config,build,clean,set_run_opts,submit,continue_run = False,False,False,False,False,False,False
 
 acct = 'cli115'
 top_dir  = os.getenv('HOME')+'/E3SM/'
-src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jun 29 2026
+# src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => master @ Jun 29 2026
+src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => whannah/eamxx/mcsp-shear-scaling (based on whannah/eamxx/mcsp-momentum-update)
 
 # clean        = True
-newcase      = True
-config       = True
-build        = True
+# newcase      = True
+# config       = True
+# build        = True
+set_run_opts = True
 submit       = True
 # continue_run = True
 
@@ -32,9 +34,9 @@ submit       = True
 
 # stop_opt,stop_n,resub,walltime = 'nsteps',6,0,'0:30:00' #; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00' #; queue = 'debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',32,3-1,'1:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,9-1,'1:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',32,12-1,'1:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',32,12-1,'1:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',73,5-1,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',365,0,'5:00:00'
 #---------------------------------------------------------------------------------------------------
@@ -45,10 +47,10 @@ stop_opt,stop_n,resub,walltime = 'ndays',32,12-1,'1:00:00'
 # add_case(prefix='2026-MCSP-DEV-00', compset='F2010xx-ZM', grid='ne4pg2_oQU480', num_nodes=1, zm='cxx', muc=0.3)
 
 
-kwargs_ne30 = {}
-kwargs_ne30['compset']     = 'F2010xx-ZM'
-kwargs_ne30['grid']        = 'ne30pg2_r05_IcoswISC30E3r5'
-kwargs_ne30['num_nodes']   = 8
+# kwargs_ne30 = {}
+# kwargs_ne30['compset']     = 'F2010xx-ZM-CICE'
+# kwargs_ne30['grid']        = 'ne30pg2_r05_IcoswISC30E3r5'
+# kwargs_ne30['num_nodes']   = 8
 
 # add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='f90', ufs=False, muc=0.0 ) # f90 control
 # add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='f90', ufs=True,  muc=0.0 ) # f90
@@ -56,12 +58,35 @@ kwargs_ne30['num_nodes']   = 8
 # add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=False, muc=0.0 ) # cxx control
 # add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=True,  muc=0.0 ) # cxx
 # add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=True,  muc=0.3 ) # cxx
-add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=True,  muc=-0.3 ) # cxx - downgradient
+# add_case(prefix='2026-MCSP-DEV-00', **kwargs_ne30, zm='cxx', ufs=True,  muc=-0.3 ) # cxx - downgradient
 
 # full multi-year tests
 # add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=12, zm='f90')
 # add_case(prefix='2026-ZM-DEV-00', compset='F2010xx-ZM', grid='ne30pg2_r05_IcoswISC30E3r5', num_nodes=12, zm='cxx')
 
+kwargs_ne30   = ({'compset':'F2010xx-ZM-CICE','num_nodes':4,'grid':'ne30pg2_ne30pg2'})
+
+# 2026 shear scaling tests (started Oct 29)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=False, mtc=0.3)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=False, mtc=0.6)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=True,  son=20, sox=60, mtc=0.3)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=True,  son=20, sox=60, mtc=0.6)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, use=True,  evn=2.0e-6, evx=4.0e-6)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, use=True,  evn=0.1e-6, evx=6.0e-6)
+
+#---------------------------------------------------------------------------------------------------
+'''
+usm - use_shear_scaling_mcsp    default: false
+use - use_shear_scaling_evap    default: false
+shn - mcsp_shear_min            default: 3
+son - mcsp_shear_optimal_min    default: 0
+sox - mcsp_shear_optimal_max    default: 0
+shx - mcsp_shear_max            default: 200
+evn - evap_efficiency_min       default: 2.5e-6
+evx - evap_efficiency_max       default: 2.5e-6
+esn - evap_shear_min            default: 5
+esx - evap_shear_max            default: 20
+'''
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
    grid_name = opts['grid']
@@ -115,7 +140,6 @@ def main(opts):
    #----------------------------------------------------------------------------
    debug_mode = opts['debug'] if opts.get('debug') else False
    # arch       = opts['arch']  if opts.get('arch')  else 'CPU'
-   # enable_zm  = True
    #----------------------------------------------------------------------------
    # return
    #----------------------------------------------------------------------------
@@ -174,10 +198,7 @@ def main(opts):
       # run_cmd(f'./atmchange -b physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
       # run_cmd(f'./atmchange -b physics::rrtmgp::compute_tendencies=T_mid')
       # run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid,qv')
-      # if enable_zm:
-      #    run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv')
-      if opts.get('ts_output'):
-         run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv,horiz_winds')
+      run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv')
       #-------------------------------------------------------------------------
       for key in ('dcape', 'ull'):
          if key in opts:
@@ -191,13 +212,13 @@ def main(opts):
       run_cmd('./case.build')
       # run_cmd('./case.build --clean ice  && ./case.build')
    #------------------------------------------------------------------------------------------------
-   if submit :
+   if set_run_opts :
       #-------------------------------------------------------------------------
       if opts.get('zm') is not None:
-         if opts.get('zm')=='f90': run_cmd(f'./atmchange -b zm::use_fortran_bridge=true')
-         if opts.get('zm')=='cxx': run_cmd(f'./atmchange -b zm::use_fortran_bridge=false')
-         if opts.get('zm_detr')==0:run_cmd(f'./atmchange -b zm::apply_detr_tend=false')
-         if opts.get('zm_detr')==1:run_cmd(f'./atmchange -b zm::apply_detr_tend=true')
+         # if opts.get('zm')=='f90': run_cmd(f'./atmchange -b zm::use_fortran_bridge=true')
+         # if opts.get('zm')=='cxx': run_cmd(f'./atmchange -b zm::use_fortran_bridge=false')
+         # if opts.get('zm_detr')==0:run_cmd(f'./atmchange -b zm::apply_detr_tend=false')
+         # if opts.get('zm_detr')==1:run_cmd(f'./atmchange -b zm::apply_detr_tend=true')
          # run_cmd(f'./atmchange physics::atm_procs_list=gw,mac_aero_mic,rrtmgp')
          # # run_cmd(f'./atmchange mac_aero_mic::atm_procs_list+=gw')
          # # run_cmd(f'./atmchange -b use_gw_convect=True')
@@ -213,6 +234,16 @@ def main(opts):
             if     opts['ufs']: run_cmd(f'./atmchange -b zm::mcsp_use_full_shear=true')
             if not opts['ufs']: run_cmd(f'./atmchange -b zm::mcsp_use_full_shear=false')
 
+         if 'usm' in opts: run_cmd(f'./atmchange -b zm::use_shear_scaling_mcsp={opts['usm']}')  # default: false
+         if 'use' in opts: run_cmd(f'./atmchange -b zm::use_shear_scaling_evap={opts['use']}')  # default: false
+         if 'shn' in opts: run_cmd(f'./atmchange -b zm::mcsp_shear_min={opts['shn']}')          # default: 3
+         if 'son' in opts: run_cmd(f'./atmchange -b zm::mcsp_shear_optimal_min={opts['son']}')  # default: 0
+         if 'sox' in opts: run_cmd(f'./atmchange -b zm::mcsp_shear_optimal_max={opts['sox']}')  # default: 0
+         if 'shx' in opts: run_cmd(f'./atmchange -b zm::mcsp_shear_max={opts['shx']}')          # default: 200
+         if 'evn' in opts: run_cmd(f'./atmchange -b zm::evap_efficiency_min={opts['evn']}')     # default: 2.5e-6
+         if 'evx' in opts: run_cmd(f'./atmchange -b zm::evap_efficiency_max={opts['evx']}')     # default: 2.5e-6
+         if 'esn' in opts: run_cmd(f'./atmchange -b zm::evap_shear_min={opts['esn']}')          # default: 5
+         if 'esx' in opts: run_cmd(f'./atmchange -b zm::evap_shear_max={opts['esx']}')          # default: 20
 
          # # test if DCAPE is causing divergence on second time step
          # if 'ne4pg2_' in opts['grid']:
@@ -225,35 +256,22 @@ def main(opts):
             # run_cmd(f'./atmchange -b zm::apply_detr_tend=true')
       #-------------------------------------------------------------------------
       # if 'SCREAM' in opts['compset']:
-      if True:
-         hist_file_list = []
-         def add_hist_file(hist_file,txt):
-            file=open(hist_file,'w'); file.write(txt); file.close()
-            hist_file_list.append(hist_file)
-         #----------------------------------------------------------------------
-         # if 'ne4pg2_'   in opts['grid']:
-         #    add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_inst)
-         if opts.get('ts_output'):
-            add_hist_file('scream_output_2D_1step_inst.yaml',hist_opts_2D_inst)
-            # add_hist_file('scream_output_monthly_mean.yaml',hist_opts_monthly_mean)
-         else:
-            # add_hist_file('scream_output_3D_1step_inst.yaml',hist_opts_3D_inst)
-            add_hist_file('scream_output_daily_mean.yaml',hist_opts_daily_mean)
-            add_hist_file('scream_output_monthly_mean.yaml',hist_opts_monthly_mean)
-         
-         hist_file_list_str = ','.join(hist_file_list)
-         run_cmd(f'./atmchange scorpio::output_yaml_files="{hist_file_list_str}"')
-         #----------------------------------------------------------------------
-         # print(f'\n{clr.RED}WARNING - all output is disabled for debugging!{clr.END}')
-         #----------------------------------------------------------------------
-      # else:
-      #    # EAM namelist options
-      #    nfile = 'user_nl_eam'
-      #    file = open(nfile,'w') 
-      #    file.write(eam_opts)
-      #    file.close()
+      hist_file_list = []
+      def add_hist_file(hist_file,txt):
+         file=open(hist_file,'w'); file.write(txt); file.close()
+         hist_file_list.append(hist_file)
       #-------------------------------------------------------------------------
-      # Set some run-time stuff
+      add_hist_file('output_1ma.yaml', get_hist_opts_1ma(opts) )
+      # add_hist_file('output_1da.yaml', get_hist_opts_1da(opts) )
+      # add_hist_file('output_1si.yaml', get_hist_opts_1si(opts) )
+      hist_file_list_str = ','.join(hist_file_list)
+      run_cmd(f'./atmchange -b scorpio::output_yaml_files="{hist_file_list_str}"')
+      #-------------------------------------------------------------------------
+      # # disable history output
+      # run_cmd(f'./atmchange scorpio::output_yaml_files=""')
+      # print();print(f'{clr.RED}WARNING - all output is disabled for debugging!{clr.END}');print()
+   #------------------------------------------------------------------------------------------------
+   if submit :
       # run_cmd(f'./xmlchange ATM_NCPL={int(86400/dtime)}')
       if 'stop_opt' in globals(): run_cmd(f'./xmlchange STOP_OPTION={stop_opt}')
       if 'stop_n'   in globals(): run_cmd(f'./xmlchange STOP_N={stop_n}')
@@ -263,9 +281,6 @@ def main(opts):
       run_cmd(f'./xmlchange CHARGE_ACCOUNT={acct},PROJECT={acct}')
       if     continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=TRUE ')   
       if not continue_run: run_cmd('./xmlchange --file env_run.xml CONTINUE_RUN=FALSE ')
-      #-------------------------------------------------------------------------
-      # if opts.get('ts_output'):
-      #    run_cmd(f'./xmlchange --append run_exe_env=HIP_LAUNCH_BLOCKING=1')
       #-------------------------------------------------------------------------
       # Submit the run
       run_cmd('./case.submit')
@@ -281,151 +296,134 @@ eam_opts = f'''
  fincl1 = 'PRECT','Z3','CLOUD','CLDLIQ','CLDICE'
 '''
 #---------------------------------------------------------------------------------------------------
-field_txt_2D = '\n'
-field_txt_2D+='      - ps\n'
-field_txt_2D+='      - SeaLevelPressure\n'
-field_txt_2D+='      - precip_total_surf_mass_flux\n'
-field_txt_2D+='      - VapWaterPath\n'
-field_txt_2D+='      - LiqWaterPath\n'
-field_txt_2D+='      - IceWaterPath\n'
-field_txt_2D+='      - RainWaterPath\n'
-field_txt_2D+='      - T_2m\n'
-field_txt_2D+='      - wind_speed_10m\n'
-field_txt_2D+='      - SW_flux_up_at_model_top\n'
-field_txt_2D+='      - SW_flux_dn_at_model_top\n'
-field_txt_2D+='      - LW_flux_up_at_model_top\n'
-# field_txt_2D+='      - U_at_model_bot\n'
-# field_txt_2D+='      - V_at_model_bot\n'
-field_txt_2D+='      - zm_prec\n'
-# field_txt_2D+='      - zm_cape\n'
-# field_txt_2D+='      - zm_dcape\n'
-field_txt_2D+='      - zm_activity\n'
-field_txt_2D+='      - U_at_850hPa\n'
-# field_txt_2D+='      - U_at_200hPa\n'
-# field_txt_2D+='      - omega_at_500hPa\n'
-
-field_txt_3D = field_txt_2D
-field_txt_3D+='      - T_mid\n'
-field_txt_3D+='      - z_mid\n'
-field_txt_3D+='      - omega\n'
-field_txt_3D+='      - qv\n'
-field_txt_3D+='      - qc\n'
-field_txt_3D+='      - qr\n'
-field_txt_3D+='      - qi\n'
-field_txt_3D+='      - RelativeHumidity\n'
-# field_txt_3D+='      - p3_T_mid_tend\n'
-# field_txt_3D+='      - shoc_T_mid_tend\n'
-# field_txt_3D+='      - rrtmgp_T_mid_tend\n'
-# field_txt_3D+='      - homme_T_mid_tend\n'
-# field_txt_3D+='      - p3_qv_tend\n'
-# field_txt_3D+='      - shoc_qv_tend\n'
-# field_txt_3D+='      - homme_qv_tend\n' 
-# field_txt_3D+='      - zm_T_mid_tend\n'
-# field_txt_3D+='      - zm_qv_tend\n'
-
-field_txt_ma = field_txt_3D
-field_txt_ma+='      - SW_clrsky_flux_up_at_model_top\n'
-field_txt_ma+='      - SW_clrsky_flux_dn_at_model_top\n'
-field_txt_ma+='      - LW_clrsky_flux_up_at_model_top\n'
-field_txt_ma+='      - surf_sens_flux\n'
-field_txt_ma+='      - surf_evap\n'
-field_txt_ma+='      - surf_mom_flux\n'
-field_txt_ma+='      - cldfrac_liq\n'
-field_txt_ma+='      - cldfrac_ice_for_analysis\n'
-field_txt_ma+='      - cldfrac_tot_for_analysis\n'
-field_txt_ma+='      - U\n'
-field_txt_ma+='      - V\n'
-field_txt_ma+='      - zm_detr_qc\n'
-field_txt_ma+='      - zm_detr_qi\n'
-
-
-# print(); print(field_txt_2D)
-# print(); print(field_txt_3D)
-# print(); print(field_txt_ma)
-# exit()
-
-# hist_opts_3D_inst = f'''
-# %YAML 1.1
-# ---
-# filename_prefix: output.3D
-# averaging_type: instant
-# max_snapshots_per_file: 48
-# fields:
-#    physics_pg2:
-#       field_names:{field_txt_3D}
-# output_control:
-#    frequency: 1
-#    frequency_units: nsteps
-# '''
-
-hist_opts_daily_mean = f'''
-%YAML 1.1
----
-filename_prefix: output.daily
+# daily mean output - native grid
+def get_hist_opts_1da(opts):
+   return f'''
+filename_prefix: output.1da
 averaging_type: average
 max_snapshots_per_file: 5
 fields:
    physics_pg2:
-      field_names:{field_txt_2D}
-output_control:
-   frequency: 24
-   frequency_units: nhours
-'''
-
-hist_opts_2D_inst = f'''
-%YAML 1.1
----
-filename_prefix: output.debug
-averaging_type: instant
-max_snapshots_per_file: 6
-fields:
-   physics_pg2:
-      field_names:{field_txt_2D}
-      - zm_T_mid_tend
-      - zm_qv_tend
-      - zm_horiz_winds_tend
-      - zm_detr_qc
-      - zm_detr_qi
-      - mcsp_ds_out
-      - mcsp_freq
-      - mcsp_shear
-      - zm_depth
-      - evap_ds_out
-      - evap_dq_out
+      field_names:
+         # precipitation
+         - precip_total_surf_mass_flux
+         - precip_liq_surf_mass_flux
+         - precip_ice_surf_mass_flux
+         - zm_prec
+         # water paths
+         - VapWaterPath
+         - LiqWaterPath
+         - IceWaterPath
+         - RainWaterPath
+         - LW_flux_up_at_model_top
+         - T_2m
+         - U_at_850hPa
+         - U_at_200hPa
+         - U_at_50hPa
+         - U_at_20hPa
+         - U_at_10hPa
+         - U_at_model_top
+         - T_mid_at_10hPa
 output_control:
    frequency: 1
-   frequency_units: nsteps
+   frequency_units: ndays
 '''
-
-# horiz_remap_file = f'{horiz_remap_root}/map_dpxx_x{domain_len}m_y{domain_len}m_nex{ne}_ney{ne}_to_1x1.nc'
-# hist_opts_1D_1hr_mean = f'''
-# %YAML 1.1
-# ---
-# filename_prefix: output.1D.1hr
-# averaging_type: average
-# max_snapshots_per_file: 24
-# horiz_remap_file: {horiz_remap_file}
-# fields:
-#    physics_pg2:
-#       field_names:{get_field_txt_1D(opts)}
-# output_control:
-#    frequency: 1
-#    frequency_units: nhours
-# restart:
-#    force_new_file: true
-# '''
-
-
-# monthly mean output
-hist_opts_monthly_mean = f'''
-%YAML 1.1
----
-filename_prefix: output.monthly
+# monthly mean output - native grid
+def get_hist_opts_1ma(opts):
+   return f'''
+filename_prefix: output.1ma
 averaging_type: average
 max_snapshots_per_file: 1
 fields:
    physics_pg2:
-      field_names:{field_txt_ma}
+      field_names:
+         - ps
+         - SeaLevelPressure
+         # ---------------------------------------------------------------------
+         # precipitation
+         - precip_total_surf_mass_flux
+         - precip_liq_surf_mass_flux
+         - precip_ice_surf_mass_flux
+         # ---------------------------------------------------------------------
+         # water paths
+         - VapWaterPath
+         - LiqWaterPath
+         - IceWaterPath
+         - RainWaterPath
+         # ---------------------------------------------------------------------
+         # radiation
+         - SW_flux_up_at_model_top
+         - SW_flux_dn_at_model_top
+         - LW_flux_up_at_model_top
+         - SW_flux_up_at_model_bot
+         - SW_flux_dn_at_model_bot
+         - LW_flux_up_at_model_bot
+         - LW_flux_dn_at_model_bot
+         - LW_clrsky_flux_up_at_model_top
+         - SW_clrsky_flux_up_at_model_top
+         - SW_clrsky_flux_dn_at_model_top
+         - ShortwaveCloudForcing
+         - LongwaveCloudForcing
+         # ---------------------------------------------------------------------
+         # 3D variables
+         - T_mid
+         - z_mid
+         - U
+         - V
+         - omega
+         # - pseudo_density
+         # - RelativeHumidity
+         # - qv
+         # - qc
+         # - qr
+         # - qi
+         # - qm
+         # - nc
+         # - ni
+         # - nr
+         # ---------------------------------------------------------------------
+         # misc 2D fields
+         - T_2m
+         - surf_radiative_T
+         - wind_speed_10m
+         - surf_sens_flux
+         - surf_evap
+         - surf_mom_flux
+         - cldfrac_liq
+         - cldfrac_ice_for_analysis
+         - cldfrac_tot_for_analysis
+         # ---------------------------------------------------------------------
+         # process stendencies
+         # - p3_T_mid_tend
+         # - p3_qv_tend
+         # - shoc_T_mid_tend
+         # - shoc_qv_tend
+         # - shoc_horiz_winds_tend
+         # - homme_T_mid_tend
+         # - homme_qv_tend
+         # - rrtmgp_T_mid_tend
+         - zm_T_mid_tend
+         - zm_qv_tend
+         # - zm_horiz_winds_tend
+         # - gw_horiz_winds_tend
+         # - gw_oro_tend_u
+         # - gw_conv_tend_u
+         - zm_detr_qc
+         - zm_detr_qi
+         # ---------------------------------------------------------------------
+         # ZM diagnostic fields
+         - zm_prec
+         - zm_activity
+         - zm_cape
+         # - zm_dcape
+         - zm_depth
+         - mcsp_ds_out
+         - mcsp_dq_out
+         - mcsp_du_out
+         - mcsp_freq
+         - mcsp_shear
+         - evap_ds_out
+         - evap_dq_out
 output_control:
    frequency: 1
    frequency_units: nmonths

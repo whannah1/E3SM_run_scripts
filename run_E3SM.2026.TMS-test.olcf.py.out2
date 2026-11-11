@@ -1,0 +1,1239 @@
+E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4
+ clean        : False
+ newcase      : True
+ config       : True
+ build        : True
+ submit       : True
+ continue_run : False
+
+[32m/ccs/home/hannah6/E3SM/E3SM_SRC0/cime/scripts/create_newcase --case E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4 --project cli115 --output-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4 --script-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts --compset F2010xx-ZM-CICE --res ne30pg2_ne30pg2 --handle-preexisting-dirs u --pecount 32x1 --machine=frontier --compiler=craygnu-mphipcc [0m
+Compset longname is 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP
+Compset specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/config_compsets.xml
+Compset forcing is 
+ATM component is scream default
+LND component is ELM with :Satellite phenology :Satellite phenology with black carbon deposition :
+ICE component is prescribed cice:
+OCN component is DOCN   prescribed ocean mode
+ROF component is Stub river component
+GLC component is Stub glacier (land ice) component
+WAV component is Stub wave component
+IAC component is Stub iac component
+ESP component is Stub external system processing (ESP) component
+Pes     specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx/cime_config/config_pes.xml
+Machine is frontier
+setting additional fields from config_pes: {}, append {}
+ Compset is: 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP 
+ Grid is: a%ne30np4.pg2_l%ne30np4.pg2_oi%ne30np4.pg2_r%null_g%null_w%null_z%null_m%gx1v6 
+ Components in compset are: ['scream', 'elm', 'cice', 'docn', 'srof', 'sglc', 'swav', 'siac', 'sesp'] 
+Using charge_account from .cime/config: ATM146
+e3sm model version found: da353a0ff47
+Batch_system_type is frontier_slurm
+job is case.build USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.post_run_io USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.st_archive USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+ Creating Case directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts
+
+[32m./xmlchange EXEROOT=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld [0m
+
+[32m./xmlchange RUNDIR=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/run [0m
+
+[32m./xmlchange EAMXX_VGRID=L128v4[0m
+
+[32m./case.setup --reset[0m
+Successfully cleaned env_mach_specific.xml
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Creating batch scripts
+Writing case.build script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.build
+Creating file .case.build
+Writing case.run script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.run
+Creating file .case.run
+Writing case.post_run_io script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.post_run_io
+Creating file .case.post_run_io
+Writing case.st_archive script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.st_archive
+Creating file case.st_archive
+Creating file .case.run.sh
+Creating user_nl_xxx files for components and cpl
+If an old case build already exists, might want to run 'case.build --clean' before building
+Generating component namelists as part of setup
+  2026-10-26 14:46:07 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 14:46:08 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 14:46:08 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 14:46:08 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 14:46:09 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 14:46:09 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 14:46:09 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 14:46:09 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 14:46:09 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 14:46:09 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+You can now run './preview_run' to get more info on how your case will be run
+
+[32m./case.build --clean ice[0m
+Cleaning ice
+calling echo removing  /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/ice
+
+[32m./case.build[0m
+Building case in directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts
+sharedlib_only is False
+model_only is False
+Generating component namelists as part of build
+  2026-10-26 14:47:22 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 14:47:24 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 14:47:24 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 14:47:24 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 14:47:24 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 14:47:24 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 14:47:24 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 14:47:24 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 14:47:24 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 14:47:24 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+libs from case_support_libraries []
+The model is using a deprecated method of determining support libraries, please migrate to 'CASE_SUPPORT_LIBRARIES' variable.
+Building gptl with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/gptl.bldlog.261026-144648
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.gptl
+Component gptl build complete with 2 warnings
+Building mct with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/mct.bldlog.261026-144648
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.mct
+Component mct build complete with 48 warnings
+Building spio with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/spio.bldlog.261026-144648
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.spio
+Building csm_share with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/csm_share.bldlog.261026-144648
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.csm_share
+Building ekat with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/ekat.bldlog.261026-144648
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.ekat
+building scream
+scream cmake options: ' -DSCREAM_NP=4 -DSCREAM_NUM_TRACERS=10 -DSCREAM_NUM_VERTICAL_LEV=128 -DSCREAM_DYN_TARGET=theta-l_kokkos -DSCREAM_CIME_BUILD=ON'
+Configuring full e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/e3sm.bldlog.261026-144648
+   Calling cmake directly, see top of log file for specific call
+Building e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/bld/e3sm.bldlog.261026-144648
+   Calling make, see top of log file for specific call
+Total build time: 1400.584424 seconds
+MODEL BUILD HAS FINISHED SUCCESSFULLY
+
+[32m./xmlchange SCREAM_ATMCHANGE_BUFFER=""[0m
+
+[32m./atmchange -b theta_advect_form=2[0m
+
+[32m./atmchange -b pgrad_correction=0[0m
+
+[32m./atmchange -b dt_remap_factor=1[0m
+
+[32m./atmchange -b physics::mac_aero_mic::atm_procs_list=tms,shoc,cld_fraction,spa,p3[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::wspd_squared_min=4.0[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::drag_scaling_factor=0.5[0m
+
+[32m./atmchange -b scorpio::output_yaml_files="output_1ma.yaml"[0m
+
+[32m./xmlchange STOP_OPTION=ndays[0m
+
+[32m./xmlchange STOP_N=183[0m
+
+[32m./xmlchange RESUBMIT=9[0m
+
+[32m./xmlchange JOB_WALLCLOCK_TIME=2:00:00[0m
+
+[32m./xmlchange CHARGE_ACCOUNT=cli115,PROJECT=cli115[0m
+
+[32m./xmlchange --file env_run.xml CONTINUE_RUN=FALSE [0m
+setting case file to env_run.xml
+
+[32m./case.submit[0m
+  2026-10-26 15:11:44 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:11:45 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:11:45 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:11:45 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:11:45 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:11:45 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:11:45 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:11:45 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:11:45 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:11:45 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+Checking that inputdata is available as part of case submission
+Loading input file list: 'Buildconf/cice.input_data_list'
+Loading input file list: 'Buildconf/scream.input_data_list'
+Loading input file list: 'Buildconf/elm.input_data_list'
+Model elm no file specified for finidat
+Loading input file list: 'Buildconf/cpl.input_data_list'
+Loading input file list: 'Buildconf/docn.input_data_list'
+Check case OK
+submit_jobs case.build
+Submit job case.run
+Submitting job script sbatch --time 2:00:00 -p batch --account cli115 --mail-user hannah6@llnl.gov --mail-type end,fail /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4/case_scripts/.case.run --resubmit
+Submitted job id is 5768837
+Submitted job case.run with id 5768837
+
+  case : E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.dsf_0.5.wsn_4
+
+E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10
+ clean        : False
+ newcase      : True
+ config       : True
+ build        : True
+ submit       : True
+ continue_run : False
+
+[32m/ccs/home/hannah6/E3SM/E3SM_SRC0/cime/scripts/create_newcase --case E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10 --project cli115 --output-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10 --script-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts --compset F2010xx-ZM-CICE --res ne30pg2_ne30pg2 --handle-preexisting-dirs u --pecount 32x1 --machine=frontier --compiler=craygnu-mphipcc [0m
+Compset longname is 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP
+Compset specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/config_compsets.xml
+Compset forcing is 
+ATM component is scream default
+LND component is ELM with :Satellite phenology :Satellite phenology with black carbon deposition :
+ICE component is prescribed cice:
+OCN component is DOCN   prescribed ocean mode
+ROF component is Stub river component
+GLC component is Stub glacier (land ice) component
+WAV component is Stub wave component
+IAC component is Stub iac component
+ESP component is Stub external system processing (ESP) component
+Pes     specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx/cime_config/config_pes.xml
+Machine is frontier
+setting additional fields from config_pes: {}, append {}
+ Compset is: 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP 
+ Grid is: a%ne30np4.pg2_l%ne30np4.pg2_oi%ne30np4.pg2_r%null_g%null_w%null_z%null_m%gx1v6 
+ Components in compset are: ['scream', 'elm', 'cice', 'docn', 'srof', 'sglc', 'swav', 'siac', 'sesp'] 
+Using charge_account from .cime/config: ATM146
+e3sm model version found: da353a0ff47
+Batch_system_type is frontier_slurm
+job is case.build USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.post_run_io USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.st_archive USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+ Creating Case directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts
+
+[32m./xmlchange EXEROOT=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld [0m
+
+[32m./xmlchange RUNDIR=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/run [0m
+
+[32m./xmlchange EAMXX_VGRID=L128v4[0m
+
+[32m./case.setup --reset[0m
+Successfully cleaned env_mach_specific.xml
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Creating batch scripts
+Writing case.build script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.build
+Creating file .case.build
+Writing case.run script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.run
+Creating file .case.run
+Writing case.post_run_io script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.post_run_io
+Creating file .case.post_run_io
+Writing case.st_archive script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.st_archive
+Creating file case.st_archive
+Creating file .case.run.sh
+Creating user_nl_xxx files for components and cpl
+If an old case build already exists, might want to run 'case.build --clean' before building
+Generating component namelists as part of setup
+  2026-10-26 15:12:40 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:12:40 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:12:41 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:12:41 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:12:41 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:12:41 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:12:41 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:12:41 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:12:41 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:12:41 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+You can now run './preview_run' to get more info on how your case will be run
+
+[32m./case.build --clean ice[0m
+Cleaning ice
+calling echo removing  /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/ice
+
+[32m./case.build[0m
+Building case in directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts
+sharedlib_only is False
+model_only is False
+Generating component namelists as part of build
+  2026-10-26 15:13:21 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:13:22 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:13:22 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:13:22 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:13:23 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:13:23 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:13:23 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:13:23 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:13:23 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:13:23 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+libs from case_support_libraries []
+The model is using a deprecated method of determining support libraries, please migrate to 'CASE_SUPPORT_LIBRARIES' variable.
+Building gptl with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/gptl.bldlog.261026-151306
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.gptl
+Component gptl build complete with 2 warnings
+Building mct with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/mct.bldlog.261026-151306
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.mct
+Component mct build complete with 48 warnings
+Building spio with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/spio.bldlog.261026-151306
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.spio
+Building csm_share with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/csm_share.bldlog.261026-151306
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.csm_share
+Building ekat with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/ekat.bldlog.261026-151306
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.ekat
+building scream
+scream cmake options: ' -DSCREAM_NP=4 -DSCREAM_NUM_TRACERS=10 -DSCREAM_NUM_VERTICAL_LEV=128 -DSCREAM_DYN_TARGET=theta-l_kokkos -DSCREAM_CIME_BUILD=ON'
+Configuring full e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/e3sm.bldlog.261026-151306
+   Calling cmake directly, see top of log file for specific call
+Building e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/bld/e3sm.bldlog.261026-151306
+   Calling make, see top of log file for specific call
+Total build time: 1392.115277 seconds
+MODEL BUILD HAS FINISHED SUCCESSFULLY
+
+[32m./xmlchange SCREAM_ATMCHANGE_BUFFER=""[0m
+
+[32m./atmchange -b theta_advect_form=2[0m
+
+[32m./atmchange -b pgrad_correction=0[0m
+
+[32m./atmchange -b dt_remap_factor=1[0m
+
+[32m./atmchange -b physics::mac_aero_mic::atm_procs_list=tms,shoc,cld_fraction,spa,p3[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::wspd_squared_min=10.0[0m
+
+[32m./atmchange -b scorpio::output_yaml_files="output_1ma.yaml"[0m
+
+[32m./xmlchange STOP_OPTION=ndays[0m
+
+[32m./xmlchange STOP_N=183[0m
+
+[32m./xmlchange RESUBMIT=9[0m
+
+[32m./xmlchange JOB_WALLCLOCK_TIME=2:00:00[0m
+
+[32m./xmlchange CHARGE_ACCOUNT=cli115,PROJECT=cli115[0m
+
+[32m./xmlchange --file env_run.xml CONTINUE_RUN=FALSE [0m
+setting case file to env_run.xml
+
+[32m./case.submit[0m
+  2026-10-26 15:36:40 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:36:40 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:36:41 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:36:41 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:36:41 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:36:41 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:36:41 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:36:41 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:36:41 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:36:41 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+Checking that inputdata is available as part of case submission
+Loading input file list: 'Buildconf/docn.input_data_list'
+Loading input file list: 'Buildconf/scream.input_data_list'
+Loading input file list: 'Buildconf/elm.input_data_list'
+Model elm no file specified for finidat
+Loading input file list: 'Buildconf/cpl.input_data_list'
+Loading input file list: 'Buildconf/cice.input_data_list'
+Check case OK
+submit_jobs case.build
+Submit job case.run
+Submitting job script sbatch --time 2:00:00 -p batch --account cli115 --mail-user hannah6@llnl.gov --mail-type end,fail /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10/case_scripts/.case.run --resubmit
+Submitted job id is 5768994
+Submitted job case.run with id 5768994
+
+  case : E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.wsn_10
+
+E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1
+ clean        : False
+ newcase      : True
+ config       : True
+ build        : True
+ submit       : True
+ continue_run : False
+
+[32m/ccs/home/hannah6/E3SM/E3SM_SRC0/cime/scripts/create_newcase --case E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1 --project cli115 --output-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1 --script-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts --compset F2010xx-ZM-CICE --res ne30pg2_ne30pg2 --handle-preexisting-dirs u --pecount 32x1 --machine=frontier --compiler=craygnu-mphipcc [0m
+Compset longname is 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP
+Compset specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/config_compsets.xml
+Compset forcing is 
+ATM component is scream default
+LND component is ELM with :Satellite phenology :Satellite phenology with black carbon deposition :
+ICE component is prescribed cice:
+OCN component is DOCN   prescribed ocean mode
+ROF component is Stub river component
+GLC component is Stub glacier (land ice) component
+WAV component is Stub wave component
+IAC component is Stub iac component
+ESP component is Stub external system processing (ESP) component
+Pes     specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx/cime_config/config_pes.xml
+Machine is frontier
+setting additional fields from config_pes: {}, append {}
+ Compset is: 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP 
+ Grid is: a%ne30np4.pg2_l%ne30np4.pg2_oi%ne30np4.pg2_r%null_g%null_w%null_z%null_m%gx1v6 
+ Components in compset are: ['scream', 'elm', 'cice', 'docn', 'srof', 'sglc', 'swav', 'siac', 'sesp'] 
+Using charge_account from .cime/config: ATM146
+e3sm model version found: da353a0ff47
+Batch_system_type is frontier_slurm
+job is case.build USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.post_run_io USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.st_archive USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+ Creating Case directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts
+
+[32m./xmlchange EXEROOT=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld [0m
+
+[32m./xmlchange RUNDIR=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/run [0m
+
+[32m./xmlchange EAMXX_VGRID=L128v4[0m
+
+[32m./case.setup --reset[0m
+Successfully cleaned env_mach_specific.xml
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Creating batch scripts
+Writing case.build script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.build
+Creating file .case.build
+Writing case.run script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.run
+Creating file .case.run
+Writing case.post_run_io script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.post_run_io
+Creating file .case.post_run_io
+Writing case.st_archive script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.st_archive
+Creating file case.st_archive
+Creating file .case.run.sh
+Creating user_nl_xxx files for components and cpl
+If an old case build already exists, might want to run 'case.build --clean' before building
+Generating component namelists as part of setup
+  2026-10-26 15:36:55 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:36:55 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:36:55 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:36:56 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:36:56 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:36:56 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:36:56 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:36:56 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:36:56 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:36:56 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+You can now run './preview_run' to get more info on how your case will be run
+
+[32m./case.build --clean ice[0m
+Cleaning ice
+calling echo removing  /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/ice
+
+[32m./case.build[0m
+Building case in directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts
+sharedlib_only is False
+model_only is False
+Generating component namelists as part of build
+  2026-10-26 15:37:06 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:37:07 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:37:07 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:37:07 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:37:07 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:37:07 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:37:07 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:37:07 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:37:07 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:37:07 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+libs from case_support_libraries []
+The model is using a deprecated method of determining support libraries, please migrate to 'CASE_SUPPORT_LIBRARIES' variable.
+Building gptl with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/gptl.bldlog.261026-153703
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.gptl
+Component gptl build complete with 2 warnings
+Building mct with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/mct.bldlog.261026-153703
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.mct
+Component mct build complete with 48 warnings
+Building spio with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/spio.bldlog.261026-153703
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.spio
+Building csm_share with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/csm_share.bldlog.261026-153703
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.csm_share
+Building ekat with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/ekat.bldlog.261026-153703
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.ekat
+building scream
+scream cmake options: ' -DSCREAM_NP=4 -DSCREAM_NUM_TRACERS=10 -DSCREAM_NUM_VERTICAL_LEV=128 -DSCREAM_DYN_TARGET=theta-l_kokkos -DSCREAM_CIME_BUILD=ON'
+Configuring full e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/e3sm.bldlog.261026-153703
+   Calling cmake directly, see top of log file for specific call
+Building e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/bld/e3sm.bldlog.261026-153703
+   Calling make, see top of log file for specific call
+Total build time: 1271.825432 seconds
+MODEL BUILD HAS FINISHED SUCCESSFULLY
+
+[32m./xmlchange SCREAM_ATMCHANGE_BUFFER=""[0m
+
+[32m./atmchange -b theta_advect_form=2[0m
+
+[32m./atmchange -b pgrad_correction=0[0m
+
+[32m./atmchange -b dt_remap_factor=1[0m
+
+[32m./atmchange -b physics::mac_aero_mic::atm_procs_list=tms,shoc,cld_fraction,spa,p3[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::obstacle_height_factor=0.5[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::roughness_length_factor=0.15[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::wspd_squared_min=1.0[0m
+
+[32m./atmchange -b scorpio::output_yaml_files="output_1ma.yaml"[0m
+
+[32m./xmlchange STOP_OPTION=ndays[0m
+
+[32m./xmlchange STOP_N=183[0m
+
+[32m./xmlchange RESUBMIT=9[0m
+
+[32m./xmlchange JOB_WALLCLOCK_TIME=2:00:00[0m
+
+[32m./xmlchange CHARGE_ACCOUNT=cli115,PROJECT=cli115[0m
+
+[32m./xmlchange --file env_run.xml CONTINUE_RUN=FALSE [0m
+setting case file to env_run.xml
+
+[32m./case.submit[0m
+  2026-10-26 15:58:36 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:58:36 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:58:37 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:58:37 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:58:37 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:58:37 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:58:37 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:58:37 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:58:37 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:58:37 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+Checking that inputdata is available as part of case submission
+Loading input file list: 'Buildconf/docn.input_data_list'
+Loading input file list: 'Buildconf/scream.input_data_list'
+Loading input file list: 'Buildconf/elm.input_data_list'
+Model elm no file specified for finidat
+Loading input file list: 'Buildconf/cpl.input_data_list'
+Loading input file list: 'Buildconf/cice.input_data_list'
+Check case OK
+submit_jobs case.build
+Submit job case.run
+Submitting job script sbatch --time 2:00:00 -p batch --account cli115 --mail-user hannah6@llnl.gov --mail-type end,fail /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1/case_scripts/.case.run --resubmit
+Submitted job id is 5769123
+Submitted job case.run with id 5769123
+
+  case : E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.5.rlf_0.15.wsn_1
+
+E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1
+ clean        : False
+ newcase      : True
+ config       : True
+ build        : True
+ submit       : True
+ continue_run : False
+
+[32m/ccs/home/hannah6/E3SM/E3SM_SRC0/cime/scripts/create_newcase --case E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1 --project cli115 --output-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1 --script-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts --compset F2010xx-ZM-CICE --res ne30pg2_ne30pg2 --handle-preexisting-dirs u --pecount 32x1 --machine=frontier --compiler=craygnu-mphipcc [0m
+Compset longname is 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP
+Compset specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/config_compsets.xml
+Compset forcing is 
+ATM component is scream default
+LND component is ELM with :Satellite phenology :Satellite phenology with black carbon deposition :
+ICE component is prescribed cice:
+OCN component is DOCN   prescribed ocean mode
+ROF component is Stub river component
+GLC component is Stub glacier (land ice) component
+WAV component is Stub wave component
+IAC component is Stub iac component
+ESP component is Stub external system processing (ESP) component
+Pes     specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx/cime_config/config_pes.xml
+Machine is frontier
+setting additional fields from config_pes: {}, append {}
+ Compset is: 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP 
+ Grid is: a%ne30np4.pg2_l%ne30np4.pg2_oi%ne30np4.pg2_r%null_g%null_w%null_z%null_m%gx1v6 
+ Components in compset are: ['scream', 'elm', 'cice', 'docn', 'srof', 'sglc', 'swav', 'siac', 'sesp'] 
+Using charge_account from .cime/config: ATM146
+e3sm model version found: da353a0ff47
+Batch_system_type is frontier_slurm
+job is case.build USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.post_run_io USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.st_archive USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+ Creating Case directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts
+
+[32m./xmlchange EXEROOT=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld [0m
+
+[32m./xmlchange RUNDIR=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/run [0m
+
+[32m./xmlchange EAMXX_VGRID=L128v4[0m
+
+[32m./case.setup --reset[0m
+Successfully cleaned env_mach_specific.xml
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Creating batch scripts
+Writing case.build script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.build
+Creating file .case.build
+Writing case.run script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.run
+Creating file .case.run
+Writing case.post_run_io script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.post_run_io
+Creating file .case.post_run_io
+Writing case.st_archive script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.st_archive
+Creating file case.st_archive
+Creating file .case.run.sh
+Creating user_nl_xxx files for components and cpl
+If an old case build already exists, might want to run 'case.build --clean' before building
+Generating component namelists as part of setup
+  2026-10-26 15:58:50 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:58:50 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:58:51 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:58:51 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:58:51 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:58:51 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:58:51 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:58:51 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:58:51 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:58:51 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+You can now run './preview_run' to get more info on how your case will be run
+
+[32m./case.build --clean ice[0m
+Cleaning ice
+calling echo removing  /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/ice
+
+[32m./case.build[0m
+Building case in directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts
+sharedlib_only is False
+model_only is False
+Generating component namelists as part of build
+  2026-10-26 15:59:00 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 15:59:00 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 15:59:00 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 15:59:01 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 15:59:01 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 15:59:01 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 15:59:01 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 15:59:01 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 15:59:01 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 15:59:01 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+libs from case_support_libraries []
+The model is using a deprecated method of determining support libraries, please migrate to 'CASE_SUPPORT_LIBRARIES' variable.
+Building gptl with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/gptl.bldlog.261026-155857
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.gptl
+Component gptl build complete with 2 warnings
+Building mct with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/mct.bldlog.261026-155857
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.mct
+Component mct build complete with 48 warnings
+Building spio with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/spio.bldlog.261026-155857
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.spio
+Building csm_share with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/csm_share.bldlog.261026-155857
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.csm_share
+Building ekat with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/ekat.bldlog.261026-155857
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.ekat
+building scream
+scream cmake options: ' -DSCREAM_NP=4 -DSCREAM_NUM_TRACERS=10 -DSCREAM_NUM_VERTICAL_LEV=128 -DSCREAM_DYN_TARGET=theta-l_kokkos -DSCREAM_CIME_BUILD=ON'
+Configuring full e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/e3sm.bldlog.261026-155857
+   Calling cmake directly, see top of log file for specific call
+Building e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/bld/e3sm.bldlog.261026-155857
+   Calling make, see top of log file for specific call
+Total build time: 1029.576718 seconds
+MODEL BUILD HAS FINISHED SUCCESSFULLY
+
+[32m./xmlchange SCREAM_ATMCHANGE_BUFFER=""[0m
+
+[32m./atmchange -b theta_advect_form=2[0m
+
+[32m./atmchange -b pgrad_correction=0[0m
+
+[32m./atmchange -b dt_remap_factor=1[0m
+
+[32m./atmchange -b physics::mac_aero_mic::atm_procs_list=tms,shoc,cld_fraction,spa,p3[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::obstacle_height_factor=0.25[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::roughness_length_factor=0.3[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::wspd_squared_min=1.0[0m
+
+[32m./atmchange -b scorpio::output_yaml_files="output_1ma.yaml"[0m
+
+[32m./xmlchange STOP_OPTION=ndays[0m
+
+[32m./xmlchange STOP_N=183[0m
+
+[32m./xmlchange RESUBMIT=9[0m
+
+[32m./xmlchange JOB_WALLCLOCK_TIME=2:00:00[0m
+
+[32m./xmlchange CHARGE_ACCOUNT=cli115,PROJECT=cli115[0m
+
+[32m./xmlchange --file env_run.xml CONTINUE_RUN=FALSE [0m
+setting case file to env_run.xml
+
+[32m./case.submit[0m
+  2026-10-26 16:16:27 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 16:16:27 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 16:16:28 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 16:16:28 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 16:16:28 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 16:16:28 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 16:16:28 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 16:16:28 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 16:16:28 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 16:16:28 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+Checking that inputdata is available as part of case submission
+Loading input file list: 'Buildconf/docn.input_data_list'
+Loading input file list: 'Buildconf/cpl.input_data_list'
+Loading input file list: 'Buildconf/elm.input_data_list'
+Model elm no file specified for finidat
+Loading input file list: 'Buildconf/scream.input_data_list'
+Loading input file list: 'Buildconf/cice.input_data_list'
+Check case OK
+submit_jobs case.build
+Submit job case.run
+Submitting job script sbatch --time 2:00:00 -p batch --account cli115 --mail-user hannah6@llnl.gov --mail-type end,fail /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1/case_scripts/.case.run --resubmit
+Submitted job id is 5769208
+Submitted job case.run with id 5769208
+
+  case : E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.wsn_1
+
+E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75
+ clean        : False
+ newcase      : True
+ config       : True
+ build        : True
+ submit       : True
+ continue_run : False
+
+[32m/ccs/home/hannah6/E3SM/E3SM_SRC0/cime/scripts/create_newcase --case E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75 --project cli115 --output-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75 --script-root /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts --compset F2010xx-ZM-CICE --res ne30pg2_ne30pg2 --handle-preexisting-dirs u --pecount 32x1 --machine=frontier --compiler=craygnu-mphipcc [0m
+Compset longname is 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP
+Compset specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/config_compsets.xml
+Compset forcing is 
+ATM component is scream default
+LND component is ELM with :Satellite phenology :Satellite phenology with black carbon deposition :
+ICE component is prescribed cice:
+OCN component is DOCN   prescribed ocean mode
+ROF component is Stub river component
+GLC component is Stub glacier (land ice) component
+WAV component is Stub wave component
+IAC component is Stub iac component
+ESP component is Stub external system processing (ESP) component
+Pes     specification file is /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx/cime_config/config_pes.xml
+Machine is frontier
+setting additional fields from config_pes: {}, append {}
+ Compset is: 2010_SCREAM%ZM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP 
+ Grid is: a%ne30np4.pg2_l%ne30np4.pg2_oi%ne30np4.pg2_r%null_g%null_w%null_z%null_m%gx1v6 
+ Components in compset are: ['scream', 'elm', 'cice', 'docn', 'srof', 'sglc', 'swav', 'siac', 'sesp'] 
+Using charge_account from .cime/config: ATM146
+e3sm model version found: da353a0ff47
+Batch_system_type is frontier_slurm
+job is case.build USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.post_run_io USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+job is case.st_archive USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+Deprecated "arg" node detected in /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/env_batch.xml, check files /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/config_batch.xml
+ Creating Case directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts
+
+[32m./xmlchange EXEROOT=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld [0m
+
+[32m./xmlchange RUNDIR=/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/run [0m
+
+[32m./xmlchange EAMXX_VGRID=L128v4[0m
+
+[32m./case.setup --reset[0m
+Successfully cleaned env_mach_specific.xml
+job is case.run USER_REQUESTED_WALLTIME None USER_REQUESTED_QUEUE None WALLTIME_FORMAT %H:%M:%S
+Creating batch scripts
+Writing case.build script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.build
+Creating file .case.build
+Writing case.run script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.case.run
+Creating file .case.run
+Writing case.post_run_io script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.post_run_io
+Creating file .case.post_run_io
+Writing case.st_archive script from input template /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/cime_config/machines/template.st_archive
+Creating file case.st_archive
+Creating file .case.run.sh
+Creating user_nl_xxx files for components and cpl
+If an old case build already exists, might want to run 'case.build --clean' before building
+Generating component namelists as part of setup
+  2026-10-26 16:16:40 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 16:16:40 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 16:16:41 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 16:16:41 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 16:16:41 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 16:16:41 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 16:16:41 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 16:16:41 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 16:16:41 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 16:16:41 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+You can now run './preview_run' to get more info on how your case will be run
+
+[32m./case.build --clean ice[0m
+Cleaning ice
+calling echo removing  /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/ice
+
+[32m./case.build[0m
+Building case in directory /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts
+sharedlib_only is False
+model_only is False
+Generating component namelists as part of build
+  2026-10-26 16:16:49 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 16:16:50 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 16:16:50 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 16:16:50 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 16:16:50 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 16:16:50 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 16:16:50 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 16:16:50 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 16:16:50 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 16:16:50 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+libs from case_support_libraries []
+The model is using a deprecated method of determining support libraries, please migrate to 'CASE_SUPPORT_LIBRARIES' variable.
+Building gptl with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/gptl.bldlog.261026-161647
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.gptl
+Component gptl build complete with 2 warnings
+Building mct with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/mct.bldlog.261026-161647
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.mct
+Component mct build complete with 48 warnings
+Building spio with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/spio.bldlog.261026-161647
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.spio
+Building csm_share with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/csm_share.bldlog.261026-161647
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.csm_share
+Building ekat with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/ekat.bldlog.261026-161647
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/share/build/buildlib.ekat
+building scream
+scream cmake options: ' -DSCREAM_NP=4 -DSCREAM_NUM_TRACERS=10 -DSCREAM_NUM_VERTICAL_LEV=128 -DSCREAM_DYN_TARGET=theta-l_kokkos -DSCREAM_CIME_BUILD=ON'
+Configuring full e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/e3sm.bldlog.261026-161647
+   Calling cmake directly, see top of log file for specific call
+Building e3sm model with output to file /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/bld/e3sm.bldlog.261026-161647
+   Calling make, see top of log file for specific call
+Total build time: 1102.561876 seconds
+MODEL BUILD HAS FINISHED SUCCESSFULLY
+
+[32m./xmlchange SCREAM_ATMCHANGE_BUFFER=""[0m
+
+[32m./atmchange -b theta_advect_form=2[0m
+
+[32m./atmchange -b pgrad_correction=0[0m
+
+[32m./atmchange -b dt_remap_factor=1[0m
+
+[32m./atmchange -b physics::mac_aero_mic::atm_procs_list=tms,shoc,cld_fraction,spa,p3[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::obstacle_height_factor=0.25[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::roughness_length_factor=0.3[0m
+
+[32m./atmchange -b physics::mac_aero_mic::tms::drag_scaling_factor=0.75[0m
+
+[32m./atmchange -b scorpio::output_yaml_files="output_1ma.yaml"[0m
+
+[32m./xmlchange STOP_OPTION=ndays[0m
+
+[32m./xmlchange STOP_N=183[0m
+
+[32m./xmlchange RESUBMIT=9[0m
+
+[32m./xmlchange JOB_WALLCLOCK_TIME=2:00:00[0m
+
+[32m./xmlchange CHARGE_ACCOUNT=cli115,PROJECT=cli115[0m
+
+[32m./xmlchange --file env_run.xml CONTINUE_RUN=FALSE [0m
+setting case file to env_run.xml
+
+[32m./case.submit[0m
+  2026-10-26 16:35:29 atm 
+Create namelist for component scream
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/eamxx//cime_config/buildnml
+Regenerating /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/namelist_scream.xml. Manual edits will be lost.
+  2026-10-26 16:35:30 lnd 
+Create namelist for component elm
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/elm/cime_config/buildnml
+  2026-10-26 16:35:30 ice 
+Create namelist for component cice
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/cice/cime_config/buildnml
+  2026-10-26 16:35:30 ocn 
+Create namelist for component docn
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/data_comps/docn/cime_config/buildnml
+  2026-10-26 16:35:30 rof 
+Create namelist for component srof
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/srof/cime_config/buildnml
+  2026-10-26 16:35:30 glc 
+Create namelist for component sglc
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sglc/cime_config/buildnml
+  2026-10-26 16:35:30 wav 
+Create namelist for component swav
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/swav/cime_config/buildnml
+  2026-10-26 16:35:30 iac 
+Create namelist for component siac
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/siac/cime_config/buildnml
+  2026-10-26 16:35:30 esp 
+Create namelist for component sesp
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/components/stub_comps/sesp/cime_config/buildnml
+  2026-10-26 16:35:30 cpl 
+Create namelist for component drv
+   Calling /autofs/nccs-svm1_home1/hannah6/E3SM/E3SM_SRC0/driver-moab/cime_config/buildnml
+   NOTE: ignoring setting of lnd2ocn_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of lnd2ocn_smapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_fmapname=idmap in seq_maps.rc
+   NOTE: ignoring setting of ocn2lnd_smapname=idmap in seq_maps.rc
+Checking that inputdata is available as part of case submission
+Loading input file list: 'Buildconf/scream.input_data_list'
+Loading input file list: 'Buildconf/cice.input_data_list'
+Loading input file list: 'Buildconf/elm.input_data_list'
+Model elm no file specified for finidat
+Loading input file list: 'Buildconf/cpl.input_data_list'
+Loading input file list: 'Buildconf/docn.input_data_list'
+Check case OK
+submit_jobs case.build
+Submit job case.run
+Submitting job script sbatch --time 2:00:00 -p batch --account cli115 --mail-user hannah6@llnl.gov --mail-type end,fail /lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75/case_scripts/.case.run --resubmit
+Submitted job id is 5769361
+Submitted job case.run with id 5769361
+
+  case : E3SM.2026-TMS-TEST-01.ne30pg2.rmf_1.tms_1.ohf_0.25.rlf_0.3.dsf_0.75
+

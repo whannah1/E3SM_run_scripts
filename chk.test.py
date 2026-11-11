@@ -48,12 +48,13 @@ def run_cmd(cmd,verbose=False,suppress_output=False,execute=True):
 case_top_dir = None
 if host=='nersc': case_top_dir = '/pscratch/sd/w/whannah/e3sm_scratch/perlmutter/tests'
 if host=='alcf':  case_top_dir = None
-if host=='olcf':  case_top_dir = '/lustre/atlas/proj-shared/cli115/hannah6'
+# if host=='olcf':  case_top_dir = '/lustre/atlas/proj-shared/cli115/hannah6'
+if host=='olcf':  case_top_dir = '/lustre/orion/cli115/proj-shared/hannah6/e3sm_scratch/tests'
 if host=='lcrc':  case_top_dir = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
 if host=='llnl':  case_top_dir = None
 
 if case_top_dir is None:
-    raise ValueError(f'case_top_dir cannot be None!')
+    raise ValueError(f'case_top_dir cannot be None! (host:{host})')
 
 #---------------------------------------------------------------
 # Find the most recent test and baseline case directories

@@ -45,12 +45,13 @@ def get_host(verbose=False):
     print(     f'  opsys: {opsys}\n')
   #-----------------------------------------------------------------------------
   # Make the final setting of host name
-  if opsys=='Darwin'      : host = 'mac'
-  if 'perlmutter' in host : host = 'nersc'
-  if 'aurora'     in host : host = 'alcf'
-  if host=='olcf.ornl.gov': host = 'olcf'   # andes
-  if host=='lcrc.anl.gov' : host = 'lcrc'   # chrysalis
-  if host=='llnl.gov'     : host = 'llnl'   # Livermore Computing
+  if opsys=='Darwin'                : host = 'mac'
+  if 'perlmutter' in host           : host = 'nersc'
+  if 'aurora'     in host           : host = 'alcf'
+  if host=='olcf.ornl.gov'          : host = 'olcf'   # andes / riker
+  if host=='frontier.olcf.ornl.gov' : host = 'olcf'   # frontier
+  if host=='lcrc.anl.gov'           : host = 'lcrc'   # chrysalis
+  if host=='llnl.gov'               : host = 'llnl'   # Livermore Computing
   return host
 #---------------------------------------------------------------------------------------------------
 def get_scratch_path_list():
