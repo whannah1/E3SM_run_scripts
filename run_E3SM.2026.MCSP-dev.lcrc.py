@@ -22,10 +22,10 @@ src_dir  = f'{top_dir}/E3SM_SRC1/' # branch => whannah/eamxx/mcsp-shear-scaling 
 # clean        = True
 # newcase      = True
 # config       = True
-build        = True
-set_run_opts = True
+# build        = True
+# set_run_opts = True
 submit       = True
-# continue_run = True
+continue_run = True
 
 # debug_mode = False
 
@@ -33,7 +33,8 @@ queue = 'compute'  # compute / debug
 
 # stop_opt,stop_n,resub,walltime = 'ndays',10,0,'1:00:00' #; queue = 'debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',365,0,'12:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',365,0,'14:00:00'
+stop_opt,stop_n,resub,walltime = 'ndays',365,5-1,'14:00:00'
 #---------------------------------------------------------------------------------------------------
 ### EAMxx ZM process testing
 
@@ -44,11 +45,20 @@ add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=False, mtc=0.3)
 # add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=False, mtc=0.6)
 # add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=True,  son=20, sox=60, mtc=0.3)
 # add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=True,  son=20, sox=60, mtc=0.6)
+
+# add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=True,  son=20, sox=60, mtc=0.8)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=True,  son=20, sox=60, mtc=1.0)
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, usm=True,  son=20, sox=60, mtc=1.2)
+
 # add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, use=True,  evn=2.0e-6, evx=4.0e-6)
 # add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, use=True,  evn=0.1e-6, evx=6.0e-6)
 
+add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, use=True,  evn=2.5e-6, evx=3.5e-6)
+# add_case(prefix='2026-MCSP-SS-00', **kwargs_ne30, ufs=True, use=True,  evn=2.5e-6, evx=4.5e-6)
+
 #---------------------------------------------------------------------------------------------------
 '''
+usf - mcsp_use_full_shear
 usm - use_shear_scaling_mcsp    default: false
 use - use_shear_scaling_evap    default: false
 shn - mcsp_shear_min            default: 3

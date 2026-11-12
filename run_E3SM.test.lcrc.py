@@ -13,7 +13,7 @@ output_root = '/lcrc/group/e3sm/whannah/e3sm_scratch/tests'
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC0'; generate = True # generate baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC2'; compare  = True # compare to baselines
 # src_dir = os.getenv('HOME')+'/E3SM/E3SM_BASE'                  # just run tests, no comparison
-src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC1'                  # just run tests, no comparison
+src_dir = os.getenv('HOME')+'/E3SM/E3SM_SRC3'                  # just run tests, no comparison
 # src_dir = '/lcrc/group/e3sm/ac.whannah/scratch/chrys/tmp_e3sm_src'
 
 # baseline_branch_name = 'custom_baseline'
@@ -29,7 +29,7 @@ debug_script = False      # do not submit test - for debugging this script
 # tests = ['mmf_tmp']
 # tests = ['e3sm_orodrag_developer']
 
-tests = [ 
+# tests = [ 
         # 'SMS_Ln5_P3072x1.ne128pg2_ne128pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'SMS_Ln5_P768x1.ne64pg2_ne64pg2.F2010-SCREAMv1.chrysalis_intel',
         # 'SMS_Ln5_P192x1.ne32pg2_ne32pg2.F2010-SCREAMv1.chrysalis_intel',
@@ -41,10 +41,16 @@ tests = [
         # 'ERS_Ld3.ne4pg2_oQU480.F2010xx-ZM',
         # 'SMS_Ln9.ne4pg2_oQU480.F2010xx-ZM',
         # 'ERS_Ln9.ne4_ne4.F2000-SCREAMv1-AQP1.chrysalis_intel.eamxx-output-preset-2--eamxx-L72'
-        'ERS.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_intel.eamxx-prod',
+        # 'ERS.ne4pg2_ne4pg2.F2010-SCREAMv1.chrysalis_intel.eamxx-prod',
         # 'ERS_Ln9.ne4_ne4.F2000-SCREAMv1-AQP1.chrysalis_intel.eamxx-output-preset-2--eamxx-L72'
-        ]
+        # ]
 
+# v4 BETA config tests for new suite
+tests = [
+        "SMS_Ld1.ne4pg2_oQU240.F2010xx-BETA.chrysalis_intel.eamxx-output-preset-1",
+        "PET_Ld1.ne4pg2_oQU240.F2010xx-BETA.chrysalis_intel",
+        "PEM_Ld1.ne4pg2_oQU240.F2010xx-BETA.chrysalis_intel",
+        ]
 
 # tests = [ 'SMS_P720.arcticx4v1pg2_ARRM10to60E2r1.WCYCL1850.chrysalis_intel' ]
 # tests = [ 'SMS_Ln9_P720.arcticx4v1pg2_ARRM10to60E2r1.WCYCL1850.chrysalis_intel' ]

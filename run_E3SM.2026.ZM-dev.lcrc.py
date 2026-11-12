@@ -17,8 +17,8 @@ acct = 'e3sm'
 top_dir  = os.getenv('HOME')+'/E3SM/'
 
 # clean        = True
-# newcase      = True
-# config       = True
+newcase      = True
+config       = True
 build        = True
 submit       = True
 # continue_run = True
@@ -28,11 +28,11 @@ submit       = True
 queue = 'compute'  # regular / debug
 
 # stop_opt,stop_n,resub,walltime = 'nsteps',5,0,'0:10:00'; queue='debug'
-# stop_opt,stop_n,resub,walltime = 'ndays',5,0,'0:30:00'; queue='debug'
+stop_opt,stop_n,resub,walltime = 'ndays',1,0,'0:30:00'; queue='debug'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,0,'2:00:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',32,3-1,'1:10:00'
 # stop_opt,stop_n,resub,walltime = 'ndays',91,1,'4:00:00'
-stop_opt,stop_n,resub,walltime = 'ndays',365,0,'12:00:00'
+# stop_opt,stop_n,resub,walltime = 'ndays',365,0,'12:00:00'
 #---------------------------------------------------------------------------------------------------
 
 # src_dir=f'{top_dir}/E3SM_SRC2/' # branch => master @ Sep 1
@@ -56,8 +56,12 @@ src_dir=f'{top_dir}/E3SM_SRC2/' # branch => whannah/eamxx/zm-add-frac-turb-mix
 # test new momentum timescale
 # add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0)
 # add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0001)
-add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0005)
-add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0010)
+# add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0005)
+# add_case(prefix='2026-ZM-TURB-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=8,ftm=0.0010)
+
+# add_case(prefix='2026-ZM-TS-OUT-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4)
+add_case(prefix='2026-ZM-TS-OUT-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,ftm=0.0001)
+add_case(prefix='2026-ZM-TS-OUT-00',compset='F2010xx-ZM-CICE',grid='ne30pg2_ne30pg2',num_nodes=4,ftm=0.00001)
 
 #---------------------------------------------------------------------------------------------------
 def get_grid_name(opts):
@@ -152,7 +156,7 @@ def main(opts):
       #-------------------------------------------------------------------------
       # Enable process tendencies for output
       # run_cmd(f'./atmchange -b physics::mac_aero_mic::shoc::compute_tendencies=T_mid,qv,horiz_winds')
-      # run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv,horiz_winds')
+      run_cmd(f'./atmchange -b physics::zm::compute_tendencies=T_mid,qv')
       # run_cmd(f'./atmchange -b physics::mac_aero_mic::p3::compute_tendencies=T_mid,qv')
       # run_cmd(f'./atmchange -b physics::rrtmgp::compute_tendencies=T_mid')
       # run_cmd(f'./atmchange -b homme::compute_tendencies=T_mid,qv')
@@ -162,7 +166,8 @@ def main(opts):
          file=open(hist_file,'w'); file.write(txt); file.close()
          hist_file_list.append(hist_file)
       #-------------------------------------------------------------------------
-      add_hist_file('output_1ma.yaml',      get_hist_opts_1ma(opts) )
+      # add_hist_file('output_1ma.yaml',      get_hist_opts_1ma(opts) )
+      add_hist_file('output_1ts.yaml',      get_hist_opts_1ts(opts) )
       hist_file_list_str = ','.join(hist_file_list)
       run_cmd(f'./atmchange -b scorpio::output_yaml_files="{hist_file_list_str}"')
       #----------------------------------------------------------------------
@@ -286,6 +291,43 @@ fields:
 output_control:
    frequency: 1
    frequency_units: nmonths
+'''
+
+# monthly mean output - native grid
+def get_hist_opts_1ts(opts):
+   return f'''
+filename_prefix: output.1ts
+averaging_type: instant
+max_snapshots_per_file: 10
+fields:
+   physics_pg2:
+      field_names:
+         - ps
+         # ---------------------------------------------------------------------
+         # ZM diagnostic fields
+         - zm_T_mid_tend
+         - zm_qv_tend
+         - zm_prec
+         - zm_activity
+         - zm_cape
+         - zm_detr_qc
+         - zm_detr_qi
+         - zm_depth
+         - mcsp_ds_out
+         - mcsp_dq_out
+         - mcsp_du_out
+         - mcsp_freq
+         - mcsp_shear
+         - evap_ds_out
+         - evap_dq_out
+         - zm_mflx_up
+         - zm_entr_up
+         - zm_detr_up
+         - zm_mflx_dn
+         - zm_entr_dn
+output_control:
+   frequency: 1
+   frequency_units: nsteps
 '''
 #---------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

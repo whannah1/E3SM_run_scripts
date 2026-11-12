@@ -143,7 +143,7 @@ for tdir in dirs :
                 # print(file_list)
                 if '.gz' in file_list: 
                     print(tclr.GRN+'  LOG FILES ZIPPED'+tclr.END+f'  {file_list}')
-                    continue
+                    if not opts.nstep_only: continue
 
                 if opts.use_all_logs :
                     ### get all logs
@@ -169,8 +169,11 @@ for tdir in dirs :
                     raise ValueError(f'step_search_str cannot be None - is comp={comp} supported?')
 
                 if opts.nstep_only:
-                    
-                    cmd = f'grep "{step_search_str}" '+file_list.replace('e3sm','atm')+' | tail -n '+opts.num_line
+                    if '.gz' in file_list:
+                        grep_cmd = 'zgrep'
+                    else:
+                        grep_cmd = 'grep'
+                    cmd = f'{grep_cmd} "{step_search_str}" '+file_list.replace('e3sm','atm')+' | tail -n 2'#+opts.num_line
                     proc = sp.Popen([cmd], stdout=sp.PIPE, shell=True, universal_newlines=True)
                     (nstep_msg, err) = proc.communicate()
                     msg = nstep_msg.rstrip().split('\n')
